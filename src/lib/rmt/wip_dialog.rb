@@ -53,11 +53,17 @@ module Rmt
       Yast::UI.OpenDialog(
         Opt(:decorated, :defaultsize),
         VBox(
-          # Header
-          Heading(_("yast2-rmt module is still in development.")),
+          HVCenter(
+            # Header
+            Heading(_("yast2-rmt module is still in development."))
+          ),
 
-          # Quit button
-          PushButton(Id(:cancel), Yast::Label.QuitButton)
+          Bottom(
+            Right(
+              # Quit button
+              PushButton(Id(:cancel), Yast::Label.QuitButton)
+            )
+          )
         )
       )
     end
