@@ -1,0 +1,5 @@
+-------------------------------------------------------------------
+Tue Jan 30 10:56:08 UTC 2018 - thutterer@suse.com
+
+- create new YaST module for RMT configuration
+- only a WIP message is displayed so far

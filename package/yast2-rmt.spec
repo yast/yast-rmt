@@ -60,3 +60,5 @@ rake install DESTDIR="%{buildroot}"
 %doc README.md
 
 %build
+
+%changelog
