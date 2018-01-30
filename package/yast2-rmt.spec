@@ -57,5 +57,6 @@ rake install DESTDIR="%{buildroot}"
 %{yast_dir}/lib/rmt
 
 %doc COPYING
+%doc README.md
 
 %build
