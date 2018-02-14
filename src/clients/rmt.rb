@@ -16,6 +16,6 @@
 #  To contact Novell about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require "rmt/wip_dialog"
+require 'rmt/rmt_wizard_dialog'
 
-Rmt::WipDialog.new.run
+Yast::RMTWizardDialog.new.run
