@@ -7,18 +7,18 @@ module Yast
     include Yast::UIShortcuts
     include Yast::Logger
 
-    CONFIG_FILENAME = '/etc/rmt.conf'
+    CONFIG_FILENAME = '/etc/rmt.conf'.freeze
 
     def run
-      Yast.import "UI"
-      Yast.import "Wizard"
-      Yast.import "Sequencer"
-      Yast.import "Report"
-      Yast.import "String"
+      Yast.import 'UI'
+      Yast.import 'Wizard'
+      Yast.import 'Sequencer'
+      Yast.import 'Report'
+      Yast.import 'String'
       Yast.import 'SystemdService'
 
 
-      textdomain "rmt"
+      textdomain 'rmt'
 
       read_config_file
 
@@ -27,16 +27,16 @@ module Yast
 
     def step1
       contents = Frame(
-        _("SCC organization credentials"),
+        _('SCC organization credentials'),
         HBox(
           HSpacing(1),
           VBox(
             VSpacing(1),
             HSquash(
-              MinWidth(30, InputField(Id(:scc_username), _("Organization &username")))
+              MinWidth(30, InputField(Id(:scc_username), _('Organization &username')))
             ),
             HSquash(
-              MinWidth(30, Password(Id(:scc_password), _("Organization &password")))
+              MinWidth(30, Password(Id(:scc_password), _('Organization &password')))
             ),
             VSpacing(1)
           ),
@@ -45,7 +45,7 @@ module Yast
       )
 
       Wizard.SetContents(
-          _("RMT configuration step 1/2"),
+        _('RMT configuration step 1/2'),
           contents,
           "<p>Organization credentials can be found on Organization page at <a href='https://scc.suse.com/'>SUSE Customer Center</a>.</p>",
           true,
@@ -58,7 +58,7 @@ module Yast
       UI.ChangeWidget(Id(:scc_password), :Value, @config['scc']['password'])
 
       ret = nil
-      while true
+      loop do
         ret = UI.UserInput
         if ret == :abort || ret == :cancel
           break
@@ -69,10 +69,10 @@ module Yast
           break if scc_credentials_valid?
 
           break if Popup.AnyQuestion(
-            _("Invalid SCC credentials"),
-            _("SCC credentials are invalid. Please check the credentials."),
-            _("Ignore and continue"),
-            _("Go back"),
+            _('Invalid SCC credentials'),
+            _('SCC credentials are invalid. Please check the credentials.'),
+            _('Ignore and continue'),
+            _('Go back'),
             :focus_no
           )
         end
@@ -83,16 +83,16 @@ module Yast
 
     def step2
       contents = Frame(
-        _("Database credentials"),
+        _('Database credentials'),
         HBox(
           HSpacing(1),
           VBox(
             VSpacing(1),
             HSquash(
-              MinWidth(30, InputField(Id(:db_username), _("Database &username")))
+              MinWidth(30, InputField(Id(:db_username), _('Database &username')))
             ),
             HSquash(
-              MinWidth(30, Password(Id(:db_password), _("Database &password")))
+              MinWidth(30, Password(Id(:db_password), _('Database &password')))
             ),
             VSpacing(1)
           ),
@@ -102,9 +102,9 @@ module Yast
 
       Wizard.SetNextButton(:next, Label.OKButton)
       Wizard.SetContents(
-          _("RMT configuration step 2/2"),
+        _('RMT configuration step 2/2'),
           contents,
-          "<p>This step of the wizard performs the necessary database setup.</p>",
+          '<p>This step of the wizard performs the necessary database setup.</p>',
           true,
           true
       )
@@ -113,7 +113,7 @@ module Yast
       UI.ChangeWidget(Id(:db_password), :Value, @config['database']['password'])
 
       ret = nil
-      while true
+      loop do
         ret = UI.UserInput
         if ret == :abort || ret == :cancel
           break
@@ -149,10 +149,10 @@ module Yast
 
     def read_config_file
       begin
-        data = SCR.Read(path(".target.string"), CONFIG_FILENAME)
-        @config = YAML.load(data)
+        data = SCR.Read(path('.target.string'), CONFIG_FILENAME)
+        @config = YAML.safe_load(data)
       rescue StandardError => e
-        log.warn "Reading config file failed: " + e.to_s
+        log.warn 'Reading config file failed: ' + e.to_s
       end
 
       @config ||= {}
@@ -168,8 +168,8 @@ module Yast
     end
 
     def write_config_file
-      SCR.Write(path(".target.string"), CONFIG_FILENAME, YAML.dump(@config))
-      Popup.Message("Configuration written successfully!")
+      SCR.Write(path('.target.string'), CONFIG_FILENAME, YAML.dump(@config))
+      Popup.Message('Configuration written successfully!')
     end
 
     def scc_credentials_valid?
@@ -178,7 +178,7 @@ module Yast
           HSpacing(5),
           VBox(
             VSpacing(5),
-            Left(Label(_("Checking SCC credentials..."))),
+            Left(Label(_('Checking SCC credentials...'))),
             VSpacing(5)
           ),
           HSpacing(5)
@@ -198,18 +198,18 @@ module Yast
 
     def run_wizard
       aliases = {
-          "step1" => lambda { step1() },
-          "step2" => lambda { step2() }
+        'step1' => -> { step1 },
+        'step2' => -> { step2 }
       }
 
       sequence = {
-          "ws_start" => "step1",
-          "step1"   => { :abort => :abort, :next => "step2" },
-          "step2"   => { :abort => :abort, :next => :next }
+        'ws_start' => 'step1',
+        'step1'   => { abort: :abort, next: 'step2' },
+        'step2'   => { abort: :abort, next: :next }
       }
 
       Wizard.CreateDialog()
-      Wizard.SetTitleIcon("yast-rmt")
+      Wizard.SetTitleIcon('yast-rmt')
       Wizard.SetAbortButton(:abort, Label.CancelButton)
       Wizard.SetNextButton(:next, Label.NextButton)
 
@@ -228,7 +228,7 @@ module Yast
 
       Convert.to_integer(
         SCR.Execute(
-          path(".target.bash"),
+          path('.target.bash'),
           Builtins.sformat(command, *params)
         )
       )
@@ -255,13 +255,13 @@ module Yast
       UI.OpenDialog(
         VBox(
           VSpacing(1),
-          Heading(_("Database root password is required")),
+          Heading(_('Database root password is required')),
           VSpacing(1),
           HBox(
             HSpacing(2),
             VBox(
-              Label(_("Please provide the current database root password.")),
-              MinWidth(15, Password(Id(:root_password), _("MariaDB root &password"))),
+              Label(_('Please provide the current database root password.')),
+              MinWidth(15, Password(Id(:root_password), _('MariaDB root &password')))
             ),
             HSpacing(2)
           ),
@@ -277,7 +277,7 @@ module Yast
 
       UI.SetFocus(Id(:root_password))
 
-      while true
+      loop do
         user_ret = UI.UserInput
 
         if user_ret == :cancel
@@ -286,7 +286,7 @@ module Yast
         elsif user_ret == :ok
           root_password = Convert.to_string(UI.QueryWidget(Id(:root_password), :Value))
 
-          if !root_password or root_password.empty?
+          if !root_password || root_password.empty?
             UI.SetFocus(Id(:root_password))
             Report.Error(_('Please provide the root password.'))
             next
@@ -312,20 +312,20 @@ module Yast
       UI.OpenDialog(
         VBox(
           VSpacing(1),
-          Heading(_("Setting database root password")),
+          Heading(_('Setting database root password')),
           VSpacing(1),
           HBox(
             HSpacing(2),
             VBox(
               Label(
                 _(
-                  "The current MariaDB root password is empty.\n" +
-                  "Setting a root password is required for security reasons."
+                  "The current MariaDB root password is empty.\n" \
+                  'Setting a root password is required for security reasons.'
                 )
               ),
               VSpacing(1),
-              MinWidth(15, Password(Id(:new_root_password_1), _("New MariaDB root &Password"))),
-              MinWidth(15, Password(Id(:new_root_password_2), _("New Password &Again"))),
+              MinWidth(15, Password(Id(:new_root_password_1), _('New MariaDB root &Password'))),
+              MinWidth(15, Password(Id(:new_root_password_2), _('New Password &Again')))
             ),
             HSpacing(2)
           ),
@@ -341,7 +341,7 @@ module Yast
 
       UI.SetFocus(Id(:new_root_password_1))
 
-      while true
+      loop do
         user_ret = UI.UserInput
 
         if user_ret == :cancel
@@ -351,13 +351,13 @@ module Yast
           pass_1 = Convert.to_string(UI.QueryWidget(Id(:new_root_password_1), :Value))
           pass_2 = Convert.to_string(UI.QueryWidget(Id(:new_root_password_2), :Value))
 
-          if pass_1 == nil || pass_1 == ""
+          if pass_1.nil? || pass_1 == ''
             UI.SetFocus(Id(:new_root_password_1))
-            Report.Error(_("Password must not be blank."))
+            Report.Error(_('Password must not be blank.'))
             next
           elsif pass_1 != pass_2
             UI.SetFocus(Id(:new_root_password_2))
-            Report.Error(_("The first and the second password do not match."))
+            Report.Error(_('The first and the second password do not match.'))
             next
           end
 
@@ -376,7 +376,7 @@ module Yast
       is_running = service.running? ? true : service.start
 
       unless is_running
-        Report.Error(_("Cannot start mysql service."))
+        Report.Error(_('Cannot start mysql service.'))
         return false
       end
 
@@ -401,7 +401,7 @@ module Yast
       )
 
       unless ret == 0
-        Report.Error(_("Database creation failed."))
+        Report.Error(_('Database creation failed.'))
         return false
       end
 
@@ -417,13 +417,12 @@ module Yast
         )
 
         unless ret == 0
-          Report.Error(_("User creation failed."))
+          Report.Error(_('User creation failed.'))
           return false
         end
       end
 
       true
     end
-
   end
 end

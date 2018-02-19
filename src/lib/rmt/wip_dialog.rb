@@ -16,10 +16,10 @@
 #  To contact Novell about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require "yast"
+require 'yast'
 
-Yast.import "UI"
-Yast.import "Label"
+Yast.import 'UI'
+Yast.import 'Label'
 
 module Rmt
   class WipDialog
@@ -55,9 +55,8 @@ module Rmt
         VBox(
           HVCenter(
             # Header
-            Heading(_("yast2-rmt module is still in development."))
+            Heading(_('yast2-rmt module is still in development.'))
           ),
-
           Bottom(
             Right(
               # Quit button
