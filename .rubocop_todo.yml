@@ -9,7 +9,7 @@
 # Offense count: 1
 Lint/UselessAssignment:
   Exclude:
-    - 'src/lib/rmt/rmt_wizard_dialog.rb'
+    - 'src/lib/rmt/wizard.rb'
 
 # Offense count: 1
 # Configuration parameters: CountComments.
@@ -24,16 +24,16 @@ Metrics/MethodLength:
 # Offense count: 1
 Naming/AccessorMethodName:
   Exclude:
-    - 'src/lib/rmt/rmt_wizard_dialog.rb'
+    - 'src/lib/rmt/wizard.rb'
 
 # Offense count: 2
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: snake_case, normalcase, non_integer
 Naming/VariableNumber:
   Exclude:
-    - 'src/lib/rmt/rmt_wizard_dialog.rb'
+    - 'src/lib/rmt/wizard.rb'
 
 # Offense count: 2
 Style/MultipleComparison:
   Exclude:
-    - 'src/lib/rmt/rmt_wizard_dialog.rb'
+    - 'src/lib/rmt/wizard.rb'

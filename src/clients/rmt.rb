@@ -16,6 +16,6 @@
 #  To contact Novell about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/rmt_wizard_dialog'
+require 'rmt/wizard'
 
-Yast::RMTWizardDialog.new.run
+RMT::Wizard.new.run
