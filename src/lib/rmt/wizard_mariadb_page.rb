@@ -23,13 +23,11 @@ module RMT
 end
 
 class RMT::WizardMariaDBPage < RMT::Base
-  include Yast::UIShortcuts
-  include Yast::Logger
-  include Yast::I18n
-
   def initialize(config)
     @config = config
+  end
 
+  def run
     contents = Frame(
       _('Database credentials'),
         HBox(
