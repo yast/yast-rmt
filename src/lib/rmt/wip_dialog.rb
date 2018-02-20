@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, contact SUSE LLC.
 
-#  To contact Novell about this file by physical or electronic mail,
+#  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
 require 'yast'
