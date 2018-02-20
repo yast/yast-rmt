@@ -12,7 +12,7 @@ class RMT::Base < Yast::Client
 
   def self.read_config_file
     begin
-      data = Yast::SCR.Read(Yast::path('.target.string'), CONFIG_FILENAME)
+      data = Yast::SCR.Read(Yast.path('.target.string'), CONFIG_FILENAME)
       config = YAML.safe_load(data)
     rescue StandardError => e
       log.warn 'Reading config file failed: ' + e.to_s
@@ -33,7 +33,7 @@ class RMT::Base < Yast::Client
   end
 
   def self.write_config_file(config)
-    if Yast::SCR.Write(Yast::path('.target.string'), CONFIG_FILENAME, YAML.dump(config))
+    if Yast::SCR.Write(Yast.path('.target.string'), CONFIG_FILENAME, YAML.dump(config))
       Yast::Popup.Message('Configuration written successfully')
     else
       Report.Error('Writing configuration file failed')
@@ -46,11 +46,10 @@ class RMT::Base < Yast::Client
     params = params.map { |p| String.Quote(p) }
 
     Convert.to_integer(
-        SCR.Execute(
-            path('.target.bash'),
-            Builtins.sformat(command, *params)
-        )
+      SCR.Execute(
+        path('.target.bash'),
+          Builtins.sformat(command, *params)
+      )
     )
   end
-
 end

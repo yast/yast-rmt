@@ -13,16 +13,16 @@ class RMT::WizardMariaDBPage < RMT::Base
     @config = config
 
     contents = Frame(
-        _('Database credentials'),
+      _('Database credentials'),
         HBox(
-            HSpacing(1),
+          HSpacing(1),
             VBox(
-                VSpacing(1),
+              VSpacing(1),
                 HSquash(
-                    MinWidth(30, InputField(Id(:db_username), _('Database &username')))
+                  MinWidth(30, InputField(Id(:db_username), _('Database &username')))
                 ),
                 HSquash(
-                    MinWidth(30, Password(Id(:db_password), _('Database &password')))
+                  MinWidth(30, Password(Id(:db_password), _('Database &password')))
                 ),
                 VSpacing(1)
             ),
@@ -32,7 +32,7 @@ class RMT::WizardMariaDBPage < RMT::Base
 
     Wizard.SetNextButton(:next, Label.OKButton)
     Wizard.SetContents(
-        _('RMT configuration step 2/2'),
+      _('RMT configuration step 2/2'),
         contents,
         '<p>This step of the wizard performs the necessary database setup.</p>',
         true,
@@ -87,8 +87,8 @@ class RMT::WizardMariaDBPage < RMT::Base
 
   def root_password_empty?
     run_command(
-        "echo 'show databases;' | mysql -u root -h %1 2>/dev/null",
-        @config['database']['hostname']
+      "echo 'show databases;' | mysql -u root -h %1 2>/dev/null",
+      @config['database']['hostname']
     ) == 0
   end
 
@@ -106,10 +106,10 @@ class RMT::WizardMariaDBPage < RMT::Base
 
   def create_database_and_user
     ret = run_command(
-        "echo 'create database if not exists %1 character set = \"utf8\"' | mysql -u root -h %2 -p%3 2>/dev/null",
-        @config['database']['database'],
-        @config['database']['hostname'],
-        @root_password
+      "echo 'create database if not exists %1 character set = \"utf8\"' | mysql -u root -h %2 -p%3 2>/dev/null",
+      @config['database']['database'],
+      @config['database']['hostname'],
+      @root_password
     )
 
     unless ret == 0
@@ -119,13 +119,13 @@ class RMT::WizardMariaDBPage < RMT::Base
 
     unless @config['database']['username'] == 'root'
       ret = run_command(
-          "echo 'grant all on %1.* to \"%2\"\@%3 identified by \"%4\"' | mysql -u root -h %5 -p%6 >/dev/null",
-          @config['database']['database'],
-          @config['database']['username'],
-          @config['database']['hostname'],
-          @config['database']['password'],
-          @config['database']['hostname'],
-          @root_password
+        "echo 'grant all on %1.* to \"%2\"\@%3 identified by \"%4\"' | mysql -u root -h %5 -p%6 >/dev/null",
+        @config['database']['database'],
+        @config['database']['username'],
+        @config['database']['hostname'],
+        @config['database']['password'],
+        @config['database']['hostname'],
+        @root_password
       )
 
       unless ret == 0

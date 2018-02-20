@@ -134,6 +134,4 @@ class RMT::Wizard < RMT::Base
 
     UI.CloseDialog()
   end
-
 end
-
