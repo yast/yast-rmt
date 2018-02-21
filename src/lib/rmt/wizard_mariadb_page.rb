@@ -30,20 +30,20 @@ class RMT::WizardMariaDBPage < RMT::Base
   def run
     contents = Frame(
       _('Database credentials'),
-        HBox(
-          HSpacing(1),
-            VBox(
-              VSpacing(1),
-                HSquash(
-                  MinWidth(30, InputField(Id(:db_username), _('Database &username')))
-                ),
-                HSquash(
-                  MinWidth(30, Password(Id(:db_password), _('Database &password')))
-                ),
-                VSpacing(1)
-            ),
-            HSpacing(1)
-        )
+      HBox(
+        HSpacing(1),
+        VBox(
+          VSpacing(1),
+          HSquash(
+            MinWidth(30, InputField(Id(:db_username), _('Database &username')))
+          ),
+          HSquash(
+            MinWidth(30, Password(Id(:db_password), _('Database &password')))
+          ),
+          VSpacing(1)
+        ),
+        HSpacing(1)
+      )
     )
 
     Wizard.SetNextButton(:next, Label.OKButton)
@@ -64,8 +64,8 @@ class RMT::WizardMariaDBPage < RMT::Base
       if ret == :abort || ret == :cancel
         break
       elsif ret == :next
-        @config['database']['username'] = Convert.to_string(UI.QueryWidget(Id(:db_username), :Value))
-        @config['database']['password'] = Convert.to_string(UI.QueryWidget(Id(:db_password), :Value))
+        @config['database']['username'] = UI.QueryWidget(Id(:db_username), :Value)
+        @config['database']['password'] = UI.QueryWidget(Id(:db_password), :Value)
 
         break unless start_database
 
@@ -98,7 +98,7 @@ class RMT::WizardMariaDBPage < RMT::Base
       end
     end
 
-    deep_copy(ret)
+    ret
   end
 
   def root_password_empty?

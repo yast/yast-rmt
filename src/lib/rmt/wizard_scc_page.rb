@@ -30,20 +30,20 @@ class RMT::WizardSCCPage < RMT::Base
 
     contents = Frame(
       _('SCC organization credentials'),
-        HBox(
-          HSpacing(1),
-            VBox(
-              VSpacing(1),
-                HSquash(
-                  MinWidth(30, InputField(Id(:scc_username), _('Organization &username')))
-                ),
-                HSquash(
-                  MinWidth(30, Password(Id(:scc_password), _('Organization &password')))
-                ),
-                VSpacing(1)
-            ),
-            HSpacing(1)
-        )
+      HBox(
+        HSpacing(1),
+        VBox(
+          VSpacing(1),
+          HSquash(
+            MinWidth(30, InputField(Id(:scc_username), _('Organization &username')))
+          ),
+          HSquash(
+            MinWidth(30, Password(Id(:scc_password), _('Organization &password')))
+          ),
+          VSpacing(1)
+        ),
+        HSpacing(1)
+      )
     )
 
     Wizard.SetContents(
@@ -65,8 +65,8 @@ class RMT::WizardSCCPage < RMT::Base
       if ret == :abort || ret == :cancel
         break
       elsif ret == :next
-        @config['scc']['username'] = Convert.to_string(UI.QueryWidget(Id(:scc_username), :Value))
-        @config['scc']['password'] = Convert.to_string(UI.QueryWidget(Id(:scc_password), :Value))
+        @config['scc']['username'] = UI.QueryWidget(Id(:scc_username), :Value)
+        @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
 
         break if scc_credentials_valid?
 
@@ -80,19 +80,19 @@ class RMT::WizardSCCPage < RMT::Base
       end
     end
 
-    deep_copy(ret)
+    ret
   end
 
   def scc_credentials_valid?
     UI.OpenDialog(
       HBox(
         HSpacing(5),
-          VBox(
-            VSpacing(5),
-              Left(Label(_('Checking SCC credentials...'))),
-              VSpacing(5)
-          ),
-          HSpacing(5)
+        VBox(
+          VSpacing(5),
+          Left(Label(_('Checking SCC credentials...'))),
+          VSpacing(5)
+        ),
+        HSpacing(5)
       )
     )
 

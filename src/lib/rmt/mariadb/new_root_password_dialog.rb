@@ -23,30 +23,30 @@ class RMT::MariaDB::NewRootPasswordDialog < RMT::Base
     UI.OpenDialog(
       VBox(
         VSpacing(1),
-          Heading(_('Setting database root password')),
-          VSpacing(1),
-          HBox(
-            HSpacing(2),
-              VBox(
-                Label(
-                  _(
-                    "The current MariaDB root password is empty.\n" \
+        Heading(_('Setting database root password')),
+        VSpacing(1),
+        HBox(
+          HSpacing(2),
+          VBox(
+            Label(
+              _(
+                "The current MariaDB root password is empty.\n" \
                     'Setting a root password is required for security reasons.'
-                  )
-                ),
-                  VSpacing(1),
-                  MinWidth(15, Password(Id(:new_root_password_1), _('New MariaDB root &Password'))),
-                  MinWidth(15, Password(Id(:new_root_password_2), _('New Password &Again')))
-              ),
-              HSpacing(2)
+              )
+            ),
+            VSpacing(1),
+            MinWidth(15, Password(Id(:new_root_password_1), _('New MariaDB root &Password'))),
+            MinWidth(15, Password(Id(:new_root_password_2), _('New Password &Again')))
           ),
-          VSpacing(1),
-          HBox(
-            PushButton(Id(:cancel), Opt(:key_F9), Label.CancelButton),
-              HSpacing(2),
-              PushButton(Id(:ok), Opt(:default, :key_F10), Label.OKButton)
-          ),
-          VSpacing(1)
+          HSpacing(2)
+        ),
+        VSpacing(1),
+        HBox(
+          PushButton(Id(:cancel), Opt(:key_F9), Label.CancelButton),
+          HSpacing(2),
+          PushButton(Id(:ok), Opt(:default, :key_F10), Label.OKButton)
+        ),
+        VSpacing(1)
       )
     )
 
@@ -59,8 +59,8 @@ class RMT::MariaDB::NewRootPasswordDialog < RMT::Base
         ret = nil
         break
       elsif user_ret == :ok
-        pass1 = Convert.to_string(UI.QueryWidget(Id(:new_root_password_1), :Value))
-        pass2 = Convert.to_string(UI.QueryWidget(Id(:new_root_password_2), :Value))
+        pass1 = UI.QueryWidget(Id(:new_root_password_1), :Value)
+        pass2 = UI.QueryWidget(Id(:new_root_password_2), :Value)
 
         if pass1.nil? || pass1 == ''
           UI.SetFocus(Id(:new_root_password_1))

@@ -63,11 +63,9 @@ class RMT::Base < Yast::Client
   def run_command(command, *params)
     params = params.map { |p| String.Quote(p) }
 
-    Convert.to_integer(
-      SCR.Execute(
+    SCR.Execute(
         path('.target.bash'),
-          Builtins.sformat(command, *params)
-      )
+        Builtins.sformat(command, *params)
     )
   end
 end
