@@ -29,7 +29,7 @@ class RMT::Wizard < RMT::Base
   include Yast::UIShortcuts
   include Yast::Logger
 
-  def run
+  def initialize
     Yast.import 'UI'
     Yast.import 'Wizard'
     Yast.import 'Sequencer'
@@ -40,8 +40,6 @@ class RMT::Wizard < RMT::Base
     textdomain 'rmt'
 
     @config = RMT::Base.read_config_file
-
-    run_wizard
   end
 
   def step1
@@ -54,7 +52,7 @@ class RMT::Wizard < RMT::Base
     page.run
   end
 
-  def run_wizard
+  def run
     aliases = {
       'step1' => -> { step1 },
       'step2' => -> { step2 }
@@ -70,10 +68,6 @@ class RMT::Wizard < RMT::Base
     Wizard.SetTitleIcon('yast-rmt')
 
     Sequencer.Run(aliases, sequence)
-
-    Wizard.RestoreNextButton
-    Wizard.RestoreAbortButton
-    Wizard.RestoreBackButton
 
     UI.CloseDialog()
   end

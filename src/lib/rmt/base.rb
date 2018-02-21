@@ -64,7 +64,7 @@ class RMT::Base < Yast::Client
     params = params.map { |p| String.Quote(p) }
 
     SCR.Execute(
-        path('.target.bash'),
+      path('.target.bash'),
         Builtins.sformat(command, *params)
     )
   end
