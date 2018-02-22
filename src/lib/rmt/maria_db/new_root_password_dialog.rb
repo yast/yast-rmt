@@ -16,6 +16,11 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
+require 'rmt/base'
+
+module RMT; end
+module RMT::MariaDB; end
+
 class RMT::MariaDB::NewRootPasswordDialog < RMT::Base
   def run
     ret = nil
@@ -68,7 +73,7 @@ class RMT::MariaDB::NewRootPasswordDialog < RMT::Base
           next
         elsif pass1 != pass2
           UI.SetFocus(Id(:new_root_password_2))
-          Report.Error(_('The first and the second password do not match.'))
+          Report.Error(_('The first and the second passwords do not match.'))
           next
         end
 

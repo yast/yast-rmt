@@ -16,3 +16,13 @@ AllCops:
 
 Rails:
   Enabled: false
+
+# Impossible to satisfy these rules in specs
+RSpec/ExpectInHook:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false

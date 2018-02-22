@@ -16,8 +16,8 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/mariadb/current_root_password_dialog'
-require 'rmt/mariadb/new_root_password_dialog'
+require 'rmt/maria_db/current_root_password_dialog'
+require 'rmt/maria_db/new_root_password_dialog'
 
 module RMT
 end
