@@ -9,3 +9,23 @@ Provides the YaST module to configure the Repository Mirroring Tool ([RMT](https
 ## Development
 
 First read the excellent tutorial [:green_book: Creating the YaST journalctl module](http://yast.opensuse.org/yast-journalctl-tutorial/) to learn the basics about YaST module development.
+
+### Running the module
+
+`yast2-ruby-bindings` RPM package is not available as a gem, Yast runs on the system-wide Ruby interpreter only.
+
+There different ways to run the module:
+
+* `rake run` — by default starts Qt interface if it is available;
+* `Y2DIR=src/ /usr/sbin/yast2 rmt` — same as above;
+* `DISPLAY= rake run` — forces to run in ncurses mode;
+* `Y2DIR=src/ /usr/sbin/yast2 --ncurses rmt` — same as above.
+
+### Running tests
+
+It is possible to run the specs in a Docker container:
+
+```
+docker build -t yast-rmt-image .
+docker run -it yast-rmt-image rspec
+```
