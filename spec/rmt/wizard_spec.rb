@@ -25,9 +25,8 @@ describe RMT::Wizard do
   subject(:wizard) { described_class.new }
 
   let(:config) { { foo: 'bar' } }
-
-  before do
-  end
+  let(:scc_page_double) { instance_double(RMT::WizardSCCPage) }
+  let(:db_page_double) { instance_double(RMT::WizardMariaDBPage) }
 
   it 'runs and goes through the sequence' do
     expect(RMT::Base).to receive(:read_config_file).and_return({})
@@ -35,8 +34,11 @@ describe RMT::Wizard do
     expect(Yast::Wizard).to receive(:CreateDialog)
     expect(Yast::Wizard).to receive(:SetTitleIcon)
 
-    expect(wizard).to receive(:step1).and_return(:next)
-    expect(wizard).to receive(:step2).and_return(:next)
+    expect(RMT::WizardSCCPage).to receive(:new).and_return(scc_page_double)
+    expect(scc_page_double).to receive(:run).and_return(:next)
+
+    expect(RMT::WizardMariaDBPage).to receive(:new).and_return(db_page_double)
+    expect(db_page_double).to receive(:run).and_return(:next)
 
     expect(Yast::UI).to receive(:CloseDialog)
     wizard.run
