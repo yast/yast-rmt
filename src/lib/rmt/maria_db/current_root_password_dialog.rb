@@ -16,10 +16,10 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-module RMT
-  module MariaDB
-  end
-end
+require 'rmt/base'
+
+module RMT; end
+module RMT::MariaDB; end
 
 class RMT::MariaDB::CurrentRootPasswordDialog < RMT::Base
   def run
