@@ -1,0 +1,31 @@
+inherit_gem:
+  scc-codestyle:
+    - default.yml
+
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  Include:
+    - Gemfile
+    - config.ru
+  Exclude:
+    - .bundle/**/*
+    - vendor/**/*
+    - package/*
+    - Rakefile
+
+Rails:
+  Enabled: false
+
+# Impossible to satisfy these rules in specs
+RSpec/ExpectInHook:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/SubjectStub:
+  Enabled: false

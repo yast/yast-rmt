@@ -16,6 +16,29 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/wizard'
+$LOAD_PATH.unshift(File.expand_path('../../src/lib/', __FILE__))
 
-RMT::Wizard.new.run
+require 'yast'
+require 'yast/rspec'
+
+ENV['Y2DIR'] = File.expand_path('../../src', __FILE__)
+
+srcdir = File.expand_path('../../src', __FILE__)
+
+if ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start do
+    add_filter '/spec/'
+    add_filter '/clients/'
+    track_files("#{srcdir}/**/*.rb")
+  end
+
+  # use coveralls for on-line code coverage reporting at Travis CI
+  if ENV['TRAVIS']
+    require 'coveralls'
+    SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
+      SimpleCov::Formatter::HTMLFormatter,
+      Coveralls::SimpleCov::Formatter
+    ])
+  end
+end
