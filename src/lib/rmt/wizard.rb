@@ -18,7 +18,7 @@
 
 require 'rmt/base'
 require 'rmt/wizard_scc_page'
-require 'rmt/wizard_mariadb_page'
+require 'rmt/wizard_maria_db_page'
 
 module RMT
 end

@@ -36,6 +36,13 @@ describe RMT::WizardSCCPage do
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:scc_password), :Value, config['scc']['password'])
     end
 
+    context 'when cancel button is clicked' do
+      it 'finishes' do
+        expect(Yast::UI).to receive(:UserInput).and_return(:cancel)
+        expect(scc_page.run).to be(:cancel)
+      end
+    end
+
     context 'when SCC credentials are valid' do
       it 'moves on to the next screen' do
         expect(Yast::UI).to receive(:UserInput).exactly(2).times.and_return(:next)

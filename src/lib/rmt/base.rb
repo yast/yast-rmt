@@ -18,6 +18,8 @@
 
 require 'yaml'
 
+Yast.import 'Report'
+
 module RMT
 end
 
