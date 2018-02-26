@@ -20,6 +20,7 @@ require 'rmt/wizard'
 
 Yast.import 'Wizard'
 Yast.import 'Sequencer'
+Yast.import 'Confirm'
 
 describe RMT::Wizard do
   subject(:wizard) { described_class.new }
@@ -29,6 +30,7 @@ describe RMT::Wizard do
   let(:db_page_double) { instance_double(RMT::WizardMariaDBPage) }
 
   it 'runs and goes through the sequence' do
+    expect(Yast::Confirm).to receive(:MustBeRoot).and_return(true)
     expect(RMT::Base).to receive(:read_config_file).and_return({})
 
     expect(Yast::Wizard).to receive(:CreateDialog)

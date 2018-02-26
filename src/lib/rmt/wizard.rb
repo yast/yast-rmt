@@ -34,6 +34,7 @@ class RMT::Wizard < RMT::Base
     Yast.import 'Report'
     Yast.import 'String'
     Yast.import 'SystemdService'
+    Yast.import 'Confirm'
 
     textdomain 'rmt'
 
@@ -51,6 +52,8 @@ class RMT::Wizard < RMT::Base
   end
 
   def run
+    return unless Yast::Confirm.MustBeRoot
+
     aliases = {
       'step1' => -> { step1 },
       'step2' => -> { step2 }
