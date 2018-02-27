@@ -56,11 +56,11 @@ describe RMT::MariaDB::NewRootPasswordDialog do
         end
       end
 
-      context 'when password is empty' do
+      context 'when password is not empty' do
         let(:bad_password) { 'bad_password' }
         let(:good_password) { 'good_password' }
 
-        it 'complains about empty password and returns good password' do
+        it 'complains about non-matching passwords and returns good password' do
           expect(Yast::UI).to receive(:SetFocus).with(Id(:new_root_password_2))
           expect(Yast::Report).to receive(:Error).with('The first and the second passwords do not match.')
 

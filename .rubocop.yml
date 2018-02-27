@@ -1,3 +1,5 @@
+# Rubocop version is locked in the dependencies of scc-codestyle gem.
+# The version of scc-codestyle gem is specified in the Dockerfile.
 inherit_gem:
   scc-codestyle:
     - default.yml

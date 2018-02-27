@@ -19,16 +19,18 @@
 require 'uri'
 require 'net/http'
 require 'rmt/base'
+require 'ui/event_dispatcher'
 
-module RMT
-end
+module RMT; end
 
-class RMT::WizardSCCPage < RMT::Base
+class RMT::WizardSCCPage < Yast::Client
+  include ::UI::EventDispatcher
+
   def initialize(config)
     @config = config
   end
 
-  def run
+  def render_content
     Wizard.SetAbortButton(:abort, Label.CancelButton)
     Wizard.SetNextButton(:next, Label.NextButton)
 
@@ -62,29 +64,30 @@ class RMT::WizardSCCPage < RMT::Base
 
     UI.ChangeWidget(Id(:scc_username), :Value, @config['scc']['username'])
     UI.ChangeWidget(Id(:scc_password), :Value, @config['scc']['password'])
+  end
 
-    ret = nil
-    loop do
-      ret = UI.UserInput
-      if ret == :abort || ret == :cancel
-        break
-      elsif ret == :next
-        @config['scc']['username'] = UI.QueryWidget(Id(:scc_username), :Value)
-        @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
+  def abort_handler
+    finish_dialog(:abort)
+  end
 
-        break if scc_credentials_valid?
+  def next_handler
+    @config['scc']['username'] = UI.QueryWidget(Id(:scc_username), :Value)
+    @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
 
-        break if Popup.AnyQuestion(
-          _('Invalid SCC credentials'),
-          _('SCC credentials are invalid. Please check the credentials.'),
-          _('Ignore and continue'),
-          _('Go back'),
-          :focus_no
-        )
-      end
-    end
+    return unless scc_credentials_valid? || Popup.AnyQuestion(
+      _('Invalid SCC credentials'),
+      _('SCC credentials are invalid. Please check the credentials.'),
+      _('Ignore and continue'),
+      _('Go back'),
+      :focus_no
+    )
 
-    ret
+    finish_dialog(:next)
+  end
+
+  def run
+    render_content
+    event_loop
   end
 
   def scc_credentials_valid?

@@ -17,6 +17,7 @@
 #  you may find current contact information at www.suse.com
 
 require 'yaml'
+require 'cheetah'
 
 Yast.import 'Report'
 
@@ -24,9 +25,7 @@ module RMT
 end
 
 class RMT::Base < Yast::Client
-  include Yast::UIShortcuts
   include Yast::Logger
-  include Yast::I18n
 
   CONFIG_FILENAME = '/etc/rmt.conf'.freeze
 
@@ -56,18 +55,34 @@ class RMT::Base < Yast::Client
     if Yast::SCR.Write(Yast.path('.target.string'), CONFIG_FILENAME, YAML.dump(config))
       Yast::Popup.Message('Configuration written successfully')
     else
-      Report.Error('Writing configuration file failed')
+      Report.Error('Writing configuration file failed. See YaST logs for details.')
     end
 
   end
 
   # Runs a command and returns the exit code
-  def run_command(command, *params)
+  def self.run_command(command, *params)
     params = params.map { |p| String.Quote(p) }
 
     SCR.Execute(
-      path('.target.bash'),
+      Yast::path('.target.bash'),
         Builtins.sformat(command, *params)
     )
   end
+
+  # This method was copied from Yast::Execute
+  # It is available on SLES15, but not available on SLES12 version of yast-ruby-bindings
+  # FIXME: should be removed in the future
+  def self.on_target!(*args)
+    root = Yast::WFM.scr_root
+
+    if args.last.is_a? ::Hash
+      args.last[:chroot] = root
+    else
+      args.push(chroot: root)
+    end
+
+    Cheetah.run(*args)
+  end
+
 end

@@ -23,8 +23,7 @@ require 'rmt/wizard_maria_db_page'
 module RMT
 end
 
-class RMT::Wizard < RMT::Base
-  include Yast::UIShortcuts
+class RMT::Wizard < Yast::Client
   include Yast::Logger
 
   def initialize
