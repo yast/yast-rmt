@@ -27,96 +27,120 @@ describe RMT::WizardMariaDBPage do
 
   let(:config) { { 'database' => { 'username' => 'user_mcuserface', 'password' => 'test' } } }
 
-  describe '#run' do
-    before do
+  describe '#render_content' do
+    it 'renders UI elements' do
       expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.OKButton)
       expect(Yast::Wizard).to receive(:SetContents)
 
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:db_username), :Value, config['database']['username'])
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:db_password), :Value, config['database']['password'])
+
+      mariadb_page.render_content
+    end
+  end
+
+  describe '#run' do
+    it 'renders content and runs the event loop' do
+      expect(mariadb_page).to receive(:render_content)
+      expect(mariadb_page).to receive(:event_loop)
+      mariadb_page.run
+    end
+  end
+
+  describe '#abort_handler' do
+    it 'finishes when cancel button is clicked' do
+      expect(mariadb_page).to receive(:finish_dialog).with(:abort)
+      mariadb_page.abort_handler
+    end
+  end
+
+  describe '#back_handler' do
+    it 'finishes when back button is clicked' do
+      expect(mariadb_page).to receive(:finish_dialog).with(:back)
+      mariadb_page.back_handler
+    end
+  end
+
+  describe '#next_handler' do
+    let(:new_password_dialog_double) { instance_double(RMT::MariaDB::NewRootPasswordDialog) }
+    let(:current_password_dialog_double) { instance_double(RMT::MariaDB::CurrentRootPasswordDialog) }
+    let(:password) { 'password' }
+
+    before do
+      expect(Yast::UI).to receive(:QueryWidget).with(Id(:db_username), :Value)
+      expect(Yast::UI).to receive(:QueryWidget).with(Id(:db_password), :Value)
     end
 
-    context 'when cancel button is clicked' do
-      it 'finishes' do
-        expect(Yast::UI).to receive(:UserInput).and_return(:cancel)
-        expect(mariadb_page.run).to be(:cancel)
+    it 'finishes if unable to start the DB' do
+      expect(mariadb_page).to receive(:start_database).and_return(false)
+      expect(mariadb_page).to receive(:finish_dialog).with(:next)
+      mariadb_page.next_handler
+    end
+
+    context 'when current root password is empty' do
+      before do
+        expect(mariadb_page).to receive(:start_database).and_return(true)
+        expect(mariadb_page).to receive(:root_password_empty?).and_return(true)
+        expect(RMT::MariaDB::NewRootPasswordDialog).to receive(:new).and_return(new_password_dialog_double)
       end
-    end
 
-    context 'when back button is clicked' do
-      it 'goes back' do
-        expect(Yast::UI).to receive(:UserInput).and_return(:back)
-        expect(mariadb_page.run).to be(:back)
+      it 'new password must not be empty' do
+        expect(new_password_dialog_double).to receive(:run).and_return('')
+        expect(mariadb_page).not_to receive(:finish_dialog)
+        mariadb_page.next_handler
       end
-    end
 
-    context 'when next button is clicked' do
-      let(:new_password_dialog_double) { instance_double(RMT::MariaDB::NewRootPasswordDialog) }
-      let(:current_password_dialog_double) { instance_double(RMT::MariaDB::CurrentRootPasswordDialog) }
-      let(:password) { 'password' }
-
-      it "asks for a new root password and doesn't allow empty one" do
-        expect(Yast::UI).to receive(:UserInput).and_return(:next).exactly(2).times
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:db_username), :Value).exactly(2).times
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:db_password), :Value).exactly(2).times
-        expect(mariadb_page).to receive(:start_database).and_return(true).exactly(2).times
-        expect(mariadb_page).to receive(:root_password_empty?).and_return(true).exactly(2).times
-        expect(RMT::MariaDB::NewRootPasswordDialog).to receive(:new).and_return(new_password_dialog_double).exactly(2).times
-
-        # Return an empty password on the first run and expect an error to be reported
-        expect(new_password_dialog_double).to receive(:run).and_return('', password)
+      it 'if current root password is empty, reports an error if setting new password failed' do
+        expect(new_password_dialog_double).to receive(:run).and_return(password)
+        expect(new_password_dialog_double).to receive(:set_root_password).and_return(false)
         expect(Yast::Report).to receive(:Error).with('Setting new root password failed')
+        expect(mariadb_page).not_to receive(:finish_dialog)
+        mariadb_page.next_handler
+      end
 
+      it 'if current root password is empty, creates database and user and finished successfully' do
+        expect(new_password_dialog_double).to receive(:run).and_return(password)
         expect(new_password_dialog_double).to receive(:set_root_password).and_return(true)
-
-        expect(mariadb_page).to receive(:create_database_and_user).and_return(true)
+        expect(mariadb_page).to receive(:create_database_and_user)
         expect(RMT::Base).to receive(:write_config_file).with(config)
-
-        expect(mariadb_page.run).to be(:next)
+        expect(mariadb_page).to receive(:finish_dialog).with(:next)
+        mariadb_page.next_handler
       end
+    end
 
-      it 'asks for current root password and handles non-empty password' do
-        expect(Yast::UI).to receive(:UserInput).and_return(:next)
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:db_username), :Value)
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:db_password), :Value)
+    context 'when current root password is not empty' do
+      before do
         expect(mariadb_page).to receive(:start_database).and_return(true)
         expect(mariadb_page).to receive(:root_password_empty?).and_return(false)
-
         expect(RMT::MariaDB::CurrentRootPasswordDialog).to receive(:new).and_return(current_password_dialog_double)
-        expect(current_password_dialog_double).to receive(:run).and_return(password)
-
-        expect(mariadb_page).to receive(:create_database_and_user).and_return(true)
-        expect(RMT::Base).to receive(:write_config_file).with(config)
-
-        expect(mariadb_page.run).to be(:next)
       end
 
-      it 'asks for current root password and handles empty password' do
-        expect(Yast::UI).to receive(:UserInput).and_return(:next)
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:db_username), :Value)
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:db_password), :Value)
-        expect(mariadb_page).to receive(:start_database).and_return(true)
-        expect(mariadb_page).to receive(:root_password_empty?).and_return(false)
-
-        expect(RMT::MariaDB::CurrentRootPasswordDialog).to receive(:new).and_return(current_password_dialog_double)
+      it 'shows error message and continues if no password was entered' do
         expect(current_password_dialog_double).to receive(:run).and_return(nil)
-
         expect(Yast::Report).to receive(:Error).with('Root password not provided, skipping database setup.')
         expect(RMT::Base).to receive(:write_config_file).with(config)
+        expect(mariadb_page).to receive(:finish_dialog).with(:next)
+        mariadb_page.next_handler
+      end
 
-        expect(mariadb_page.run).to be(:next)
+      it 'creates database and user if current password was entered' do
+        expect(current_password_dialog_double).to receive(:run).and_return(password)
+        expect(mariadb_page).to receive(:create_database_and_user)
+        expect(RMT::Base).to receive(:write_config_file).with(config)
+        expect(mariadb_page).to receive(:finish_dialog).with(:next)
+        mariadb_page.next_handler
       end
     end
   end
 
   describe '#root_password_empty?' do
     it 'returns true when exit code is 0' do
-      expect_any_instance_of(RMT::Base).to receive(:run_command).and_return(0)
+      expect(RMT::Base).to receive(:run_command).and_return(0)
       expect(mariadb_page.root_password_empty?).to be(true)
     end
 
     it 'returns false when exit code is not 0' do
-      expect_any_instance_of(RMT::Base).to receive(:run_command).and_return(1)
+      expect(RMT::Base).to receive(:run_command).and_return(1)
       expect(mariadb_page.root_password_empty?).to be(false)
     end
   end
@@ -147,19 +171,19 @@ describe RMT::WizardMariaDBPage do
 
   describe '#create_database_and_user' do
     it "raises an error when can't create a database" do
-      expect_any_instance_of(RMT::Base).to receive(:run_command).and_return(1)
+      expect(RMT::Base).to receive(:run_command).and_return(1)
       expect(Yast::Report).to receive(:Error).with('Database creation failed.')
       expect(mariadb_page.create_database_and_user).to be(false)
     end
 
     it "raises an error when can't create a user" do
-      expect_any_instance_of(RMT::Base).to receive(:run_command).and_return(0, 1)
+      expect(RMT::Base).to receive(:run_command).and_return(0, 1)
       expect(Yast::Report).to receive(:Error).with('User creation failed.')
       expect(mariadb_page.create_database_and_user).to be(false)
     end
 
     it 'returns true when there are no errors' do
-      expect_any_instance_of(RMT::Base).to receive(:run_command).and_return(0, 0)
+      expect(RMT::Base).to receive(:run_command).and_return(0, 0)
       expect(mariadb_page.create_database_and_user).to be(true)
     end
   end

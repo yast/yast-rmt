@@ -65,6 +65,10 @@ class RMT::WizardMariaDBPage < Yast::Client
     finish_dialog(:abort)
   end
 
+  def back_handler
+    finish_dialog(:back)
+  end
+
   def next_handler
     @config['database']['username'] = UI.QueryWidget(Id(:db_username), :Value)
     @config['database']['password'] = UI.QueryWidget(Id(:db_password), :Value)

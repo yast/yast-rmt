@@ -56,11 +56,11 @@ class RMT::MariaDB::CurrentRootPasswordDialog < UI::Dialog
 
     if !root_password || root_password.empty?
       Yast::UI.SetFocus(Id(:root_password))
-      Report.Error(_('Please provide the root password.'))
+      Yast::Report.Error(_('Please provide the root password.'))
       return
     elsif !root_password_valid?(root_password)
       Yast::UI.SetFocus(Id(:root_password))
-      Report.Error(_('The provided password is not valid.'))
+      Yast::Report.Error(_('The provided password is not valid.'))
       return
     end
 

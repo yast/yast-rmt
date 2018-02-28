@@ -65,7 +65,7 @@ class RMT::Base < Yast::Client
     params = params.map { |p| String.Quote(p) }
 
     SCR.Execute(
-      Yast::path('.target.bash'),
+      Yast.path('.target.bash'),
         Builtins.sformat(command, *params)
     )
   end
@@ -84,5 +84,4 @@ class RMT::Base < Yast::Client
 
     Cheetah.run(*args)
   end
-
 end

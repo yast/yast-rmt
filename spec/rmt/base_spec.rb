@@ -59,16 +59,16 @@ describe RMT::Base do
         YAML.dump(config)
       ).and_return(false)
 
-      expect(Yast::Report).to receive(:Error).with('Writing configuration file failed')
+      expect(Yast::Report).to receive(:Error).with('Writing configuration file failed. See YaST logs for details.')
 
       described_class.write_config_file(config)
     end
   end
 
-  describe '#run_command' do
+  describe '.run_command' do
     it 'returns the exit code' do
       expect(Yast::SCR).to receive(:Execute).and_return(255)
-      expect(described_class.new.run_command('whoami')).to be(255)
+      expect(described_class.run_command('whoami')).to be(255)
     end
   end
 end
