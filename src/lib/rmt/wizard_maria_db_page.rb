@@ -26,6 +26,7 @@ class RMT::WizardMariaDBPage < Yast::Client
   include ::UI::EventDispatcher
 
   def initialize(config)
+    textdomain 'rmt'
     @config = config
   end
 

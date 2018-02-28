@@ -23,6 +23,10 @@ module RMT; end
 module RMT::MariaDB; end
 
 class RMT::MariaDB::CurrentRootPasswordDialog < UI::Dialog
+  def initialize
+    textdomain 'rmt'
+  end
+
   def dialog_content
     VBox(
       VSpacing(1),
