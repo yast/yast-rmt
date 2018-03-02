@@ -28,60 +28,78 @@ class RMT::Base < Yast::Client
   include Yast::Logger
 
   CONFIG_FILENAME = '/etc/rmt.conf'.freeze
+  DEFAULT_CONFIG = {
+    'scc' => {
+      'username' => '',
+      'password' => ''
+    },
+    'database' => {
+      'database' => 'rmt',
+      'username' => 'rmt',
+      'password' => '',
+      'hostname' => 'localhost'
+    }
+  }.freeze
 
-  def self.read_config_file
-    begin
-      data = Yast::SCR.Read(Yast.path('.target.string'), CONFIG_FILENAME)
-      config = YAML.safe_load(data)
-    rescue StandardError => e
-      log.warn 'Reading config file failed: ' + e.to_s
+  class << self
+    def read_config_file
+      begin
+        data = Yast::SCR.Read(Yast.path('.target.string'), CONFIG_FILENAME)
+        config = YAML.safe_load(data)
+      rescue StandardError => e
+        log.warn 'Reading config file failed: ' + e.to_s
+      end
+
+      ensure_default_values(config)
     end
 
-    config ||= {}
-    config['scc'] ||= {}
-    config['scc']['username'] ||= ''
-    config['scc']['password'] ||= ''
+    def write_config_file(config)
+      if Yast::SCR.Write(Yast.path('.target.string'), CONFIG_FILENAME, YAML.dump(config))
+        Yast::Popup.Message('Configuration written successfully')
+      else
+        Yast::Report.Error('Writing configuration file failed. See YaST logs for details.')
+      end
 
-    config['database'] ||= {}
-    config['database']['database'] ||= 'rmt'
-    config['database']['username'] ||= 'rmt'
-    config['database']['password'] ||= ''
-    config['database']['hostname'] ||= 'localhost'
-
-    config
-  end
-
-  def self.write_config_file(config)
-    if Yast::SCR.Write(Yast.path('.target.string'), CONFIG_FILENAME, YAML.dump(config))
-      Yast::Popup.Message('Configuration written successfully')
-    else
-      Report.Error('Writing configuration file failed. See YaST logs for details.')
     end
 
-  end
+    # Runs a command and returns the exit code
+    def run_command(command, *params)
+      params = params.map { |p| String.Quote(p) }
 
-  # Runs a command and returns the exit code
-  def self.run_command(command, *params)
-    params = params.map { |p| String.Quote(p) }
-
-    SCR.Execute(
-      Yast.path('.target.bash'),
-        Builtins.sformat(command, *params)
-    )
-  end
-
-  # This method was copied from Yast::Execute
-  # It is available on SLES15, but not available on SLES12 version of yast-ruby-bindings
-  # FIXME: should be removed in the future
-  def self.on_target!(*args)
-    root = Yast::WFM.scr_root
-
-    if args.last.is_a? ::Hash
-      args.last[:chroot] = root
-    else
-      args.push(chroot: root)
+      Yast::SCR.Execute(
+        Yast.path('.target.bash'),
+        Yast::Builtins.sformat(command, *params)
+      )
     end
 
-    Cheetah.run(*args)
+    # This method was copied from Yast::Execute
+    # It is available on SLES15, but not available on SLES12 version of yast-ruby-bindings
+    # FIXME: should be removed in the future
+    def on_target!(*args)
+      root = Yast::WFM.scr_root
+
+      if args.last.is_a? ::Hash
+        args.last[:chroot] = root
+      else
+        args.push(chroot: root)
+      end
+
+      Cheetah.run(*args)
+    end
+
+    protected
+
+    def ensure_default_values(config)
+      config ||= {}
+      config.merge(DEFAULT_CONFIG, &method(:merge_hashes))
+    end
+
+    def merge_hashes(_, v1, v2)
+      if v1.is_a?(Hash)
+        v1.merge(v2, &method(:merge_hashes))
+      else
+        v1 ? v1 : v2
+      end
+    end
   end
 end

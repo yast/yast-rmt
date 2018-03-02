@@ -26,7 +26,7 @@ describe RMT::Base do
 
     it 'loads YAML and populates with default values' do
       expect(Yast::SCR).to receive(:Read).with(Yast.path('.target.string'), RMT::Base::CONFIG_FILENAME).and_return(raw_data)
-      expect(YAML).to receive(:safe_load).with(raw_data)
+      expect(YAML).to receive(:safe_load).with(raw_data).and_return({})
       expect(described_class.read_config_file).to include('scc', 'database')
     end
 
@@ -69,6 +69,29 @@ describe RMT::Base do
     it 'returns the exit code' do
       expect(Yast::SCR).to receive(:Execute).and_return(255)
       expect(described_class.run_command('whoami')).to be(255)
+    end
+  end
+
+  describe '.ensure_default_values' do
+    let(:config) do
+      {
+        'scc' => {
+          'username' => 'user_mcuserface',
+          'password' => 'password_mcpasswordface'
+        }
+      }
+    end
+
+    it 'handles nil' do
+      expect(described_class.send(:ensure_default_values, nil)).to include('scc', 'database')
+    end
+
+    it 'sets missing defaults' do
+      expect(described_class.send(:ensure_default_values, config)).to include('scc', 'database')
+    end
+
+    it 'keeps the already set parameters' do
+      expect(described_class.send(:ensure_default_values, config)['scc']).to eq(config['scc'])
     end
   end
 end
