@@ -18,7 +18,7 @@
 
 require 'uri'
 require 'net/http'
-require 'rmt/base'
+require 'rmt/utils'
 require 'ui/event_dispatcher'
 
 module RMT; end

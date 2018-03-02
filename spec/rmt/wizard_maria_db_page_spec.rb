@@ -102,7 +102,7 @@ describe RMT::WizardMariaDBPage do
         expect(new_password_dialog_double).to receive(:run).and_return(password)
         expect(new_password_dialog_double).to receive(:set_root_password).and_return(true)
         expect(mariadb_page).to receive(:create_database_and_user)
-        expect(RMT::Base).to receive(:write_config_file).with(config)
+        expect(RMT::Utils).to receive(:write_config_file).with(config)
         expect(mariadb_page).to receive(:finish_dialog).with(:next)
         mariadb_page.next_handler
       end
@@ -118,7 +118,7 @@ describe RMT::WizardMariaDBPage do
       it 'shows error message and continues if no password was entered' do
         expect(current_password_dialog_double).to receive(:run).and_return(nil)
         expect(Yast::Report).to receive(:Error).with('Root password not provided, skipping database setup.')
-        expect(RMT::Base).to receive(:write_config_file).with(config)
+        expect(RMT::Utils).to receive(:write_config_file).with(config)
         expect(mariadb_page).to receive(:finish_dialog).with(:next)
         mariadb_page.next_handler
       end
@@ -126,7 +126,7 @@ describe RMT::WizardMariaDBPage do
       it 'creates database and user if current password was entered' do
         expect(current_password_dialog_double).to receive(:run).and_return(password)
         expect(mariadb_page).to receive(:create_database_and_user)
-        expect(RMT::Base).to receive(:write_config_file).with(config)
+        expect(RMT::Utils).to receive(:write_config_file).with(config)
         expect(mariadb_page).to receive(:finish_dialog).with(:next)
         mariadb_page.next_handler
       end
@@ -135,12 +135,12 @@ describe RMT::WizardMariaDBPage do
 
   describe '#root_password_empty?' do
     it 'returns true when exit code is 0' do
-      expect(RMT::Base).to receive(:run_command).and_return(0)
+      expect(RMT::Utils).to receive(:run_command).and_return(0)
       expect(mariadb_page.root_password_empty?).to be(true)
     end
 
     it 'returns false when exit code is not 0' do
-      expect(RMT::Base).to receive(:run_command).and_return(1)
+      expect(RMT::Utils).to receive(:run_command).and_return(1)
       expect(mariadb_page.root_password_empty?).to be(false)
     end
   end
@@ -171,19 +171,19 @@ describe RMT::WizardMariaDBPage do
 
   describe '#create_database_and_user' do
     it "raises an error when can't create a database" do
-      expect(RMT::Base).to receive(:run_command).and_return(1)
+      expect(RMT::Utils).to receive(:run_command).and_return(1)
       expect(Yast::Report).to receive(:Error).with('Database creation failed.')
       expect(mariadb_page.create_database_and_user).to be(false)
     end
 
     it "raises an error when can't create a user" do
-      expect(RMT::Base).to receive(:run_command).and_return(0, 1)
+      expect(RMT::Utils).to receive(:run_command).and_return(0, 1)
       expect(Yast::Report).to receive(:Error).with('User creation failed.')
       expect(mariadb_page.create_database_and_user).to be(false)
     end
 
     it 'returns true when there are no errors' do
-      expect(RMT::Base).to receive(:run_command).and_return(0, 0)
+      expect(RMT::Utils).to receive(:run_command).and_return(0, 0)
       expect(mariadb_page.create_database_and_user).to be(true)
     end
   end

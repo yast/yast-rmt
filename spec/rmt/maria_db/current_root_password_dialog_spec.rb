@@ -78,12 +78,12 @@ describe RMT::MariaDB::CurrentRootPasswordDialog do
 
   describe '#root_password_valid?' do
     it 'returns true when exit code is 0' do
-      expect(RMT::Base).to receive(:run_command).and_return(0)
+      expect(RMT::Utils).to receive(:run_command).and_return(0)
       expect(dialog.root_password_valid?('password')).to be(true)
     end
 
     it 'returns false when exit code is not 0' do
-      expect(RMT::Base).to receive(:run_command).and_return(1)
+      expect(RMT::Utils).to receive(:run_command).and_return(1)
       expect(dialog.root_password_valid?('password')).to be(false)
     end
   end

@@ -16,7 +16,7 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/base'
+require 'rmt/utils'
 require 'ui/dialog'
 
 module RMT; end
@@ -72,7 +72,7 @@ class RMT::MariaDB::CurrentRootPasswordDialog < UI::Dialog
   end
 
   def root_password_valid?(password)
-    RMT::Base.run_command(
+    RMT::Utils.run_command(
       "echo 'show databases;' | mysql -u root -p%1 2>/dev/null",
       password
     ) == 0

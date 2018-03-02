@@ -16,22 +16,22 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/base'
+require 'rmt/utils'
 
 Yast.import 'Report'
 
-describe RMT::Base do
+describe RMT::Utils do
   describe '.read_config_file' do
     let(:raw_data) { '{}' }
 
     it 'loads YAML and populates with default values' do
-      expect(Yast::SCR).to receive(:Read).with(Yast.path('.target.string'), RMT::Base::CONFIG_FILENAME).and_return(raw_data)
+      expect(Yast::SCR).to receive(:Read).with(Yast.path('.target.string'), RMT::Utils::CONFIG_FILENAME).and_return(raw_data)
       expect(YAML).to receive(:safe_load).with(raw_data).and_return({})
       expect(described_class.read_config_file).to include('scc', 'database')
     end
 
     it 'handles exceptions' do
-      expect(Yast::SCR).to receive(:Read).with(Yast.path('.target.string'), RMT::Base::CONFIG_FILENAME).and_return(raw_data)
+      expect(Yast::SCR).to receive(:Read).with(Yast.path('.target.string'), RMT::Utils::CONFIG_FILENAME).and_return(raw_data)
       expect(YAML).to receive(:safe_load).with(raw_data).and_raise('Yast load error')
       expect(described_class.read_config_file).to include('scc', 'database')
     end
@@ -43,7 +43,7 @@ describe RMT::Base do
     it 'displays success message on success' do
       expect(Yast::SCR).to receive(:Write).with(
         Yast.path('.target.string'),
-        RMT::Base::CONFIG_FILENAME,
+        RMT::Utils::CONFIG_FILENAME,
         YAML.dump(config)
       ).and_return(true)
 
@@ -55,7 +55,7 @@ describe RMT::Base do
     it 'reports error message on error' do
       expect(Yast::SCR).to receive(:Write).with(
         Yast.path('.target.string'),
-        RMT::Base::CONFIG_FILENAME,
+        RMT::Utils::CONFIG_FILENAME,
         YAML.dump(config)
       ).and_return(false)
 

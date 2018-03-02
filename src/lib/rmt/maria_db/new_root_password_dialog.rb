@@ -16,7 +16,7 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/base'
+require 'rmt/utils'
 require 'ui/dialog'
 
 module RMT; end
@@ -80,7 +80,7 @@ class RMT::MariaDB::NewRootPasswordDialog < UI::Dialog
   end
 
   def set_root_password(new_root_password, hostname)
-    RMT::Base.run_command(
+    RMT::Utils.run_command(
       "echo 'SET PASSWORD FOR root@%1=PASSWORD(\"%2\");' | mysql -u root 2>/dev/null",
       hostname,
       new_root_password

@@ -97,7 +97,7 @@ class RMT::WizardMariaDBPage < Yast::Client
       Report.Error('Root password not provided, skipping database setup.')
     end
 
-    RMT::Base.write_config_file(@config)
+    RMT::Utils.write_config_file(@config)
     finish_dialog(:next)
   end
 
@@ -107,7 +107,7 @@ class RMT::WizardMariaDBPage < Yast::Client
   end
 
   def root_password_empty?
-    RMT::Base.run_command(
+    RMT::Utils.run_command(
       "echo 'show databases;' | mysql -u root -h %1 2>/dev/null",
       @config['database']['hostname']
     ) == 0
@@ -126,7 +126,7 @@ class RMT::WizardMariaDBPage < Yast::Client
   end
 
   def create_database_and_user
-    ret = RMT::Base.run_command(
+    ret = RMT::Utils.run_command(
       "echo 'create database if not exists %1 character set = \"utf8\"' | mysql -u root -h %2 -p%3 2>/dev/null",
       @config['database']['database'],
       @config['database']['hostname'],
@@ -139,7 +139,7 @@ class RMT::WizardMariaDBPage < Yast::Client
     end
 
     unless @config['database']['username'] == 'root'
-      ret = RMT::Base.run_command(
+      ret = RMT::Utils.run_command(
         "echo 'grant all on %1.* to \"%2\"\@%3 identified by \"%4\"' | mysql -u root -h %5 -p%6 >/dev/null",
         @config['database']['database'],
         @config['database']['username'],

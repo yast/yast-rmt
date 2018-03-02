@@ -31,7 +31,7 @@ describe RMT::Wizard do
 
   it 'runs and goes through the sequence' do
     expect(Yast::Confirm).to receive(:MustBeRoot).and_return(true)
-    expect(RMT::Base).to receive(:read_config_file).and_return({})
+    expect(RMT::Utils).to receive(:read_config_file).and_return({})
 
     expect(Yast::Wizard).to receive(:CreateDialog)
     expect(Yast::Wizard).to receive(:SetTitleIcon)
