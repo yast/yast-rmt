@@ -29,3 +29,7 @@ It is possible to run the specs in a Docker container:
 docker build -t yast-rmt-image .
 docker run -it yast-rmt-image rspec
 ```
+
+### Package 
+
+The package gets build for SLE15 here: https://build.opensuse.org/package/show/systemsmanagement:SCC:RMT/yast2-rmt
