@@ -18,16 +18,19 @@
 
 require 'rmt/maria_db/current_root_password_dialog'
 require 'rmt/maria_db/new_root_password_dialog'
+require 'ui/event_dispatcher'
 
-module RMT
-end
+module RMT; end
 
-class RMT::WizardMariaDBPage < RMT::Base
+class RMT::WizardMariaDBPage < Yast::Client
+  include ::UI::EventDispatcher
+
   def initialize(config)
+    textdomain 'rmt'
     @config = config
   end
 
-  def run
+  def render_content
     contents = Frame(
       _('Database credentials'),
       HBox(
@@ -49,60 +52,62 @@ class RMT::WizardMariaDBPage < RMT::Base
     Wizard.SetNextButton(:next, Label.OKButton)
     Wizard.SetContents(
       _('RMT configuration step 2/2'),
-        contents,
-        '<p>This step of the wizard performs the necessary database setup.</p>',
-        true,
-        true
+      contents,
+      '<p>This step of the wizard performs the necessary database setup.</p>',
+      true,
+      true
     )
 
     UI.ChangeWidget(Id(:db_username), :Value, @config['database']['username'])
     UI.ChangeWidget(Id(:db_password), :Value, @config['database']['password'])
+  end
 
-    ret = nil
-    loop do
-      ret = UI.UserInput
-      if ret == :abort || ret == :cancel
-        break
-      elsif ret == :next
-        @config['database']['username'] = UI.QueryWidget(Id(:db_username), :Value)
-        @config['database']['password'] = UI.QueryWidget(Id(:db_password), :Value)
+  def abort_handler
+    finish_dialog(:abort)
+  end
 
-        break unless start_database
+  def back_handler
+    finish_dialog(:back)
+  end
 
-        if root_password_empty?
-          dialog = RMT::MariaDB::NewRootPasswordDialog.new
-          new_root_password = dialog.run
+  def next_handler
+    @config['database']['username'] = UI.QueryWidget(Id(:db_username), :Value)
+    @config['database']['password'] = UI.QueryWidget(Id(:db_password), :Value)
 
-          if !new_root_password || new_root_password.empty? || !dialog.set_root_password(new_root_password, @config['database']['hostname'])
-            Report.Error('Setting new root password failed')
-            next
-          end
+    return finish_dialog(:next) unless start_database
 
-          @root_password = new_root_password
-        else
-          dialog = RMT::MariaDB::CurrentRootPasswordDialog.new
-          @root_password = dialog.run
-        end
+    if root_password_empty?
+      dialog = RMT::MariaDB::NewRootPasswordDialog.new
+      new_root_password = dialog.run
 
-        if @root_password
-          create_database_and_user
-        else
-          Report.Error('Root password not provided, skipping database setup.')
-        end
-
-        RMT::Base.write_config_file(@config)
-
-        break
-      elsif ret == :back
-        break
+      if !new_root_password || new_root_password.empty? || !dialog.set_root_password(new_root_password, @config['database']['hostname'])
+        Report.Error('Setting new root password failed')
+        return
       end
+
+      @root_password = new_root_password
+    else
+      dialog = RMT::MariaDB::CurrentRootPasswordDialog.new
+      @root_password = dialog.run
     end
 
-    ret
+    if @root_password
+      create_database_and_user
+    else
+      Report.Error('Root password not provided, skipping database setup.')
+    end
+
+    RMT::Utils.write_config_file(@config)
+    finish_dialog(:next)
+  end
+
+  def run
+    render_content
+    event_loop
   end
 
   def root_password_empty?
-    run_command(
+    RMT::Utils.run_command(
       "echo 'show databases;' | mysql -u root -h %1 2>/dev/null",
       @config['database']['hostname']
     ) == 0
@@ -121,7 +126,7 @@ class RMT::WizardMariaDBPage < RMT::Base
   end
 
   def create_database_and_user
-    ret = run_command(
+    ret = RMT::Utils.run_command(
       "echo 'create database if not exists %1 character set = \"utf8\"' | mysql -u root -h %2 -p%3 2>/dev/null",
       @config['database']['database'],
       @config['database']['hostname'],
@@ -134,7 +139,7 @@ class RMT::WizardMariaDBPage < RMT::Base
     end
 
     unless @config['database']['username'] == 'root'
-      ret = run_command(
+      ret = RMT::Utils.run_command(
         "echo 'grant all on %1.* to \"%2\"\@%3 identified by \"%4\"' | mysql -u root -h %5 -p%6 >/dev/null",
         @config['database']['database'],
         @config['database']['username'],

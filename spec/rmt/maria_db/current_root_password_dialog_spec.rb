@@ -23,57 +23,67 @@ Yast.import 'Report'
 describe RMT::MariaDB::CurrentRootPasswordDialog do
   subject(:dialog) { described_class.new }
 
-  describe '#run' do
-    before do
-      expect(Yast::UI).to receive(:OpenDialog)
-      expect(Yast::UI).to receive(:CloseDialog)
+  describe '#dialog_content' do
+    it 'creates the UI elements' do
+      expect(Yast::Term).to receive(:new).exactly(22).times
+      dialog.dialog_content
     end
+  end
 
-    context 'when cancel is pressed' do
-      it 'returns nil' do
+  describe '#user_input' do
+    it 'sets focus and waits for user input' do
+      expect(Yast::UI).to receive(:SetFocus).with(Id(:root_password))
+      expect_any_instance_of(UI::Dialog).to receive(:user_input)
+      dialog.user_input
+    end
+  end
+
+  describe '#ok_handler' do
+    context 'when the password field is empty' do
+      let(:password) { '' }
+
+      it 'reports an error' do
+        expect(Yast::UI).to receive(:QueryWidget).with(Id(:root_password), :Value).and_return(password)
         expect(Yast::UI).to receive(:SetFocus).with(Id(:root_password))
-        expect(Yast::UI).to receive(:UserInput).and_return(:cancel)
-        expect(dialog.run).to be(nil)
-      end
-    end
-
-    context 'when OK is pressed and empty password is supplied' do
-      let(:bad_password) { '' }
-      let(:good_password) { 'good_password' }
-
-      it 'asks for non-empty password' do
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:root_password), :Value).and_return(bad_password, good_password)
-        expect(Yast::UI).to receive(:UserInput).exactly(2).times.and_return(:ok)
-        expect(Yast::UI).to receive(:SetFocus).with(Id(:root_password)).exactly(2).times
         expect(Yast::Report).to receive(:Error).with('Please provide the root password.')
-        expect(dialog).to receive(:root_password_valid?).and_return(true)
-        expect(dialog.run).to be(good_password)
+        expect(dialog).not_to receive(:finish_dialog)
+        dialog.ok_handler
       end
     end
 
-    context 'when OK is pressed and invalid password is supplied' do
-      let(:bad_password) { 'bad_password' }
-      let(:good_password) { 'good_password' }
+    context 'when the password is invalid' do
+      let(:password) { 'password' }
 
-      it 'asks for a valid empty password' do
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:root_password), :Value).and_return(bad_password, good_password)
-        expect(Yast::UI).to receive(:UserInput).exactly(2).times.and_return(:ok)
-        expect(Yast::UI).to receive(:SetFocus).with(Id(:root_password)).exactly(2).times
+      it 'reports an error' do
+        expect(Yast::UI).to receive(:QueryWidget).with(Id(:root_password), :Value).and_return(password)
+        expect(Yast::UI).to receive(:SetFocus).with(Id(:root_password))
+        expect(dialog).to receive(:root_password_valid?).and_return(false)
         expect(Yast::Report).to receive(:Error).with('The provided password is not valid.')
-        expect(dialog).to receive(:root_password_valid?).and_return(false, true)
-        expect(dialog.run).to be(good_password)
+        expect(dialog).not_to receive(:finish_dialog)
+        dialog.ok_handler
+      end
+    end
+
+    context 'when the password is valid' do
+      let(:password) { 'password' }
+
+      it 'finishes the dialog and returns the password' do
+        expect(Yast::UI).to receive(:QueryWidget).with(Id(:root_password), :Value).and_return(password)
+        expect(dialog).to receive(:root_password_valid?).and_return(true)
+        expect(dialog).to receive(:finish_dialog).with(password)
+        dialog.ok_handler
       end
     end
   end
 
   describe '#root_password_valid?' do
     it 'returns true when exit code is 0' do
-      expect_any_instance_of(RMT::Base).to receive(:run_command).and_return(0)
+      expect(RMT::Utils).to receive(:run_command).and_return(0)
       expect(dialog.root_password_valid?('password')).to be(true)
     end
 
     it 'returns false when exit code is not 0' do
-      expect_any_instance_of(RMT::Base).to receive(:run_command).and_return(1)
+      expect(RMT::Utils).to receive(:run_command).and_return(1)
       expect(dialog.root_password_valid?('password')).to be(false)
     end
   end
