@@ -25,8 +25,8 @@ describe RMT::WizardSCCPage do
 
   let(:config) { { 'scc' => { 'username' => 'user_mcuserface', 'password' => 'test' } } }
 
-  describe '#run' do
-    before do
+  describe '#render_content' do
+    it 'renders UI elements' do
       expect(Yast::Wizard).to receive(:SetAbortButton).with(:abort, Yast::Label.CancelButton)
       expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.NextButton)
       expect(Yast::Wizard).to receive(:SetContents)
@@ -34,43 +34,57 @@ describe RMT::WizardSCCPage do
 
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:scc_username), :Value, config['scc']['username'])
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:scc_password), :Value, config['scc']['password'])
+
+      scc_page.render_content
+    end
+  end
+
+  describe '#abort_handler' do
+    it 'finishes when cancel button is clicked' do
+      expect(scc_page).to receive(:finish_dialog).with(:abort)
+      scc_page.abort_handler
+    end
+  end
+
+  describe '#next_handler' do
+    before do
+      expect(Yast::UI).to receive(:QueryWidget).with(Id(:scc_username), :Value)
+      expect(Yast::UI).to receive(:QueryWidget).with(Id(:scc_password), :Value)
     end
 
-    context 'when cancel button is clicked' do
-      it 'finishes' do
-        expect(Yast::UI).to receive(:UserInput).and_return(:cancel)
-        expect(scc_page.run).to be(:cancel)
+    context "when SCC credentials aren't valid and the error is not ignored" do
+      it 'stays on the same page' do
+        expect(scc_page).to receive(:scc_credentials_valid?).and_return(false)
+        expect(Yast::Popup).to receive(:AnyQuestion).and_return(false)
+        expect(scc_page).not_to receive(:finish_dialog)
+        scc_page.next_handler
+      end
+    end
+
+    context "when SCC credentials aren't valid and the error is ignored" do
+      it 'goes to the next page' do
+        expect(scc_page).to receive(:scc_credentials_valid?).and_return(false)
+        expect(Yast::Popup).to receive(:AnyQuestion).and_return(true)
+        expect(scc_page).to receive(:finish_dialog).with(:next)
+        scc_page.next_handler
       end
     end
 
     context 'when SCC credentials are valid' do
-      it 'moves on to the next screen' do
-        expect(Yast::UI).to receive(:UserInput).exactly(2).times.and_return(:next)
-
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:scc_username), :Value).exactly(2).times
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:scc_password), :Value).exactly(2).times
-
-        expect(scc_page).to receive(:scc_credentials_valid?).and_return(false, true)
-
-        expect(Yast::Popup).to receive(:AnyQuestion).and_return(false)
-
-        expect(scc_page.run).to be(:next)
+      it 'goes to the next page' do
+        expect(scc_page).to receive(:scc_credentials_valid?).and_return(true)
+        expect(Yast::Popup).not_to receive(:AnyQuestion)
+        expect(scc_page).to receive(:finish_dialog).with(:next)
+        scc_page.next_handler
       end
     end
+  end
 
-    context 'when SCC credentials are invalid' do
-      it 'is possible to ignore the error' do
-        expect(Yast::UI).to receive(:UserInput).exactly(2).times.and_return(:next)
-
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:scc_username), :Value).exactly(2).times
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:scc_password), :Value).exactly(2).times
-
-        expect(scc_page).to receive(:scc_credentials_valid?).and_return(false, false)
-
-        expect(Yast::Popup).to receive(:AnyQuestion).and_return(false, true)
-
-        expect(scc_page.run).to be(:next)
-      end
+  describe '#run' do
+    it 'renders content and runs the event loop' do
+      expect(scc_page).to receive(:render_content)
+      expect(scc_page).to receive(:event_loop)
+      scc_page.run
     end
   end
 

@@ -16,15 +16,14 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/base'
+require 'rmt/utils'
 require 'rmt/wizard_scc_page'
 require 'rmt/wizard_maria_db_page'
 
 module RMT
 end
 
-class RMT::Wizard < RMT::Base
-  include Yast::UIShortcuts
+class RMT::Wizard < Yast::Client
   include Yast::Logger
 
   def initialize
@@ -38,7 +37,7 @@ class RMT::Wizard < RMT::Base
 
     textdomain 'rmt'
 
-    @config = RMT::Base.read_config_file
+    @config = RMT::Utils.read_config_file
   end
 
   def step1

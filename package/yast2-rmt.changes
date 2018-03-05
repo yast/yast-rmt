@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar  5 15:12:56 UTC 2018 - ikapelyukhin@suse.com
+
+- version 0.0.2
+- Add setup steps for SCC and DB (fate#325115)
+
+-------------------------------------------------------------------
 Tue Jan 30 10:56:08 UTC 2018 - thutterer@suse.com
 
 - create new YaST module for RMT configuration
