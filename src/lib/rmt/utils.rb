@@ -63,7 +63,7 @@ class RMT::Utils
 
     # Runs a command and returns the exit code
     def run_command(command, *params)
-      params = params.map { |p| String.Quote(p) }
+      params = params.map { |p| Yast::String.Quote(p) }
 
       Yast::SCR.Execute(
         Yast.path('.target.bash'),
