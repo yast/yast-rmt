@@ -61,14 +61,19 @@ class RMT::Utils
 
     end
 
-    # Runs a command and returns the exit code
-    def run_command(command, *params)
+    # Runs a command and returns the has with exit code, stdout and stderr
+    def run_command(command, *params, extended: false)
       params = params.map { |p| Yast::String.Quote(p) }
 
-      Yast::SCR.Execute(
-        Yast.path('.target.bash'),
+      result = Yast::SCR.Execute(
+        Yast.path('.target.bash_output'),
         Yast::Builtins.sformat(command, *params)
       )
+
+      return result['exit'] unless (extended)
+      result['stdout'].strip!
+      result['stderr'].strip!
+      result
     end
 
     protected
