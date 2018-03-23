@@ -17,6 +17,7 @@
 #  you may find current contact information at www.suse.com
 
 require 'rmt/certificate/alternative_common_name_dialog'
+require 'rmt/certificate/generator'
 require 'ui/event_dispatcher'
 
 module RMT; end
@@ -79,6 +80,24 @@ class RMT::WizardCertificatePage < Yast::Client
   end
 
   def next_handler
+    common_name = UI.QueryWidget(Id(:common_name), :Value)
+    alt_names_items = UI.QueryWidget(Id(:alt_common_names), :Items)
+    alt_names = alt_names_items.map { |item| item.params[1] }
+
+    generator = RMT::Certificate::Generator.new(common_name, alt_names)
+
+    dir = '/tmp/test/' # FIXME
+
+    Yast::SCR.Write(Yast.path('.target.string'), "#{dir}rmt-ca.cnf", generator.make_ca_config)
+    Yast::SCR.Write(Yast.path('.target.string'), "#{dir}rmt-server.cnf", generator.make_server_config)
+
+    # FIXME needs some sort of error handling
+    RMT::Utils.run_command("openssl genrsa -out #{dir}rmt-ca.key 2048")
+    RMT::Utils.run_command("openssl genrsa -out #{dir}rmt-server.key 2048")
+    RMT::Utils.run_command("openssl req -x509 -new -nodes -key #{dir}rmt-ca.key -sha256 -days 1024 -out #{dir}rmt-ca.pem -config #{dir}rmt-ca.cnf")
+    RMT::Utils.run_command("openssl req -new -key #{dir}rmt-server.key -out #{dir}rmt-server.csr -config #{dir}rmt-server.cnf")
+    RMT::Utils.run_command("openssl x509 -req -in #{dir}rmt-server.csr -CA #{dir}rmt-ca.pem -CAkey #{dir}rmt-ca.key -out #{dir}rmt-server.pem -days 1024 -sha256 -CAcreateserial -extensions v3_server_sign -extfile #{dir}rmt-server.cnf")
+
     finish_dialog(:next)
   end
 
@@ -94,8 +113,13 @@ class RMT::WizardCertificatePage < Yast::Client
   def remove_alt_name_handler
     selected_alt_name = UI.QueryWidget(Id(:alt_common_names), :CurrentItem)
     return unless selected_alt_name
+
+    selected_index = @alt_names.find_index(selected_alt_name)
     @alt_names.reject! { |item| item == selected_alt_name }
+    selected_index = selected_index >= @alt_names.size ? @alt_names.size - 1 : selected_index
+
     UI::ChangeWidget(Id(:alt_common_names), :Items, @alt_names)
+    UI::ChangeWidget(Id(:alt_common_names), :CurrentItem, @alt_names[selected_index])
   end
 
   def run
