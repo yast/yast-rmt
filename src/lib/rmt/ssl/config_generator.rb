@@ -20,10 +20,9 @@ require 'erb'
 require 'resolv'
 
 module RMT; end
-module RMT::Certificate; end
+module RMT::SSL; end
 
-class RMT::Certificate::Generator
-
+class RMT::SSL::ConfigGenerator
   attr_accessor :ca_common_name, :server_common_name, :dns_alt_names, :ip_alt_names
 
   def initialize(hostname, alt_names)
@@ -34,7 +33,7 @@ class RMT::Certificate::Generator
     @templates_dir = File.expand_path('./../../../templates/', __dir__)
 
     alt_names.each do |alt_name|
-      if (alt_name.match(Resolv::IPv4::Regex) or alt_name.match(Resolv::IPv6::Regex))
+      if (alt_name.match(Resolv::IPv4::Regex) || alt_name.match(Resolv::IPv6::Regex))
         @ip_alt_names << alt_name
       else
         @dns_alt_names << alt_name

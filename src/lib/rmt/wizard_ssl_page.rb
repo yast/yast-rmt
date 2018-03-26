@@ -16,14 +16,19 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/certificate/alternative_common_name_dialog'
-require 'rmt/certificate/generator'
+require 'rmt/ssl/alternative_common_name_dialog'
+require 'rmt/ssl/config_generator'
+require 'rmt/ssl/certificate_generator'
+require 'rmt/execute'
 require 'ui/event_dispatcher'
 
 module RMT; end
 
-class RMT::WizardCertificatePage < Yast::Client
+class RMT::WizardSSLPage < Yast::Client
   include ::UI::EventDispatcher
+  include Yast::Logger
+
+
 
   def initialize(config)
     textdomain 'rmt'
@@ -31,8 +36,8 @@ class RMT::WizardCertificatePage < Yast::Client
   end
 
   def render_content
-    common_name = get_common_name
-    @alt_names = get_alt_names(common_name)
+    common_name = query_common_name
+    @alt_names = query_alt_names(common_name)
 
     contents = Frame(
       _('SSL certificate generation'),
@@ -48,7 +53,7 @@ class RMT::WizardCertificatePage < Yast::Client
           VSpacing(1),
           SelectionBox(
             Id(:alt_common_names),
-            _("&Alternative common names:"),
+            _('&Alternative common names:'),
             @alt_names
           ),
           VSpacing(1),
@@ -57,7 +62,7 @@ class RMT::WizardCertificatePage < Yast::Client
             PushButton(Id(:remove_alt_name), Opt(:default, :key_F6), _('Remove selected'))
           )
         ),
-        HSpacing(1),
+        HSpacing(1)
       )
     )
 
@@ -84,19 +89,18 @@ class RMT::WizardCertificatePage < Yast::Client
     alt_names_items = UI.QueryWidget(Id(:alt_common_names), :Items)
     alt_names = alt_names_items.map { |item| item.params[1] }
 
-    generator = RMT::Certificate::Generator.new(common_name, alt_names)
+    cert_generator = RMT::SSL::CertificateGenerator.new
 
-    dir = '/tmp/test/' # FIXME
+    tempdir = '/tmp/test' # FIXME: write directly to the destination directory
+    temp_files = RMT::SSL::CertificateGenerator::OPENSSL_FILES.map { |id, filename| [id, File.join(tempdir, filename)] }.to_h
+    cert_generator.touch_the_files(temp_files.values)
 
-    Yast::SCR.Write(Yast.path('.target.string'), "#{dir}rmt-ca.cnf", generator.make_ca_config)
-    Yast::SCR.Write(Yast.path('.target.string'), "#{dir}rmt-server.cnf", generator.make_server_config)
+    # FIXME: call from CertificateGenerator
+    config_generator = RMT::SSL::ConfigGenerator.new(common_name, alt_names)
+    Yast::SCR.Write(Yast.path('.target.string'), temp_files[:ca_config], config_generator.make_ca_config)
+    Yast::SCR.Write(Yast.path('.target.string'), temp_files[:server_config], config_generator.make_server_config)
 
-    # FIXME needs some sort of error handling
-    RMT::Utils.run_command("openssl genrsa -out #{dir}rmt-ca.key 2048")
-    RMT::Utils.run_command("openssl genrsa -out #{dir}rmt-server.key 2048")
-    RMT::Utils.run_command("openssl req -x509 -new -nodes -key #{dir}rmt-ca.key -sha256 -days 1024 -out #{dir}rmt-ca.pem -config #{dir}rmt-ca.cnf")
-    RMT::Utils.run_command("openssl req -new -key #{dir}rmt-server.key -out #{dir}rmt-server.csr -config #{dir}rmt-server.cnf")
-    RMT::Utils.run_command("openssl x509 -req -in #{dir}rmt-server.csr -CA #{dir}rmt-ca.pem -CAkey #{dir}rmt-ca.key -out #{dir}rmt-server.pem -days 1024 -sha256 -CAcreateserial -extensions v3_server_sign -extfile #{dir}rmt-server.cnf")
+    cert_generator.generate(temp_files)
 
     finish_dialog(:next)
   end
@@ -116,7 +120,7 @@ class RMT::WizardCertificatePage < Yast::Client
 
     selected_index = @alt_names.find_index(selected_alt_name)
     @alt_names.reject! { |item| item == selected_alt_name }
-    selected_index = selected_index >= @alt_names.size ? @alt_names.size - 1 : selected_index
+    selected_index = (selected_index >= @alt_names.size) ? @alt_names.size - 1 : selected_index
 
     UI::ChangeWidget(Id(:alt_common_names), :Items, @alt_names)
     UI::ChangeWidget(Id(:alt_common_names), :CurrentItem, @alt_names[selected_index])
@@ -127,40 +131,65 @@ class RMT::WizardCertificatePage < Yast::Client
     event_loop
   end
 
-  def get_common_name
-    result = RMT::Utils.run_command("hostname --long", extended: true)
+  protected
+
+  def query_common_name
+    result = RMT::Utils.run_command('hostname --long', extended: true)
     result['stdout']
   end
 
-  def get_alt_names(common_name)
+  def query_alt_names(common_name)
     ips = []
-    result = RMT::Utils.run_command("ip -f inet -o addr show scope global | awk '{print $4}' | awk -F / '{print $1}' | tr '\n' ','", extended: true)
-    ips += result['stdout'].split(',').compact
 
-    result = RMT::Utils.run_command("ip -f inet6 -o addr show scope global | awk '{print $4}' | awk -F / '{print $1}' | tr '\n' ','", extended: true)
-    ips += result['stdout'].split(',').compact
+    %w[inet inet6].each do |addr_type|
+      begin
+        output = RMT::Execute.on_target!(
+          ['ip', '-f', addr_type, '-o', 'addr', 'show', 'scope', 'global'],
+          ['awk', '{print $4}'],
+          ['awk', '-F', '/', '{print $1}'],
+          ['tr', '\n', ','],
+          stdout: :capture
+        )
+
+        ips += output.split(',').compact
+      rescue Cheetah::ExecutionFailed => e
+        log.warn "Failed to obtain IP addresses: #{e}"
+      end
+    end
 
     dns_entries = ips.flat_map { |ip| query_dns_entries(ip) }.compact.reject { |item| item == common_name }
-
-    return dns_entries + ips
+    dns_entries + ips
   end
 
   def query_dns_entries(ip)
-    result = RMT::Utils.run_command(
-      "dig +noall +answer +time=2 +tries=1 -x %1 | awk '{print $5}' | sed 's/\\.$//'| tr '\n' '|'",
-      ip,
-      extended: true
-    )
+    commands = [
+      [
+        ['dig', '+noall', '+answer', '+time=2', '+tries=1', '-x', ip],
+        ['awk', '{print $5}'],
+        ['sed', 's/\\.$//'],
+        ['tr', '\n', '|']
+      ],
+      [
+        ['getent', 'hosts', ip],
+        ['awk', '{print $2}'],
+        ['sed', 's/\\.$//'],
+        ['tr', '\n', '|']
+      ]
+    ]
 
-    return result['stdout'].split('|').compact unless result['stdout'].empty?
+    commands.each do |command|
+      begin
+        output = RMT::Execute.on_target!(
+          *command,
+          stdout: :capture
+        )
 
-    result = RMT::Utils.run_command(
-      "getent hosts %1 | awk '{print $2}' | sed 's/\\.$//'| tr '\n' '|'",
-      ip,
-      extended: true
-    )
+        return output.split('|').compact unless output.empty?
+      rescue Cheetah::ExecutionFailed => e
+        log.warn "Failed to obtain host names: #{e}"
+      end
+    end
 
-    return result['stdout'].split('|').compact unless result['stdout'].empty?
+    nil
   end
-
 end

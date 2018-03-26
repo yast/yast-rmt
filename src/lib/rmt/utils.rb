@@ -20,8 +20,7 @@ require 'yaml'
 
 Yast.import 'Report'
 
-module RMT
-end
+module RMT; end
 
 class RMT::Utils
   include Yast::Logger
@@ -70,7 +69,7 @@ class RMT::Utils
         Yast::Builtins.sformat(command, *params)
       )
 
-      return result['exit'] unless (extended)
+      return result['exit'] unless extended
       result['stdout'].strip!
       result['stderr'].strip!
       result
