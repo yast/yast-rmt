@@ -37,7 +37,7 @@ class RMT::WizardSSLPage < Yast::Client
 
   def render_content
     common_name = query_common_name
-    @alt_names = query_alt_names(common_name)
+    @alt_names = query_alt_names
 
     contents = Frame(
       _('SSL certificate generation'),
@@ -90,17 +90,7 @@ class RMT::WizardSSLPage < Yast::Client
     alt_names = alt_names_items.map { |item| item.params[1] }
 
     cert_generator = RMT::SSL::CertificateGenerator.new
-
-    tempdir = '/tmp/test' # FIXME: write directly to the destination directory
-    temp_files = RMT::SSL::CertificateGenerator::OPENSSL_FILES.map { |id, filename| [id, File.join(tempdir, filename)] }.to_h
-    cert_generator.touch_the_files(temp_files.values)
-
-    # FIXME: call from CertificateGenerator
-    config_generator = RMT::SSL::ConfigGenerator.new(common_name, alt_names)
-    Yast::SCR.Write(Yast.path('.target.string'), temp_files[:ca_config], config_generator.make_ca_config)
-    Yast::SCR.Write(Yast.path('.target.string'), temp_files[:server_config], config_generator.make_server_config)
-
-    cert_generator.generate(temp_files)
+    cert_generator.generate(common_name, alt_names)
 
     finish_dialog(:next)
   end
@@ -134,11 +124,11 @@ class RMT::WizardSSLPage < Yast::Client
   protected
 
   def query_common_name
-    result = RMT::Utils.run_command('hostname --long', extended: true)
-    result['stdout']
+    output = RMT::Execute.on_target!('hostname',  '--long', stdout: :capture)
+    output.strip
   end
 
-  def query_alt_names(common_name)
+  def query_alt_names
     ips = []
 
     %w[inet inet6].each do |addr_type|
@@ -157,7 +147,7 @@ class RMT::WizardSSLPage < Yast::Client
       end
     end
 
-    dns_entries = ips.flat_map { |ip| query_dns_entries(ip) }.compact.reject { |item| item == common_name }
+    dns_entries = ips.flat_map { |ip| query_dns_entries(ip) }.compact
     dns_entries + ips
   end
 

@@ -23,13 +23,16 @@ module RMT; end
 module RMT::SSL; end
 
 class RMT::SSL::CertificateGenerator
+  RMT_SSL_DIR = '/usr/share/rmt/ssl/'.freeze
+
   OPENSSL_FILES = {
     ca_config: 'rmt-ca.cnf',
     ca_private_key: 'rmt-ca.key',
-    ca_certificate: 'rmt-ca.pem',
+    ca_certificate: 'rmt-ca.crt',
+    ca_serial_file: 'rmt-ca.srl',
     server_config: 'rmt-server.cnf',
     server_private_key: 'rmt-server.key',
-    server_certificate: 'rmt-server.pem',
+    server_certificate: 'rmt-server.crt',
     server_csr: 'rmt-server.csr'
   }.freeze
 
@@ -37,40 +40,60 @@ class RMT::SSL::CertificateGenerator
   OPENSSL_CA_VALIDITY_DAYS = 1024
   OPENSSL_SERVER_CERT_VALIDITY_DAYS = 1024
 
-  def generate(temp_files)
-    RMT::Execute.on_target!('openssl', 'genrsa', '-out', temp_files[:ca_private_key], OPENSSL_KEY_BITS)
-    RMT::Execute.on_target!('openssl', 'genrsa', '-out', temp_files[:server_private_key], OPENSSL_KEY_BITS)
+  def initialize
+    @ssl_paths = OPENSSL_FILES.map { |id, filename| [id, File.join(RMT_SSL_DIR, filename)] }.to_h
+  end
+
+  def generate(common_name, alt_names)
+    alt_names.unshift(common_name) unless alt_names.include?(common_name)
+    config_generator = RMT::SSL::ConfigGenerator.new(common_name, alt_names)
+
+    create_files
+
+    Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_serial_file], '01')
+    Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_config], config_generator.make_ca_config)
+    Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:server_config], config_generator.make_server_config)
+
+    RMT::Execute.on_target!('openssl', 'genrsa', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS)
+    RMT::Execute.on_target!('openssl', 'genrsa', '-out', @ssl_paths[:server_private_key], OPENSSL_KEY_BITS)
 
     # FIXME: needs some sort of error handling
     # FIXME: handle serial file too
-
     RMT::Execute.on_target!(
-      'openssl', 'req', '-x509', '-new', '-nodes', '-key', temp_files[:ca_private_key],
-      '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', temp_files[:ca_certificate],
-      '-config', temp_files[:ca_config]
+      'openssl', 'req', '-x509', '-new', '-nodes', '-key', @ssl_paths[:ca_private_key],
+      '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', @ssl_paths[:ca_certificate],
+      '-config', @ssl_paths[:ca_config]
     )
 
     RMT::Execute.on_target!(
-      'openssl', 'req', '-new', '-key', temp_files[:server_private_key],
-      '-out', temp_files[:server_csr], '-config', temp_files[:server_config]
+      'openssl', 'req', '-new', '-key', @ssl_paths[:server_private_key],
+      '-out', @ssl_paths[:server_csr], '-config', @ssl_paths[:server_config]
     )
 
     RMT::Execute.on_target!(
-      'openssl', 'x509', '-req', '-in', temp_files[:server_csr], '-out', temp_files[:server_certificate],
-      '-CA', temp_files[:ca_certificate], '-CAkey', temp_files[:ca_private_key],
-      '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256', '-CAcreateserial',
-      '-extensions', 'v3_server_sign', '-extfile', temp_files[:server_config]
+      'openssl', 'x509', '-req', '-in', @ssl_paths[:server_csr], '-out', @ssl_paths[:server_certificate],
+      '-CA', @ssl_paths[:ca_certificate], '-CAkey', @ssl_paths[:ca_private_key],
+      '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256',
+      '-CAcreateserial',
+      '-extensions', 'v3_server_sign', '-extfile', @ssl_paths[:server_config]
     )
+
+    # create certificates bundle
+    server_cert = Yast::SCR.Read(Yast.path('.target.string'), @ssl_paths[:server_certificate])
+    ca_cert = Yast::SCR.Read(Yast.path('.target.string'), @ssl_paths[:ca_certificate])
+    Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:server_certificate], server_cert + ca_cert)
+
+    # change permissions so that clients can download CA certificate
+    RMT::Execute.on_target!('chown', 'root:nginx', @ssl_paths[:ca_certificate])
+    RMT::Execute.on_target!('chmod', '0640', @ssl_paths[:ca_certificate])
   end
 
   # FIXME: needs error handling
-  def touch_the_files(files)
-    files.each do |file|
+  # Creates empty files and sets 600 permissions
+  def create_files
+    @ssl_paths.values.each do |file|
       Yast::SCR.Write(Yast.path('.target.string'), file, '')
-      Yast::SCR.Execute(
-        Yast.path('.target.bash'),
-        Yast::Builtins.sformat("chmod 0600 '%1'", Yast::String.Quote(file))
-      )
+      RMT::Execute.on_target!('chmod', '0600', file)
     end
   end
 end

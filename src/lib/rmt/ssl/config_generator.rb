@@ -30,7 +30,7 @@ class RMT::SSL::ConfigGenerator
     @server_common_name = hostname
     @dns_alt_names = []
     @ip_alt_names = []
-    @templates_dir = File.expand_path('./../../../templates/', __dir__)
+    @templates_dir = File.expand_path('./../../../data/rmt', __dir__)
 
     alt_names.each do |alt_name|
       if (alt_name.match(Resolv::IPv4::Regex) || alt_name.match(Resolv::IPv6::Regex))
