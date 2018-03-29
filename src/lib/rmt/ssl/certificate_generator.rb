@@ -50,7 +50,7 @@ class RMT::SSL::CertificateGenerator
   end
 
   def check_certs_presence
-    %i{ca_private_key ca_certificate server_private_key server_certificate}.each do |file_type|
+    %i[ca_private_key ca_certificate server_private_key server_certificate].each do |file_type|
       return true if File.exist?(@ssl_paths[file_type]) && !File.zero?(@ssl_paths[file_type])
     end
 
@@ -108,7 +108,7 @@ class RMT::SSL::CertificateGenerator
 
   # Creates empty files and sets 600 permissions
   def create_files
-    @ssl_paths.values.each do |file|
+    @ssl_paths.each_value do |file|
       write_file(file, '')
       RMT::Execute.on_target!('chmod', '0600', file)
     end

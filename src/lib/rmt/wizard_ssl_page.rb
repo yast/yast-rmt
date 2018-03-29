@@ -126,7 +126,7 @@ class RMT::WizardSSLPage < Yast::Client
   protected
 
   def query_common_name
-    output = RMT::Execute.on_target!('hostname',  '--long', stdout: :capture)
+    output = RMT::Execute.on_target!('hostname', '--long', stdout: :capture)
     output.strip
   end
 
