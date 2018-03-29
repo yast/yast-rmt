@@ -28,11 +28,10 @@ class RMT::WizardSSLPage < Yast::Client
   include ::UI::EventDispatcher
   include Yast::Logger
 
-
-
   def initialize(config)
     textdomain 'rmt'
     @config = config
+    @cert_generator = RMT::SSL::CertificateGenerator.new
   end
 
   def render_content
@@ -89,8 +88,7 @@ class RMT::WizardSSLPage < Yast::Client
     alt_names_items = UI.QueryWidget(Id(:alt_common_names), :Items)
     alt_names = alt_names_items.map { |item| item.params[1] }
 
-    cert_generator = RMT::SSL::CertificateGenerator.new
-    cert_generator.generate(common_name, alt_names)
+    @cert_generator.generate(common_name, alt_names)
 
     finish_dialog(:next)
   end
@@ -117,6 +115,10 @@ class RMT::WizardSSLPage < Yast::Client
   end
 
   def run
+    if @cert_generator.check_certs_presence
+      Yast::Popup.Message('SSL certificates already present, skipping generation.')
+      return finish_dialog(:next)
+    end
     render_content
     event_loop
   end

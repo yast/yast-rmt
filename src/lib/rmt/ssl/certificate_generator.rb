@@ -22,6 +22,8 @@ require 'resolv'
 module RMT; end
 module RMT::SSL; end
 
+class RMT::SSL::Exception < RuntimeError; end
+
 class RMT::SSL::CertificateGenerator
   RMT_SSL_DIR = '/usr/share/rmt/ssl/'.freeze
 
@@ -37,11 +39,22 @@ class RMT::SSL::CertificateGenerator
   }.freeze
 
   OPENSSL_KEY_BITS = 2048
-  OPENSSL_CA_VALIDITY_DAYS = 1024
-  OPENSSL_SERVER_CERT_VALIDITY_DAYS = 1024
+  OPENSSL_CA_VALIDITY_DAYS = 1825
+  OPENSSL_SERVER_CERT_VALIDITY_DAYS = 1825
 
   def initialize
+    extend Yast::I18n
+    textdomain 'rmt'
+
     @ssl_paths = OPENSSL_FILES.map { |id, filename| [id, File.join(RMT_SSL_DIR, filename)] }.to_h
+  end
+
+  def check_certs_presence
+    %i{ca_private_key ca_certificate server_private_key server_certificate}.each do |file_type|
+      return true if File.exist?(@ssl_paths[file_type]) && !File.zero?(@ssl_paths[file_type])
+    end
+
+    false
   end
 
   def generate(common_name, alt_names)
@@ -57,8 +70,6 @@ class RMT::SSL::CertificateGenerator
     RMT::Execute.on_target!('openssl', 'genrsa', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS)
     RMT::Execute.on_target!('openssl', 'genrsa', '-out', @ssl_paths[:server_private_key], OPENSSL_KEY_BITS)
 
-    # FIXME: needs some sort of error handling
-    # FIXME: handle serial file too
     RMT::Execute.on_target!(
       'openssl', 'req', '-x509', '-new', '-nodes', '-key', @ssl_paths[:ca_private_key],
       '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', @ssl_paths[:ca_certificate],
@@ -86,14 +97,25 @@ class RMT::SSL::CertificateGenerator
     # change permissions so that clients can download CA certificate
     RMT::Execute.on_target!('chown', 'root:nginx', @ssl_paths[:ca_certificate])
     RMT::Execute.on_target!('chmod', '0640', @ssl_paths[:ca_certificate])
+  rescue Cheetah::ExecutionFailed, RMT::SSL::Exception => e
+    Yast.import 'Report'
+    Yast::Report.Error(
+      _("An error ocurred during SSL certificate generation:\n%<error>s\n") % { error: e.to_s }
+    )
   end
 
-  # FIXME: needs error handling
+  protected
+
   # Creates empty files and sets 600 permissions
   def create_files
     @ssl_paths.values.each do |file|
-      Yast::SCR.Write(Yast.path('.target.string'), file, '')
+      write_file(file, '')
       RMT::Execute.on_target!('chmod', '0600', file)
     end
+  end
+
+  def write_file(filename, content)
+    result = Yast::SCR.Write(Yast.path('.target.string'), filename, content)
+    raise RMT::SSL::Exception, "Failed to write file #{filename}" unless result
   end
 end

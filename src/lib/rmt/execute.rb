@@ -28,7 +28,7 @@ class RMT::Execute
   Cheetah.default_options = { logger: Yast::Y2Logger.instance }
 
   extend Yast::I18n
-  textdomain 'base'
+  textdomain 'rmt'
 
   def self.on_target(*args)
     popup_error { on_target!(*args) }
