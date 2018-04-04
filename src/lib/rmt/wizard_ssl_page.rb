@@ -31,12 +31,12 @@ class RMT::WizardSSLPage < Yast::Client
   def initialize(config)
     textdomain 'rmt'
     @config = config
+    @alt_names = query_alt_names
     @cert_generator = RMT::SSL::CertificateGenerator.new
   end
 
   def render_content
     common_name = query_common_name
-    @alt_names = query_alt_names
 
     contents = Frame(
       _('SSL certificate generation'),
@@ -107,6 +107,8 @@ class RMT::WizardSSLPage < Yast::Client
     return unless selected_alt_name
 
     selected_index = @alt_names.find_index(selected_alt_name)
+    return unless selected_index
+
     @alt_names.reject! { |item| item == selected_alt_name }
     selected_index = (selected_index >= @alt_names.size) ? @alt_names.size - 1 : selected_index
 
@@ -145,11 +147,11 @@ class RMT::WizardSSLPage < Yast::Client
 
         ips += output.split(',').compact
       rescue Cheetah::ExecutionFailed => e
-        log.warn "Failed to obtain IP addresses: #{e}"
+        log.warn "Failed to obtain IP addresses: #{e.stderr}"
       end
     end
 
-    dns_entries = ips.flat_map { |ip| query_dns_entries(ip) }.compact
+    dns_entries = ips.flat_map { |ip| query_dns_entries(ip) }.uniq.compact
     dns_entries + ips
   end
 
@@ -178,7 +180,7 @@ class RMT::WizardSSLPage < Yast::Client
 
         return output.split('|').compact unless output.empty?
       rescue Cheetah::ExecutionFailed => e
-        log.warn "Failed to obtain host names: #{e}"
+        log.warn "Failed to obtain host names: #{e.stderr}"
       end
     end
 
