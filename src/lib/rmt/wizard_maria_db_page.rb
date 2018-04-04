@@ -49,9 +49,9 @@ class RMT::WizardMariaDBPage < Yast::Client
       )
     )
 
-    Wizard.SetNextButton(:next, Label.OKButton)
+    Wizard.SetNextButton(:next, Label.NextButton)
     Wizard.SetContents(
-      _('RMT configuration step 2/2'),
+      _('RMT configuration step 2/3'),
       contents,
       '<p>This step of the wizard performs the necessary database setup.</p>',
       true,

@@ -20,9 +20,9 @@ require 'rmt/utils'
 require 'ui/dialog'
 
 module RMT; end
-module RMT::Certificate; end
+module RMT::SSL; end
 
-class RMT::Certificate::AlternativeCommonNameDialog < UI::Dialog
+class RMT::SSL::AlternativeCommonNameDialog < UI::Dialog
   def initialize
     textdomain 'rmt'
   end

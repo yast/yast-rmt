@@ -65,7 +65,7 @@ class RMT::WizardSSLPage < Yast::Client
       )
     )
 
-    Wizard.SetNextButton(:next, Label.OKButton)
+    Wizard.SetNextButton(:next, Label.FinishButton)
     Wizard.SetContents(
       _('RMT configuration step 3/3'),
       contents,
@@ -94,7 +94,7 @@ class RMT::WizardSSLPage < Yast::Client
   end
 
   def add_alt_name_handler
-    dialog = RMT::Certificate::AlternativeCommonNameDialog.new
+    dialog = RMT::SSL::AlternativeCommonNameDialog.new
     alt_name = dialog.run
 
     return unless alt_name

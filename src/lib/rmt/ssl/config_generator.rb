@@ -23,7 +23,7 @@ module RMT; end
 module RMT::SSL; end
 
 class RMT::SSL::ConfigGenerator
-  attr_accessor :ca_common_name, :server_common_name, :dns_alt_names, :ip_alt_names
+  attr_reader :ca_common_name, :server_common_name, :dns_alt_names, :ip_alt_names
 
   def initialize(hostname, alt_names)
     @ca_common_name = "RMT Certificate Authority (#{hostname})"
@@ -32,6 +32,7 @@ class RMT::SSL::ConfigGenerator
     @ip_alt_names = []
     @templates_dir = File.expand_path('./../../../data/rmt', __dir__)
 
+    alt_names.unshift(@server_common_name) unless alt_names.include?(@server_common_name)
     alt_names.each do |alt_name|
       if (alt_name.match(Resolv::IPv4::Regex) || alt_name.match(Resolv::IPv6::Regex))
         @ip_alt_names << alt_name

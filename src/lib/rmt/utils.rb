@@ -60,7 +60,7 @@ class RMT::Utils
 
     end
 
-    # Runs a command and returns the has with exit code, stdout and stderr
+    # Runs a command and returns the exit code
     def run_command(command, *params)
       params = params.map { |p| Yast::String.Quote(p) }
 

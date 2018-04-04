@@ -41,22 +41,12 @@ class RMT::Wizard < Yast::Client
     @config = RMT::Utils.read_config_file
   end
 
-  def step1
-    page = RMT::WizardSCCPage.new(@config)
-    page.run
-  end
-
-  def step2
-    page = RMT::WizardMariaDBPage.new(@config)
-    page.run
-  end
-
   def run
     return unless Yast::Confirm.MustBeRoot
 
     aliases = {
-      'step1' => -> { step1 },
-      'step2' => -> { step2 },
+      'step1' => -> { RMT::WizardSCCPage.new(@config).run },
+      'step2' => -> { RMT::WizardMariaDBPage.new(@config).run },
       'step3' => -> { RMT::WizardSSLPage.new(@config).run }
     }
 

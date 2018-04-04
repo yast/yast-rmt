@@ -18,6 +18,8 @@
 
 require 'erb'
 require 'resolv'
+require 'rmt/execute'
+require 'rmt/ssl/config_generator'
 
 module RMT; end
 module RMT::SSL; end
@@ -58,7 +60,6 @@ class RMT::SSL::CertificateGenerator
   end
 
   def generate(common_name, alt_names)
-    alt_names.unshift(common_name) unless alt_names.include?(common_name)
     config_generator = RMT::SSL::ConfigGenerator.new(common_name, alt_names)
 
     create_files
@@ -100,7 +101,9 @@ class RMT::SSL::CertificateGenerator
   rescue Cheetah::ExecutionFailed, RMT::SSL::Exception => e
     Yast.import 'Report'
     Yast::Report.Error(
-      _("An error ocurred during SSL certificate generation:\n%<error>s\n") % { error: e.to_s }
+      _("An error ocurred during SSL certificate generation:\n%<error>s\n") % {
+        error: (e.class == Cheetah::ExecutionFailed) ? e.stderr : e.to_s
+      }
     )
   end
 

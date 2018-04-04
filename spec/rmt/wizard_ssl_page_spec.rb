@@ -36,7 +36,7 @@ describe RMT::WizardSSLPage do
 
   describe '#render_content' do
     it 'renders UI elements' do
-      expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.OKButton)
+      expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.FinishButton)
       expect(Yast::Wizard).to receive(:SetContents)
 
       expect(ssl_page).to receive(:query_common_name)
@@ -75,11 +75,11 @@ describe RMT::WizardSSLPage do
   end
 
   describe '#add_alt_name_handler' do
-    let(:dialog_double) { instance_double(RMT::Certificate::AlternativeCommonNameDialog) }
+    let(:dialog_double) { instance_double(RMT::SSL::AlternativeCommonNameDialog) }
 
     context 'when alt name dialog is canceled' do
       it 'displays add alt name dialog' do
-        expect(RMT::Certificate::AlternativeCommonNameDialog).to receive(:new).and_return(dialog_double)
+        expect(RMT::SSL::AlternativeCommonNameDialog).to receive(:new).and_return(dialog_double)
         expect(dialog_double).to receive(:run).and_return(nil)
         ssl_page.add_alt_name_handler
       end
@@ -89,7 +89,7 @@ describe RMT::WizardSSLPage do
       let(:alt_name) { 'alt-name.example.org' }
 
       it 'displays add alt name dialog' do
-        expect(RMT::Certificate::AlternativeCommonNameDialog).to receive(:new).and_return(dialog_double)
+        expect(RMT::SSL::AlternativeCommonNameDialog).to receive(:new).and_return(dialog_double)
         expect(dialog_double).to receive(:run).and_return(alt_name)
         expect(Yast::UI).to receive(:ChangeWidget).with(Id(:alt_common_names), :Items, alt_names + [alt_name])
         ssl_page.add_alt_name_handler

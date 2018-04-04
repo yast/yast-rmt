@@ -29,7 +29,7 @@ describe RMT::WizardMariaDBPage do
 
   describe '#render_content' do
     it 'renders UI elements' do
-      expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.OKButton)
+      expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.NextButton)
       expect(Yast::Wizard).to receive(:SetContents)
 
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:db_username), :Value, config['database']['username'])
