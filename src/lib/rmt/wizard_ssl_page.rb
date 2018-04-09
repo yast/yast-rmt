@@ -130,6 +130,8 @@ class RMT::WizardSSLPage < Yast::Client
   def query_common_name
     output = RMT::Execute.on_target!('hostname', '--long', stdout: :capture)
     output.strip
+  rescue Cheetah::ExecutionFailed
+    'rmt.server'
   end
 
   def query_alt_names

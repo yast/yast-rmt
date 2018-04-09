@@ -140,6 +140,13 @@ describe RMT::WizardSSLPage do
       expect(RMT::Execute).to receive(:on_target!).with('hostname', '--long', stdout: :capture).and_return("\n\n\nexample.org\n\n")
       expect(ssl_page.send(:query_common_name)).to eq('example.org')
     end
+
+    it 'handles exceptions and sets the default common name' do
+      expect(RMT::Execute).to receive(:on_target!).with('hostname', '--long', stdout: :capture).and_raise(
+        Cheetah::ExecutionFailed.new('command', 255, '', 'Something went wrong')
+      )
+      expect(ssl_page.send(:query_common_name)).to eq('rmt.server')
+    end
   end
 
   describe '#query_alt_names' do
