@@ -58,6 +58,12 @@ rake install DESTDIR="%{buildroot}"
 %defattr(-,root,root)
 %{yast_dir}/clients/*.rb
 %{yast_dir}/lib/rmt
+%{yast_desktopdir}/rmt.desktop
+%dir %{yast_dir}/theme
+%dir %{yast_dir}/theme/current
+%dir %{yast_dir}/theme/current/icons
+%dir %{yast_dir}/theme/current/icons/*
+%{yast_dir}/theme/current/icons/*/yast-rmt.png
 
 %doc COPYING
 %doc README.md
