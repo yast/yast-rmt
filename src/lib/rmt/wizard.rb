@@ -20,6 +20,7 @@ require 'rmt/utils'
 require 'rmt/wizard_scc_page'
 require 'rmt/wizard_maria_db_page'
 require 'rmt/wizard_ssl_page'
+require 'rmt/wizard_final_page'
 
 module RMT
 end
@@ -47,14 +48,16 @@ class RMT::Wizard < Yast::Client
     aliases = {
       'step1' => -> { RMT::WizardSCCPage.new(@config).run },
       'step2' => -> { RMT::WizardMariaDBPage.new(@config).run },
-      'step3' => -> { RMT::WizardSSLPage.new(@config).run }
+      'step3' => -> { RMT::WizardSSLPage.new(@config).run },
+      'finish' => -> { RMT::WizardFinalPage.new(@config).run }
     }
 
     sequence = {
       'ws_start' => 'step1',
       'step1'   => { abort: :abort, next: 'step2' },
       'step2'   => { abort: :abort, next: 'step3' },
-      'step3'   => { abort: :abort, next: :next }
+      'step3'   => { abort: :abort, next: 'finish' },
+      'finish'  => { abort: :abort, next: :next }
     }
 
     Wizard.CreateDialog()

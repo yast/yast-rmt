@@ -36,7 +36,6 @@ describe RMT::WizardSSLPage do
 
   describe '#render_content' do
     it 'renders UI elements' do
-      expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.FinishButton)
       expect(Yast::Wizard).to receive(:SetContents)
 
       expect(ssl_page).to receive(:query_common_name)

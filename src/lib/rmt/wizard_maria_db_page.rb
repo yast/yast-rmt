@@ -18,6 +18,7 @@
 
 require 'rmt/maria_db/current_root_password_dialog'
 require 'rmt/maria_db/new_root_password_dialog'
+require 'rmt/execute'
 require 'ui/event_dispatcher'
 
 module RMT; end
@@ -81,7 +82,7 @@ class RMT::WizardMariaDBPage < Yast::Client
       new_root_password = dialog.run
 
       if !new_root_password || new_root_password.empty? || !dialog.set_root_password(new_root_password, @config['database']['hostname'])
-        Report.Error('Setting new root password failed')
+        Report.Error(_('Setting new root password failed'))
         return
       end
 
@@ -94,7 +95,7 @@ class RMT::WizardMariaDBPage < Yast::Client
     if @root_password
       create_database_and_user
     else
-      Report.Error('Root password not provided, skipping database setup.')
+      Report.Error(_('Root password not provided, skipping database setup.'))
     end
 
     RMT::Utils.write_config_file(@config)
@@ -102,8 +103,29 @@ class RMT::WizardMariaDBPage < Yast::Client
   end
 
   def run
+    if check_db_credentials
+      Yast::Popup.Message(_('Database has already been configured, skipping database setup.'))
+      return finish_dialog(:next)
+    end
     render_content
     event_loop
+  end
+
+  def check_db_credentials
+    %w[username password database hostname].each do |key|
+      return false if (!@config['database'][key] || @config['database'][key].empty?)
+    end
+
+    RMT::Execute.on_target!(
+      ['echo', 'select 1;'],
+      [
+        'mysql', '-u', @config['database']['username'], "-p#{@config['database']['password']}",
+        '-D', @config['database']['database'], '-h', @config['database']['hostname']
+      ]
+    )
+    true
+  rescue Cheetah::ExecutionFailed
+    false
   end
 
   def root_password_empty?

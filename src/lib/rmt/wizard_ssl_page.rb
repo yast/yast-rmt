@@ -65,7 +65,6 @@ class RMT::WizardSSLPage < Yast::Client
       )
     )
 
-    Wizard.SetNextButton(:next, Label.FinishButton)
     Wizard.SetContents(
       _('RMT configuration step 3/3'),
       contents,
