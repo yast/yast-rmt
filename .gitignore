@@ -2,3 +2,6 @@
 doc
 coverage
 rmt.pot
+.idea/*
+*~
+*.sw?
