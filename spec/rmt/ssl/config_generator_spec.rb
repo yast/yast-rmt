@@ -26,7 +26,7 @@ describe RMT::SSL::ConfigGenerator do
   let(:ip_addresses) { ['1.1.1.1', '1111:2222:3333:4444:5555:6666:7777:8888'] }
   let(:alt_names) { dns_names + ip_addresses }
   let(:template_system_location) { File.join('/usr/share/YaST2/data/rmt', template_filename) }
-  let(:template) { File.read(File.join('src/data/rmt', template_filename) ) }
+  let(:template) { File.read(File.join('src/data/rmt', template_filename)) }
 
   describe '#new' do
     it 'matches DNS names' do
@@ -39,7 +39,7 @@ describe RMT::SSL::ConfigGenerator do
   end
 
   describe '#make_ca_config' do
-    let(:template_filename) { 'rmt-ca.cnf.erb'}
+    let(:template_filename) { 'rmt-ca.cnf.erb' }
 
     it 'contains correct common name' do
       expect(File).to receive(:read).with(template_system_location).and_return(template)
@@ -53,9 +53,9 @@ describe RMT::SSL::ConfigGenerator do
   end
 
   describe '#make_server_config' do
-    let(:template_filename) { 'rmt-server-cert.cnf.erb'}
-
     subject(:config) { generator.make_server_config }
+
+    let(:template_filename) { 'rmt-server-cert.cnf.erb' }
 
     it 'contains correct common name' do
       expect(File).to receive(:read).with(template_system_location).and_return(template)
@@ -76,5 +76,4 @@ describe RMT::SSL::ConfigGenerator do
       end
     end
   end
-
 end
