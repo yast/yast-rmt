@@ -30,7 +30,7 @@ class RMT::SSL::ConfigGenerator
     @server_common_name = hostname
     @dns_alt_names = []
     @ip_alt_names = []
-    @templates_dir = File.expand_path('./../../../data/rmt', __dir__)
+    @templates_dir = File.join(Yast::Directory.datadir, 'rmt')
 
     alt_names.unshift(@server_common_name) unless alt_names.include?(@server_common_name)
     alt_names.each do |alt_name|
