@@ -119,6 +119,6 @@ class RMT::SSL::CertificateGenerator
 
   def write_file(filename, content)
     result = Yast::SCR.Write(Yast.path('.target.string'), filename, content)
-    raise RMT::SSL::Exception, "Failed to write file #{filename}" unless result
+    raise RMT::SSL::Exception, _("Failed to write file #{filename}") unless result
   end
 end

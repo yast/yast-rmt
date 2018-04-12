@@ -39,7 +39,7 @@ class RMT::WizardFinalPage < Yast::Client
         HSpacing(1),
         VBox(
           VSpacing(1),
-          Label('RMT setup is now complete.'),
+          Label(_('RMT setup is now complete.')),
           VSpacing(1)
         ),
         HSpacing(1)
@@ -48,7 +48,7 @@ class RMT::WizardFinalPage < Yast::Client
     Wizard.SetContents(
       _('RMT configuration'),
       contents,
-      '<p>RMT setup is now complete.</p>',
+      _('<p>RMT setup is now complete.</p>'),
       true,
       true
     )
@@ -67,7 +67,7 @@ class RMT::WizardFinalPage < Yast::Client
   end
 
   def run
-    Yast::Report.Error("Failed to enable and restart service 'rmt'") unless (Yast::Service.Enable('rmt') && Yast::Service.Restart('rmt'))
+    Yast::Report.Error(_("Failed to enable and restart service 'rmt'")) unless (Yast::Service.Enable('rmt') && Yast::Service.Restart('rmt'))
     render_content
     event_loop
   end

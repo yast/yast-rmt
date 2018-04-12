@@ -68,7 +68,7 @@ class RMT::WizardSSLPage < Yast::Client
     Wizard.SetContents(
       _('RMT configuration step 3/3'),
       contents,
-      '<p>This step of the wizard generates the required SSL certificates.</p>',
+      _('<p>This step of the wizard generates the required SSL certificates.</p>'),
       true,
       true
     )
@@ -117,7 +117,7 @@ class RMT::WizardSSLPage < Yast::Client
 
   def run
     if @cert_generator.check_certs_presence
-      Yast::Popup.Message('SSL certificates already present, skipping generation.')
+      Yast::Popup.Message(_('SSL certificates already present, skipping generation.'))
       return finish_dialog(:next)
     end
     render_content
