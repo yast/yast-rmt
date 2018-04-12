@@ -11,6 +11,6 @@ X-SuSE-YaST-AutoInstResource=rmt
 Icon=yast-rmt
 Exec=/sbin/yast2 scc
 
-Name=Repository Mirroring Tool
-GenericName=Repository Mirroring Tool
+Name=Repository Mirroring Tool Configuration
+GenericName=Repository Mirroring Tool Configuration
 StartupNotify=true
