@@ -101,7 +101,7 @@ class RMT::SSL::CertificateGenerator
   rescue Cheetah::ExecutionFailed, RMT::SSL::Exception => e
     Yast.import 'Report'
     Yast::Report.Error(
-      _("An error ocurred during SSL certificate generation:\n%<error>s\n") % {
+      _("An error occurred during SSL certificate generation:\n%<error>s\n") % {
         error: (e.class == Cheetah::ExecutionFailed) ? e.stderr : e.to_s
       }
     )

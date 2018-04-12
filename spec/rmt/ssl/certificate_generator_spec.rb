@@ -123,13 +123,13 @@ describe RMT::SSL::CertificateGenerator do
 
     it 'handles Cheetah::ExecutionFailed exceptions' do
       expect(RMT::SSL::ConfigGenerator).to receive(:new).and_raise(Cheetah::ExecutionFailed.new('cmd', 1, '', 'Dummy error'))
-      expect(Yast::Report).to receive(:Error).with("An error ocurred during SSL certificate generation:\nDummy error\n")
+      expect(Yast::Report).to receive(:Error).with("An error occurred during SSL certificate generation:\nDummy error\n")
       generator.generate(common_name, alt_names)
     end
 
     it 'handles RMT::SSL::Exception exceptions' do
       expect(RMT::SSL::ConfigGenerator).to receive(:new).and_raise(RMT::SSL::Exception.new('Dummy error'))
-      expect(Yast::Report).to receive(:Error).with("An error ocurred during SSL certificate generation:\nDummy error\n")
+      expect(Yast::Report).to receive(:Error).with("An error occurred during SSL certificate generation:\nDummy error\n")
       generator.generate(common_name, alt_names)
     end
   end
