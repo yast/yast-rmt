@@ -40,16 +40,17 @@ class RMT::Wizard < Yast::Client
     textdomain 'rmt'
 
     @config = RMT::Utils.read_config_file
+				@errors = []
   end
 
   def run
     return unless Yast::Confirm.MustBeRoot
 
     aliases = {
-      'step1' => -> { RMT::WizardSCCPage.new(@config).run },
-      'step2' => -> { RMT::WizardMariaDBPage.new(@config).run },
-      'step3' => -> { RMT::WizardSSLPage.new(@config).run },
-      'finish' => -> { RMT::WizardFinalPage.new(@config).run }
+      'step1' => -> { RMT::WizardSCCPage.new(@config, @errors).run },
+      'step2' => -> { RMT::WizardMariaDBPage.new(@config, @errors).run },
+      'step3' => -> { RMT::WizardSSLPage.new(@config, @errors).run },
+      'finish' => -> { RMT::WizardFinalPage.new(@config, @errors).run }
     }
 
     sequence = {

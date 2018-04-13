@@ -26,9 +26,10 @@ module RMT; end
 class RMT::WizardMariaDBPage < Yast::Client
   include ::UI::EventDispatcher
 
-  def initialize(config)
+  def initialize(config, errors)
     textdomain 'rmt'
     @config = config
+    @errors = errors
   end
 
   def render_content

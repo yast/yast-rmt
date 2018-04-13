@@ -26,9 +26,10 @@ class RMT::WizardFinalPage < Yast::Client
   Yast.import 'Report'
   Yast.import 'Service'
 
-  def initialize(config)
+  def initialize(config, errors)
     textdomain 'rmt'
     @config = config
+    @errors = errors
   end
 
   def render_content

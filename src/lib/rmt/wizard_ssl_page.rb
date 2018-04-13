@@ -28,9 +28,10 @@ class RMT::WizardSSLPage < Yast::Client
   include ::UI::EventDispatcher
   include Yast::Logger
 
-  def initialize(config)
+  def initialize(config, errors)
     textdomain 'rmt'
     @config = config
+    @errors = errors
     @alt_names = query_alt_names
     @cert_generator = RMT::SSL::CertificateGenerator.new
   end

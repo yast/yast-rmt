@@ -26,9 +26,10 @@ module RMT; end
 class RMT::WizardSCCPage < Yast::Client
   include ::UI::EventDispatcher
 
-  def initialize(config)
+  def initialize(config, errors)
     textdomain 'rmt'
     @config = config
+    @errors = errors
   end
 
   def render_content
@@ -75,13 +76,19 @@ class RMT::WizardSCCPage < Yast::Client
     @config['scc']['username'] = UI.QueryWidget(Id(:scc_username), :Value)
     @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
 
-    return unless scc_credentials_valid? || Popup.AnyQuestion(
-      _('Invalid SCC credentials'),
-      _('SCC credentials are invalid. Please check the credentials.'),
-      _('Ignore and continue'),
-      _('Go back'),
-      :focus_no
-    )
+    if scc_credentials_valid?
+      return
+    else
+      credentials_short_error = _('Invalid SCC credentials provided')
+      @errors << credentials_short_error
+      Popup.AnyQuestion(
+        credentials_short_error,
+        _('SCC credentials are invalid. Please check the credentials.'),
+        _('Ignore and continue'),
+        _('Go back'),
+        :focus_no
+      )
+    end
 
     finish_dialog(:next)
   end
