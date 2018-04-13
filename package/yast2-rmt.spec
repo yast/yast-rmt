@@ -24,7 +24,7 @@ BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-Requires:       rmt-server
+Requires:       rmt-server >= 0.0.5
 Requires:       yast2
 Requires:       yast2-ruby-bindings
 
