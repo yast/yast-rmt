@@ -30,10 +30,18 @@ docker build -t yast-rmt-image .
 docker run -it yast-rmt-image rspec
 ```
 
-### Package 
+### Package
 
-The package gets built for SLE 15 and openSUSE Leap 15 here: 
+The package gets built for SLE 15 and openSUSE Leap 15 here:
 https://build.opensuse.org/package/show/systemsmanagement:SCC:RMT/yast2-rmt
+
+You can use:
+
+```bash
+rake osc:commit
+```
+
+to commit the current version to OBS. 
 
 
 #### Submit Requests to openSUSE Factory and SLES
@@ -61,15 +69,9 @@ osc -A https://api.suse.de sr Devel:SCC:RMT yast2-rmt SUSE:SLE-15:GA --no-cleanu
 To submit the updated package as a maintenance update to released SLES versions:
 
 ```bash
-osc -A https://api.suse.de mr Devel:SCC:RMT yast2-rmt SUSE:SLE-12-SP2:Update --no-cleanup
-osc -A https://api.suse.de mr Devel:SCC:RMT yast2-rmt SUSE:SLE-12-SP3:Update --no-cleanup
+osc -A https://api.suse.de mr Devel:SCC:RMT yast2-rmt SUSE:SLE-15:GA:Update --no-cleanup
 ```
 
 You can check the status of your requests [here](https://build.opensuse.org/package/requests/systemsmanagement:SCC:RMT/yast2-rmt) and [here](https://build.suse.de/package/requests/Devel:SCC:RMT/yast2-rmt).
 
 After your requests got accepted, they still have to pass maintenance testing before they get released to customers. You can check their progress at [maintenance.suse.de](https://maintenance.suse.de/search/?q=yast2-rmt). If you still need help, the maintenance team can be reached at [maint-coord@suse.de](maint-coord@suse.de) or #maintenance on irc.suse.de.
-
-
-
-
-
