@@ -116,7 +116,7 @@ class RMT::WizardSSLPage < Yast::Client
   end
 
   def run
-    if @cert_generator.check_certs_presence
+    if @cert_generator.ca_present? && @cert_generator.server_cert_present?
       Yast::Popup.Message(_('SSL certificates already present, skipping generation.'))
       return finish_dialog(:next)
     end

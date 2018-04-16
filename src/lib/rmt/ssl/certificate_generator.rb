@@ -51,32 +51,45 @@ class RMT::SSL::CertificateGenerator
     @ssl_paths = OPENSSL_FILES.map { |id, filename| [id, File.join(RMT_SSL_DIR, filename)] }.to_h
   end
 
-  def check_certs_presence
-    %i[ca_private_key ca_certificate server_private_key server_certificate].each do |file_type|
+  def ca_present?
+    %i[ca_private_key ca_certificate].each do |file_type|
       return true if File.exist?(@ssl_paths[file_type]) && !File.zero?(@ssl_paths[file_type])
     end
+    false
+  end
 
+  def server_cert_present?
+    %i[server_private_key server_certificate].each do |file_type|
+      return true if File.exist?(@ssl_paths[file_type]) && !File.zero?(@ssl_paths[file_type])
+    end
     false
   end
 
   def generate(common_name, alt_names)
     config_generator = RMT::SSL::ConfigGenerator.new(common_name, alt_names)
 
-    create_files
+    files = @ssl_paths.dup
+    if ca_present?
+      files.delete(:ca_certificate)
+      files.delete(:ca_private_key)
+    end
+    create_files(files)
 
     Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_serial_file], '01')
-    Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_config], config_generator.make_ca_config)
     Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:server_config], config_generator.make_server_config)
 
-    RMT::Execute.on_target!('openssl', 'genrsa', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS)
+    unless ca_present?
+      Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_config], config_generator.make_ca_config)
+
+      RMT::Execute.on_target!('openssl', 'genrsa', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS)
+      RMT::Execute.on_target!(
+        'openssl', 'req', '-x509', '-new', '-nodes', '-key', @ssl_paths[:ca_private_key],
+        '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', @ssl_paths[:ca_certificate],
+        '-config', @ssl_paths[:ca_config]
+      )
+    end
+
     RMT::Execute.on_target!('openssl', 'genrsa', '-out', @ssl_paths[:server_private_key], OPENSSL_KEY_BITS)
-
-    RMT::Execute.on_target!(
-      'openssl', 'req', '-x509', '-new', '-nodes', '-key', @ssl_paths[:ca_private_key],
-      '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', @ssl_paths[:ca_certificate],
-      '-config', @ssl_paths[:ca_config]
-    )
-
     RMT::Execute.on_target!(
       'openssl', 'req', '-new', '-key', @ssl_paths[:server_private_key],
       '-out', @ssl_paths[:server_csr], '-config', @ssl_paths[:server_config]
@@ -110,8 +123,8 @@ class RMT::SSL::CertificateGenerator
   protected
 
   # Creates empty files and sets 600 permissions
-  def create_files
-    @ssl_paths.each_value do |file|
+  def create_files(files)
+    files.each_value do |file|
       write_file(file, '')
       RMT::Execute.on_target!('chmod', '0600', file)
     end
