@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Apr  3 08:16:37 UTC 2018 - ikapelyukhin@suse.com
+
+- version 0.0.3
+- Add setup steps for SSL certificate generation (fate#325115)
+
+-------------------------------------------------------------------
 Mon Mar  5 15:12:56 UTC 2018 - ikapelyukhin@suse.com
 
 - version 0.0.2

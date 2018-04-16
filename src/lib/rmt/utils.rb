@@ -20,8 +20,7 @@ require 'yaml'
 
 Yast.import 'Report'
 
-module RMT
-end
+module RMT; end
 
 class RMT::Utils
   include Yast::Logger

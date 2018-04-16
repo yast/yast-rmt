@@ -1,0 +1,33 @@
+[req]
+default_bits                   = 2048
+distinguished_name             = req_distinguished_name
+x509_extensions                = v3_server_sign
+string_mask                    = utf8only
+prompt                         = no
+req_extensions                 = v3_req
+
+[v3_server_sign]
+basicConstraints               = CA:false
+nsComment                      = "RMT Generated Server Certificate"
+nsCertType                     = server
+keyUsage                       = digitalSignature, keyEncipherment, keyAgreement
+extendedKeyUsage               = serverAuth, clientAuth
+subjectKeyIdentifier           = hash
+authorityKeyIdentifier         = keyid,issuer:always
+subjectAltName                 = @alt_names
+
+[v3_req]
+basicConstraints               = CA:false
+keyUsage                       = digitalSignature, keyEncipherment, keyAgreement
+subjectAltName                 = @alt_names
+
+[req_distinguished_name]
+CN                             = <%= server_common_name %>
+
+[alt_names]
+<% dns_alt_names.each_with_index do |alt_name, index| %>
+DNS.<%= index %>                          = <%= alt_name %>
+<% end %>
+<% ip_alt_names.each_with_index do |alt_name, index| %>
+IP.<%= index %>                           = <%= alt_name %>
+<% end %>
