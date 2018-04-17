@@ -73,6 +73,7 @@ class RMT::SSL::CertificateGenerator
       files.delete(:ca_certificate)
       files.delete(:ca_private_key)
     end
+
     create_files(files)
 
     Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_serial_file], '01')

@@ -25,7 +25,7 @@ describe RMT::SSL::ConfigGenerator do
   let(:dns_names) { ['foo.example.org', 'bar.example.org'] }
   let(:ip_addresses) { ['1.1.1.1', '1111:2222:3333:4444:5555:6666:7777:8888'] }
   let(:alt_names) { dns_names + ip_addresses }
-  let(:template_system_location) { File.join('/usr/share/YaST2/data/rmt', template_filename) }
+  let(:template_system_location) { File.join(File.expand_path('./../../../src/data/rmt', __dir__), template_filename) }
   let(:template) { File.read(File.join('src/data/rmt', template_filename)) }
 
   describe '#new' do

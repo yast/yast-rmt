@@ -27,10 +27,12 @@ describe RMT::SSL::CertificateGenerator do
     described_class::OPENSSL_FILES.map { |id, filename| [id, File.join(described_class::RMT_SSL_DIR, filename)] }.to_h
   end
 
-  let(:crt_and_key_files) { %i[ca_private_key ca_certificate server_private_key server_certificate] }
+  let(:ca_files) { %i[ca_private_key ca_certificate] }
+  let(:server_cert_files) { %i[server_private_key server_certificate] }
+  let(:crt_and_key_files) { ca_files + server_cert_files }
 
-  describe '#check_certs_presence' do
-    subject(:result) { generator.check_certs_presence }
+  describe '#ca_present?' do
+    subject(:result) { generator.ca_present? }
 
     before do
       # Yast reads locale data at startup for i18n
@@ -38,14 +40,14 @@ describe RMT::SSL::CertificateGenerator do
     end
 
     it 'returns false when none of the files exist' do
-      crt_and_key_files.each do |file|
+      ca_files.each do |file|
         expect(File).to receive(:exist?).with(ssl_files[file]).and_return(false)
       end
       expect(result).to eq(false)
     end
 
     it 'returns false when all of the files are empty' do
-      crt_and_key_files.each do |file|
+      ca_files.each do |file|
         expect(File).to receive(:exist?).with(ssl_files[file]).and_return(true)
         expect(File).to receive(:zero?).with(ssl_files[file]).and_return(true)
       end
@@ -53,7 +55,39 @@ describe RMT::SSL::CertificateGenerator do
     end
 
     it 'returns true when one the files exist and is not empty' do
-      file = crt_and_key_files.shift
+      file = ca_files.shift
+      expect(File).to receive(:exist?).with(ssl_files[file]).and_return(true)
+      expect(File).to receive(:zero?).with(ssl_files[file]).and_return(false)
+
+      expect(result).to eq(true)
+    end
+  end
+
+  describe '#server_cert_present??' do
+    subject(:result) { generator.server_cert_present? }
+
+    before do
+      # Yast reads locale data at startup for i18n
+      expect(File).to receive(:exist?).with('/usr/share/YaST2/locale').and_return(false)
+    end
+
+    it 'returns false when none of the files exist' do
+      server_cert_files.each do |file|
+        expect(File).to receive(:exist?).with(ssl_files[file]).and_return(false)
+      end
+      expect(result).to eq(false)
+    end
+
+    it 'returns false when all of the files are empty' do
+      server_cert_files.each do |file|
+        expect(File).to receive(:exist?).with(ssl_files[file]).and_return(true)
+        expect(File).to receive(:zero?).with(ssl_files[file]).and_return(true)
+      end
+      expect(result).to eq(false)
+    end
+
+    it 'returns true when one the files exist and is not empty' do
+      file = server_cert_files.shift
       expect(File).to receive(:exist?).with(ssl_files[file]).and_return(true)
       expect(File).to receive(:zero?).with(ssl_files[file]).and_return(false)
 
@@ -73,8 +107,9 @@ describe RMT::SSL::CertificateGenerator do
 
     it 'generates the certificate' do
       expect(RMT::SSL::ConfigGenerator).to receive(:new).and_return(config_generator_double)
-      expect(config_generator_double).to receive(:make_ca_config) { ca_config }
-      expect(config_generator_double).to receive(:make_server_config) { server_config }
+      expect(generator).to receive(:ca_present?).and_return(false).exactly(2).times
+      expect(config_generator_double).to receive(:make_ca_config).and_return(ca_config)
+      expect(config_generator_double).to receive(:make_server_config).and_return(server_config)
 
       expect(generator).to receive(:create_files)
 
@@ -140,7 +175,7 @@ describe RMT::SSL::CertificateGenerator do
         expect(generator).to receive(:write_file).with(file, '')
         expect(RMT::Execute).to receive(:on_target!).with('chmod', '0600', file)
       end
-      generator.send(:create_files)
+      generator.send(:create_files, ssl_files)
     end
   end
 
