@@ -28,6 +28,8 @@ describe RMT::Wizard do
   let(:config) { { foo: 'bar' } }
   let(:scc_page_double) { instance_double(RMT::WizardSCCPage) }
   let(:db_page_double) { instance_double(RMT::WizardMariaDBPage) }
+  let(:ssl_page_double) { instance_double(RMT::WizardSSLPage) }
+  let(:final_page_double) { instance_double(RMT::WizardFinalPage) }
 
   it 'runs and goes through the sequence' do
     expect(Yast::Confirm).to receive(:MustBeRoot).and_return(true)
@@ -41,6 +43,12 @@ describe RMT::Wizard do
 
     expect(RMT::WizardMariaDBPage).to receive(:new).and_return(db_page_double)
     expect(db_page_double).to receive(:run).and_return(:next)
+
+    expect(RMT::WizardSSLPage).to receive(:new).and_return(ssl_page_double)
+    expect(ssl_page_double).to receive(:run).and_return(:next)
+
+    expect(RMT::WizardFinalPage).to receive(:new).and_return(final_page_double)
+    expect(final_page_double).to receive(:run).and_return(:next)
 
     expect(Yast::UI).to receive(:CloseDialog)
     wizard.run

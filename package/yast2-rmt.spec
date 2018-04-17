@@ -17,14 +17,14 @@
 
 
 Name:           yast2-rmt
-Version:        0.0.2
+Version:        0.0.3
 Release:        0
 BuildArch:      noarch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-Requires:       rmt-server
+Requires:       rmt-server >= 0.0.5
 Requires:       yast2
 Requires:       yast2-ruby-bindings
 
@@ -64,6 +64,7 @@ rake install DESTDIR="%{buildroot}"
 %dir %{yast_dir}/theme/current/icons
 %dir %{yast_dir}/theme/current/icons/*
 %{yast_dir}/theme/current/icons/*/yast-rmt.png
+%{yast_dir}/data/rmt
 
 %doc COPYING
 %doc README.md

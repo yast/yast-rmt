@@ -1,0 +1,41 @@
+[ca]
+default_ca                     = CA_default
+
+[CA_default]
+default_bits                   = 2048
+x509_extensions                = v3_ca
+default_days                   = 3650
+default_md                     = default
+policy                         = policy_optional
+copy_extensions                = copy
+unique_subject                 = no
+
+[policy_optional]
+countryName                    = optional
+stateOrProvinceName            = optional
+localityName                   = optional
+organizationName               = optional
+organizationalUnitName         = optional
+commonName                     = optional
+emailAddress                   = optional
+
+###############################################
+
+[req]
+default_bits                   = 2048
+distinguished_name             = req_distinguished_name
+x509_extensions                = v3_ca
+string_mask                    = utf8only
+prompt                         = no
+
+[v3_ca]
+basicConstraints               = critical, CA:true
+nsComment                      = "RMT Generated CA Certificate"
+nsCertType                     = sslCA
+keyUsage                       = cRLSign, keyCertSign
+subjectKeyIdentifier           = hash
+authorityKeyIdentifier         = keyid:always,issuer
+
+###############################################
+[ req_distinguished_name ]
+CN                             = <%= ca_common_name %>

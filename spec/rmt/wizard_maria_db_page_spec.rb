@@ -25,11 +25,20 @@ Yast.import 'Service'
 describe RMT::WizardMariaDBPage do
   subject(:mariadb_page) { described_class.new(config) }
 
-  let(:config) { { 'database' => { 'username' => 'user_mcuserface', 'password' => 'test' } } }
+  let(:config) do
+    {
+      'database' => {
+        'username' => 'user_mcuserface',
+        'password' => 'test',
+        'hostname' => 'localhost',
+        'database' => 'rmt'
+      }
+    }
+  end
 
   describe '#render_content' do
     it 'renders UI elements' do
-      expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.OKButton)
+      expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.NextButton)
       expect(Yast::Wizard).to receive(:SetContents)
 
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:db_username), :Value, config['database']['username'])
@@ -40,9 +49,17 @@ describe RMT::WizardMariaDBPage do
   end
 
   describe '#run' do
-    it 'renders content and runs the event loop' do
+    it 'renders content and runs the event loop when the DB is not set up' do
+      expect(mariadb_page).to receive(:check_db_credentials).and_return(false)
       expect(mariadb_page).to receive(:render_content)
       expect(mariadb_page).to receive(:event_loop)
+      mariadb_page.run
+    end
+
+    it 'skips DB creation when DB is already set up' do
+      expect(mariadb_page).to receive(:check_db_credentials).and_return(true)
+      expect(Yast::Popup).to receive(:Message).with('Database has already been configured, skipping database setup.')
+      expect(mariadb_page).to receive(:finish_dialog).with(:next)
       mariadb_page.run
     end
   end
@@ -185,6 +202,40 @@ describe RMT::WizardMariaDBPage do
     it 'returns true when there are no errors' do
       expect(RMT::Utils).to receive(:run_command).and_return(0, 0)
       expect(mariadb_page.create_database_and_user).to be(true)
+    end
+  end
+
+  describe '#check_db_credentials' do
+    context 'when the required configuration keys are missing in the DB section' do
+      let(:config) { { 'database' => {} } }
+
+      it('returns false') { expect(mariadb_page.check_db_credentials).to be(false) }
+    end
+
+    context 'when the required configuration keys are present and are invalid' do
+      it 'returns false' do
+        expect(RMT::Execute).to receive(:on_target!).with(
+          ['echo', 'select 1;'],
+          [
+            'mysql', '-u', config['database']['username'], "-p#{config['database']['password']}",
+            '-D', config['database']['database'], '-h', config['database']['hostname']
+          ]
+        ).and_raise(Cheetah::ExecutionFailed.new('command', 255, '', 'Something went wrong'))
+        expect(mariadb_page.check_db_credentials).to be(false)
+      end
+    end
+
+    context 'when the required configuration keys are present and are valid' do
+      it 'returns false' do
+        expect(RMT::Execute).to receive(:on_target!).with(
+          ['echo', 'select 1;'],
+          [
+            'mysql', '-u', config['database']['username'], "-p#{config['database']['password']}",
+            '-D', config['database']['database'], '-h', config['database']['hostname']
+          ]
+        )
+        expect(mariadb_page.check_db_credentials).to be(true)
+      end
     end
   end
 end
