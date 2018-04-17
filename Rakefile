@@ -23,7 +23,7 @@ Yast::Tasks.configuration do |conf|
   conf.obs_project = 'systemsmanagement:SCC:RMT'
   # Default target for osc:build
   conf.obs_target = 'openSUSE_Factory'
-  conf.skip_license_check = [ %r{^Gemfile\.lock$}, %r{rmt.*\.cnf\.erb$} ]
+  conf.skip_license_check = [ %r{^Gemfile\.lock$}, %r{rmt\.desktop} , %r{rmt.*\.cnf\.erb$} ]
 end
 
 # This is required, because `yast-travis-ruby` binary calls `rake test:unit`
