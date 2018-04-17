@@ -69,17 +69,14 @@ class RMT::SSL::CertificateGenerator
     config_generator = RMT::SSL::ConfigGenerator.new(common_name, alt_names)
 
     files = @ssl_paths.dup
-    if ca_present?
-      files.delete(:ca_certificate)
-      files.delete(:ca_private_key)
-    end
+    %i[ca_certificate ca_private_key ca_serial_file ca_config].each { |file| files.delete(file) } if ca_present?
 
     create_files(files)
 
-    Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_serial_file], '01')
     Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:server_config], config_generator.make_server_config)
 
     unless ca_present?
+      Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_serial_file], '01')
       Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_config], config_generator.make_ca_config)
 
       RMT::Execute.on_target!('openssl', 'genrsa', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS)
