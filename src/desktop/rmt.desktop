@@ -9,7 +9,7 @@ X-SuSE-YaST-AutoInst=
 X-SuSE-YaST-AutoInstResource=rmt
 
 Icon=yast-rmt
-Exec=/sbin/yast2 scc
+Exec=/sbin/yast2 rmt
 
 Name=Repository Mirroring Tool Configuration
 GenericName=Repository Mirroring Tool Configuration
