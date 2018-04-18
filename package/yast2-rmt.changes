@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Apr 18 12:06:01 UTC 2018 - ikapelyukhin@suse.com
+
+- version 0.0.4
+- Allow a preexisting SSL CA:
+  https://github.com/SUSE/yast2-rmt/pull/11
+
+-------------------------------------------------------------------
 Tue Apr  3 08:16:37 UTC 2018 - ikapelyukhin@suse.com
 
 - version 0.0.3
