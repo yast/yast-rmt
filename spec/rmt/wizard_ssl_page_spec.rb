@@ -117,7 +117,7 @@ describe RMT::WizardSSLPage do
   describe '#run' do
     context 'when certificates are already present' do
       it 'shows a message and finishes' do
-        expect(generator_double).to receive(:check_certs_presence).and_return(true)
+        expect(generator_double).to receive(:server_cert_present?).and_return(true)
         expect(Yast::Popup).to receive(:Message).with('SSL certificates already present, skipping generation.')
         expect(ssl_page).to receive(:finish_dialog).with(:next)
         ssl_page.run
@@ -126,7 +126,7 @@ describe RMT::WizardSSLPage do
 
     context 'when certificates are not present' do
       it 'renders content and enters the event loop' do
-        expect(generator_double).to receive(:check_certs_presence).and_return(false)
+        expect(generator_double).to receive(:server_cert_present?).and_return(false)
         expect(ssl_page).to receive(:render_content)
         expect(ssl_page).to receive(:event_loop)
         ssl_page.run
