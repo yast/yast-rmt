@@ -67,7 +67,9 @@ class RMT::WizardFinalPage < Yast::Client
   end
 
   def run
-    Yast::Report.Error(_("Failed to enable and restart service 'rmt'")) unless (Yast::Service.Enable('rmt') && Yast::Service.Restart('rmt'))
+    unless (Yast::Service.Enable('rmt-server') && Yast::Service.Restart('rmt-server'))
+      Yast::Report.Error(_("Failed to enable and restart service 'rmt-server'"))
+    end
     render_content
     event_loop
   end
