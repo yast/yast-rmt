@@ -35,20 +35,35 @@ class RMT::WizardFinalPage < Yast::Client
     Wizard.SetNextButton(:next, Label.FinishButton)
 
     contents =
-      HBox(
-        HSpacing(1),
-        VBox(
-          VSpacing(1),
-          Label(_('RMT setup is now complete.')),
-          VSpacing(1)
-        ),
-        HSpacing(1)
+      VBox(
+        Heading(_('Configuration Summary')),
+        HBox(
+          HSpacing(1),
+          VBox(
+            VSpacing(1),
+              Frame(
+                _('Location of config files'),
+                HBox(
+                  Label(_('Locations go here'))
+                )
+              ),
+              VSpacing(1),
+              Frame(
+                _('Location of SSL files'),
+                HBox(
+                  Label(_('Locations go here'))
+                )
+              ),
+            VSpacing(1)
+          )
+        )
       )
 
     Wizard.SetContents(
       _('RMT configuration'),
       contents,
-      _('<p>RMT setup is now complete.</p>'),
+      _('<p>This is a list of all RMT configuration so far.</p>'\
+        '<p>Please check for anything that is incorrect or go back one step.</p>'),
       true,
       true
     )
