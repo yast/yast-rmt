@@ -17,6 +17,8 @@
 #  you may find current contact information at www.suse.com
 
 require 'ui/event_dispatcher'
+require 'rmt/ssl/certificate_generator'
+require 'rmt/utils'
 
 module RMT; end
 
@@ -42,16 +44,16 @@ class RMT::WizardFinalPage < Yast::Client
           VBox(
             VSpacing(1),
               Frame(
-                _('Location of config files'),
+                _('Location of config file'),
                 HBox(
-                  Label(_('Locations go here'))
+                  Label(_(RMT::Utils::CONFIG_FILENAME.to_s))
                 )
               ),
               VSpacing(1),
               Frame(
                 _('Location of SSL files'),
                 HBox(
-                  Label(_('Locations go here'))
+                  Label(_(RMT::SSL::CertificateGenerator::RMT_SSL_DIR.to_s))
                 )
               ),
             VSpacing(1)
