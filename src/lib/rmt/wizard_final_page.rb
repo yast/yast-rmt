@@ -84,8 +84,30 @@ class RMT::WizardFinalPage < Yast::Client
   end
 
   def run
-    Yast::Report.Error(_("Failed to enable and restart service 'rmt'")) unless (Yast::Service.Enable('rmt') && Yast::Service.Restart('rmt'))
+    rmt_service_start
     render_content
     event_loop
+  end
+
+  def rmt_service_start
+    UI.OpenDialog(
+      HBox(
+        HSpacing(5),
+        VBox(
+          VSpacing(5),
+          Left(Label(_('Starting RMT service...'))),
+          VSpacing(5)
+        ),
+        HSpacing(5)
+      )
+    )
+    if Yast::Service.Enable('rmt') && Yast::Service.Restart('rmt')
+      Yast::Popup.Message(_("Service 'rmt' started."))
+      return finish_dialog(:next)
+    else
+      Yast::Report.Error(_("Failed to enable and restart service 'rmt'"))
+    end
+
+    UI.CloseDialog
   end
 end
