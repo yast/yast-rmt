@@ -136,6 +136,17 @@ class RMT::WizardMariaDBPage < Yast::Client
   end
 
   def start_database
+    UI.OpenDialog(
+      HBox(
+        HSpacing(5),
+        VBox(
+          VSpacing(5),
+          Left(Label(_('Starting mysql service...'))),
+          VSpacing(5)
+        ),
+        HSpacing(5)
+      )
+    )
     service = Yast::SystemdService.find!('mysql')
     is_running = service.running? ? true : service.start
 
@@ -143,6 +154,8 @@ class RMT::WizardMariaDBPage < Yast::Client
       Report.Error(_('Cannot start mysql service.'))
       return false
     end
+
+    UI.CloseDialog
 
     true
   end

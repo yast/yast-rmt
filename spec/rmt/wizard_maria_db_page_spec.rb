@@ -170,6 +170,7 @@ describe RMT::WizardMariaDBPage do
     # rubocop:enable RSpec/VerifiedDoubles
 
     before do
+      expect(Yast::UI).to receive(:OpenDialog)
       expect(Yast::SystemdService).to receive(:find!).with('mysql').and_return(service_double)
       expect(service_double).to receive(:running?).and_return(false)
     end
