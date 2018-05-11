@@ -56,8 +56,8 @@ describe RMT::WizardFinalPage do
   describe '#run' do
     context 'when restarting the service succeeds' do
       it 'renders content and enters the event loop' do
-        expect(Yast::Service).to receive(:Enable).with('rmt').and_return(true)
-        expect(Yast::Service).to receive(:Restart).with('rmt').and_return(true)
+        expect(Yast::Service).to receive(:Enable).with('rmt-server').and_return(true)
+        expect(Yast::Service).to receive(:Restart).with('rmt-server').and_return(true)
         expect(final_page).to receive(:render_content)
         expect(final_page).to receive(:event_loop)
         final_page.run
@@ -66,9 +66,9 @@ describe RMT::WizardFinalPage do
 
     context 'when restarting the service fails' do
       it 'displays the error, renders content and enters the event loop' do
-        expect(Yast::Service).to receive(:Enable).with('rmt').and_return(true)
-        expect(Yast::Service).to receive(:Restart).with('rmt').and_return(false)
-        expect(Yast::Report).to receive(:Error).with("Failed to enable and restart service 'rmt'")
+        expect(Yast::Service).to receive(:Enable).with('rmt-server').and_return(true)
+        expect(Yast::Service).to receive(:Restart).with('rmt-server').and_return(false)
+        expect(Yast::Report).to receive(:Error).with("Failed to enable and restart service 'rmt-server'")
         expect(final_page).to receive(:render_content)
         expect(final_page).to receive(:event_loop)
         final_page.run
