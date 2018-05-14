@@ -23,6 +23,7 @@ require 'rmt/utils'
 module RMT; end
 
 class RMT::WizardFinalPage < Yast::Client
+
   include ::UI::EventDispatcher
 
   Yast.import 'Report'
@@ -103,13 +104,15 @@ class RMT::WizardFinalPage < Yast::Client
         HSpacing(5),
         VBox(
           VSpacing(5),
-          Left(Label(_('Starting RMT service...'))),
+          Left(Label(_('Starting RMT service,'))),
+          Left(Label(_('sync and mirror timers...'))),
           VSpacing(5)
         ),
         HSpacing(5)
       )
     )
     if Yast::Service.Enable('rmt') && Yast::Service.Restart('rmt')
+      rmt_enable_timers
       Yast::Popup.Message(_("Service 'rmt' started."))
       return finish_dialog(:next)
     else
@@ -118,4 +121,11 @@ class RMT::WizardFinalPage < Yast::Client
 
     UI.CloseDialog
   end
+
+  def rmt_enable_timers
+    %w[rmt-server-sync.timer rmt-server-mirror.timer].each do |timer|
+      Yast::Service.Enable(timer) && Yast::Service.Restart(timer)
+    end
+  end
+
 end

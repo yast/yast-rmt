@@ -67,8 +67,10 @@ describe RMT::WizardFinalPage do
 
     context 'when restarting the service succeeds' do
       it 'shows confirmation' do
-        expect(Yast::Service).to receive(:Enable).with('rmt').and_return(true)
-        expect(Yast::Service).to receive(:Restart).with('rmt').and_return(true)
+        %w[rmt rmt-server-sync.timer rmt-server-mirror.timer].each do |unit|
+          expect(Yast::Service).to receive(:Enable).with(unit).and_return(true)
+          expect(Yast::Service).to receive(:Restart).with(unit).and_return(true)
+        end
         expect(Yast::Popup).to receive(:Message).with("Service 'rmt' started.")
         expect(final_page).to receive(:finish_dialog).with(:next)
         final_page.rmt_service_start
