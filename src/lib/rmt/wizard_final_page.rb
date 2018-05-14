@@ -56,6 +56,14 @@ class RMT::WizardFinalPage < Yast::Client
                   Label(_(RMT::SSL::CertificateGenerator::RMT_SSL_DIR.to_s))
                 )
               ),
+              VSpacing(1),
+                Frame(
+                  _('Database credentials'),
+                  HBox(
+                    Label(_(@config['database']['username'])),
+                    Label(_(@config['database']['password']))
+                  )
+                ),
             VSpacing(1)
           )
         )
