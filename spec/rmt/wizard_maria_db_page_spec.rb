@@ -110,7 +110,7 @@ describe RMT::WizardMariaDBPage do
       it 'if current root password is empty, reports an error if setting new password failed' do
         expect(new_password_dialog_double).to receive(:run).and_return(password)
         expect(new_password_dialog_double).to receive(:set_root_password).and_return(false)
-        expect(Yast::Report).to receive(:Error).with('Setting new root password failed')
+        expect(Yast::Report).to receive(:Error).with('Setting new database root password failed')
         expect(mariadb_page).not_to receive(:finish_dialog)
         mariadb_page.next_handler
       end
@@ -134,7 +134,7 @@ describe RMT::WizardMariaDBPage do
 
       it 'shows error message and continues if no password was entered' do
         expect(current_password_dialog_double).to receive(:run).and_return(nil)
-        expect(Yast::Report).to receive(:Error).with('Root password not provided, skipping database setup.')
+        expect(Yast::Report).to receive(:Error).with('Database root password not provided, skipping database setup.')
         expect(RMT::Utils).to receive(:write_config_file).with(config)
         expect(mariadb_page).to receive(:finish_dialog).with(:next)
         mariadb_page.next_handler

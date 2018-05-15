@@ -82,7 +82,7 @@ class RMT::WizardMariaDBPage < Yast::Client
       new_root_password = dialog.run
 
       if !new_root_password || new_root_password.empty? || !dialog.set_root_password(new_root_password, @config['database']['hostname'])
-        Report.Error(_('Setting new root password failed'))
+        Report.Error(_('Setting new database root password failed'))
         return
       end
 
@@ -95,7 +95,7 @@ class RMT::WizardMariaDBPage < Yast::Client
     if @root_password
       create_database_and_user
     else
-      Report.Error(_('Root password not provided, skipping database setup.'))
+      Report.Error(_('Database root password not provided, skipping database setup.'))
     end
 
     RMT::Utils.write_config_file(@config)
