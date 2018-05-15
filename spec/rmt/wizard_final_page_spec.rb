@@ -23,7 +23,16 @@ Yast.import 'Wizard'
 describe RMT::WizardFinalPage do
   subject(:final_page) { described_class.new(config) }
 
-  let(:config) { {} }
+  let(:config) do
+    {
+      'database' => {
+        'username' => 'user_mcuserface',
+        'password' => 'test',
+        'hostname' => 'localhost',
+        'database' => 'rmt'
+      }
+    }
+  end
 
   describe '#next_handler' do
     it 'finishes when next button is pressed' do
