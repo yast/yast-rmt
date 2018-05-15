@@ -103,7 +103,7 @@ class RMT::WizardFinalPage < Yast::Client
         HSpacing(5)
       )
     )
-    if Yast::Service.Enable('rmt') && Yast::Service.Restart('rmt')
+    if Yast::Service.Enable('rmt-server') && Yast::Service.Restart('rmt-server')
       rmt_enable_timers
       Yast::Popup.Message(_("Service 'rmt-server' started, sync and mirroring systemd timers active."))
       return finish_dialog(:next)
