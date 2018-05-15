@@ -66,7 +66,7 @@ describe RMT::WizardFinalPage do
   end
 
   describe '#run' do
-    it 'restarts rmt service and enters event loop' do
+    it 'restarts rmt-server service and enters event loop' do
       expect(final_page).to receive(:rmt_service_start)
       expect(final_page).to receive(:render_content)
       expect(final_page).to receive(:event_loop)
@@ -79,11 +79,11 @@ describe RMT::WizardFinalPage do
 
     context 'when restarting the service succeeds' do
       it 'shows confirmation' do
-        %w[rmt rmt-server-sync.timer rmt-server-mirror.timer].each do |unit|
+        %w[rmt-server rmt-server-sync.timer rmt-server-mirror.timer].each do |unit|
           expect(Yast::Service).to receive(:Enable).with(unit).and_return(true)
           expect(Yast::Service).to receive(:Restart).with(unit).and_return(true)
         end
-        expect(Yast::Popup).to receive(:Message).with("Service 'rmt' started, sync and mirroring systemd timers active.")
+        expect(Yast::Popup).to receive(:Message).with("Service 'rmt-server' started, sync and mirroring systemd timers active.")
         expect(final_page).to receive(:finish_dialog).with(:next)
         final_page.rmt_service_start
       end
@@ -91,9 +91,9 @@ describe RMT::WizardFinalPage do
 
     context 'when restarting the service fails' do
       it 'displays error' do
-        expect(Yast::Service).to receive(:Enable).with('rmt').and_return(true)
-        expect(Yast::Service).to receive(:Restart).with('rmt').and_return(false)
-        expect(Yast::Report).to receive(:Error).with("Failed to enable and restart service 'rmt'")
+        expect(Yast::Service).to receive(:Enable).with('rmt-server').and_return(true)
+        expect(Yast::Service).to receive(:Restart).with('rmt-server').and_return(false)
+        expect(Yast::Report).to receive(:Error).with("Failed to enable and restart service 'rmt-server'")
         final_page.rmt_service_start
       end
     end
