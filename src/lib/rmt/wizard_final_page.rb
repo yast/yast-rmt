@@ -23,7 +23,6 @@ require 'rmt/utils'
 module RMT; end
 
 class RMT::WizardFinalPage < Yast::Client
-
   include ::UI::EventDispatcher
 
   Yast.import 'Report'
@@ -37,45 +36,37 @@ class RMT::WizardFinalPage < Yast::Client
   def render_content
     Wizard.SetNextButton(:next, Label.FinishButton)
 
-    contents =
+    contents = HBox(
+      HStretch(),
       VBox(
-        Heading(_('Configuration Summary')),
-        HBox(
-          HSpacing(1),
-          VBox(
-            VSpacing(1),
-              Frame(
-                _('Location of config file'),
-                HBox(
-                  Label(RMT::Utils::CONFIG_FILENAME.to_s)
-                )
-              ),
-              VSpacing(1),
-              Frame(
-                _('Location of SSL files'),
-                HBox(
-                  Label(RMT::SSL::CertificateGenerator::RMT_SSL_DIR.to_s)
-                )
-              ),
-              VSpacing(1),
-                Frame(
-                  _('Database credentials'),
-                  HBox(
-                    Label(@config['database']['username']),
-                    Label(@config['database']['password'])
-                  )
-                ),
-            VSpacing(1)
-          )
+        Left(Heading(_('Configuration Summary'))),
+        VBox(
+          VSpacing(1),
+          Left(Heading(_('SCC Organization:'))),
+          Left(Label(@config['scc']['username'])),
+          VSpacing(1),
+          Left(Heading(_('RMT config file path:'))),
+          Left(Label(RMT::Utils::CONFIG_FILENAME.to_s)),
+          VSpacing(1),
+          Left(Heading(_('SSL certificate path:'))),
+          Left(Label(RMT::SSL::CertificateGenerator::RMT_SSL_DIR.to_s)),
+          VSpacing(1),
+          Left(Heading(_('Database credentials:'))),
+          Left(HBox(HSpacing(1),
+                    VBox(HBox(Label(_('Username:')), Label(@config['database']['username'])),
+                         HBox(Label(_('Password:')), Label(@config['database']['password']))))),
+          VSpacing(1),
+          Left(Label(_('Please ensure that any firewall is configured to allow access to RMT (default ports 80 and 443)')))
         )
-      )
+      ),
+      HStretch()
+    )
 
     Wizard.SetContents(
       _('RMT configuration'),
       contents,
       _('<p>This is a list of all RMT configuration performed by this wizard.</p>'\
-        '<p>Please check for anything that is incorrect.</p>'\
-        '<p>Ensure that any firewall is configured to allow access to RMT.</p>'),
+        '<p>Please check for anything that is incorrect.</p>'),
       true,
       true
     )
@@ -128,5 +119,4 @@ class RMT::WizardFinalPage < Yast::Client
       Yast::Service.Enable(timer) && Yast::Service.Restart(timer)
     end
   end
-
 end
