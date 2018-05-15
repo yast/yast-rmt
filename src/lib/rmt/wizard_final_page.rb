@@ -47,22 +47,22 @@ class RMT::WizardFinalPage < Yast::Client
               Frame(
                 _('Location of config file'),
                 HBox(
-                  Label(_(RMT::Utils::CONFIG_FILENAME.to_s))
+                  Label(RMT::Utils::CONFIG_FILENAME.to_s)
                 )
               ),
               VSpacing(1),
               Frame(
                 _('Location of SSL files'),
                 HBox(
-                  Label(_(RMT::SSL::CertificateGenerator::RMT_SSL_DIR.to_s))
+                  Label(RMT::SSL::CertificateGenerator::RMT_SSL_DIR.to_s)
                 )
               ),
               VSpacing(1),
                 Frame(
                   _('Database credentials'),
                   HBox(
-                    Label(_(@config['database']['username'])),
-                    Label(_(@config['database']['password']))
+                    Label(@config['database']['username']),
+                    Label(@config['database']['password'])
                   )
                 ),
             VSpacing(1)
