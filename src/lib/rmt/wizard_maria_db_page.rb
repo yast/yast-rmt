@@ -141,7 +141,7 @@ class RMT::WizardMariaDBPage < Yast::Client
         HSpacing(5),
         VBox(
           VSpacing(5),
-          Left(Label(_('Starting mysql service...'))),
+          Left(Label(_('Starting database service...'))),
           VSpacing(5)
         ),
         HSpacing(5)
@@ -151,7 +151,7 @@ class RMT::WizardMariaDBPage < Yast::Client
     is_running = service.running? ? true : service.start
 
     unless is_running
-      Report.Error(_('Cannot start mysql service.'))
+      Report.Error(_('Cannot start database service.'))
       return false
     end
 

@@ -177,7 +177,7 @@ describe RMT::WizardMariaDBPage do
 
     it "raises an error when mysql can't be started" do
       expect(service_double).to receive(:start).and_return(false)
-      expect(Yast::Report).to receive(:Error).with('Cannot start mysql service.')
+      expect(Yast::Report).to receive(:Error).with('Cannot start database service.')
       expect(mariadb_page.start_database).to be(false)
     end
 
