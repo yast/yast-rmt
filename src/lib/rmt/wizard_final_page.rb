@@ -73,8 +73,9 @@ class RMT::WizardFinalPage < Yast::Client
     Wizard.SetContents(
       _('RMT configuration'),
       contents,
-      _('<p>This is a list of all RMT configuration so far.</p>'\
-        '<p>Please check for anything that is incorrect or go back one step.</p>'),
+      _('<p>This is a list of all RMT configuration performed by this wizard.</p>'\
+        '<p>Please check for anything that is incorrect.</p>'\
+        '<p>Ensure that any firewall is configured to allow access to RMT.</p>'),
       true,
       true
     )
