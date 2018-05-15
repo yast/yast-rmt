@@ -17,6 +17,7 @@
 #  you may find current contact information at www.suse.com
 
 require 'yaml'
+require 'shellwords'
 
 Yast.import 'Report'
 
@@ -62,7 +63,7 @@ class RMT::Utils
 
     # Runs a command and returns the exit code
     def run_command(command, *params)
-      params = params.map { |p| Yast::String.Quote(p) }
+      params = params.map { |p| Shellwords.escape(p) }
 
       Yast::SCR.Execute(
         Yast.path('.target.bash'),
