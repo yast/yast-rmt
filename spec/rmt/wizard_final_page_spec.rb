@@ -25,6 +25,9 @@ describe RMT::WizardFinalPage do
 
   let(:config) do
     {
+      'scc' => {
+        'username' => 'UC666'
+      },
       'database' => {
         'username' => 'user_mcuserface',
         'password' => 'test',
