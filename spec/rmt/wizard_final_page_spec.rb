@@ -80,7 +80,7 @@ describe RMT::WizardFinalPage do
           expect(Yast::Service).to receive(:Enable).with(unit).and_return(true)
           expect(Yast::Service).to receive(:Restart).with(unit).and_return(true)
         end
-        expect(Yast::Popup).to receive(:Message).with("Service 'rmt' started.")
+        expect(Yast::Popup).to receive(:Message).with("Service 'rmt' started, sync and mirroring systemd timers active.")
         expect(final_page).to receive(:finish_dialog).with(:next)
         final_page.rmt_service_start
       end
