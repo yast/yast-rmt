@@ -56,14 +56,15 @@ class RMT::WizardFinalPage < Yast::Client
                     VBox(HBox(Label(_('Username:')), Label(@config['database']['username'])),
                          HBox(Label(_('Password:')), Label(@config['database']['password']))))),
           VSpacing(1),
-          Left(Label(_('Please ensure that any firewall is configured to allow access to RMT (default ports 80 and 443)')))
+          Left(Label(_('Please ensure that any firewall is configured'))),
+          Left(Label(_('to allow access to RMT (default ports 80 and 443)')))
         )
       ),
       HStretch()
     )
 
     Wizard.SetContents(
-      _('RMT configuration'),
+      _('RMT configuration summary'),
       contents,
       _('<p>This is a list of all RMT configuration performed by this wizard.</p>'\
         '<p>Please check for anything that is incorrect.</p>'),
