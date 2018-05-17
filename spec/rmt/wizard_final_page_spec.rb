@@ -75,16 +75,18 @@ describe RMT::WizardFinalPage do
   end
 
   describe '#rmt_service_start' do
-    before { expect(Yast::UI).to receive(:OpenDialog) }
+    #before { expect(Yast::UI).to receive(:OpenDialog) }
 
     context 'when restarting the service succeeds' do
       it 'shows confirmation' do
-        %w[rmt-server rmt-server-sync.timer rmt-server-mirror.timer].each do |unit|
-          expect(Yast::Service).to receive(:Enable).with(unit).and_return(true)
-          expect(Yast::Service).to receive(:Restart).with(unit).and_return(true)
+        expect(Yast::Service).to receive(:Enable).with('rmt-server').and_return(true)
+        expect(Yast::Service).to receive(:Restart).with('rmt-server').and_return(true)
+        %w[rmt-server-sync.timer rmt-server-mirror.timer].each do |unit|
+          expect(RMT::Execute).to receive(:do_target!).with(['systemctl', 'enable', unit]).and_return(true)
+          expect(RMT::Execute).to receive(:do_target!).with(['systemctl', 'start', unit]).and_return(true)
         end
         expect(Yast::Popup).to receive(:Message).with("Service 'rmt-server' started, sync and mirroring systemd timers active.")
-        expect(final_page).to receive(:finish_dialog).with(:next)
+        #expect(final_page).to receive(:finish_dialog).with(:next)
         final_page.rmt_service_start
       end
     end
