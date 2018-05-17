@@ -94,7 +94,7 @@ describe RMT::WizardRMTServicePage do
         end
         expect(Yast::Popup).to receive(:Message).with("Service 'rmt-server' started, sync and mirroring systemd timers active.")
         expect(service_page).to receive(:finish_dialog).with(:next)
-        expect(service_page.rmt_service_start).to be true
+        service_page.rmt_service_start
       end
     end
 

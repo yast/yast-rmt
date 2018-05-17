@@ -32,7 +32,7 @@ class RMT::WizardRMTServicePage < Yast::Client
   end
 
   def render_content
-    Wizard.SetNextButton(:next, Label.FinishButton)
+    Wizard.SetNextButton(:next, Label.NextButton)
 
     contents = Frame(
       _('RMT Service start'),
@@ -80,8 +80,7 @@ class RMT::WizardRMTServicePage < Yast::Client
     if Yast::Service.Enable('rmt-server') && Yast::Service.Restart('rmt-server')
       rmt_enable_timers
       Yast::Popup.Message(_("Service 'rmt-server' started, sync and mirroring systemd timers active."))
-      finish_dialog(:next)
-      return true
+      return finish_dialog(:next)
     end
     false
   end
