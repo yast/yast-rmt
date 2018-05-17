@@ -30,7 +30,7 @@ describe RMT::WizardMariaDBPage do
       'database' => {
         'username' => 'user_mcuserface',
         'password' => 'test',
-        'hostname' => 'localhost',
+        'host' => 'localhost',
         'database' => 'rmt'
       }
     }
@@ -219,7 +219,7 @@ describe RMT::WizardMariaDBPage do
           ['echo', 'select 1;'],
           [
             'mysql', '-u', config['database']['username'], "-p#{config['database']['password']}",
-            '-D', config['database']['database'], '-h', config['database']['hostname']
+            '-D', config['database']['database'], '-h', config['database']['host']
           ]
         ).and_raise(Cheetah::ExecutionFailed.new('command', 255, '', 'Something went wrong'))
         expect(mariadb_page.check_db_credentials).to be(false)
@@ -227,12 +227,12 @@ describe RMT::WizardMariaDBPage do
     end
 
     context 'when the required configuration keys are present and are valid' do
-      it 'returns false' do
+      it 'returns true' do
         expect(RMT::Execute).to receive(:on_target!).with(
           ['echo', 'select 1;'],
           [
             'mysql', '-u', config['database']['username'], "-p#{config['database']['password']}",
-            '-D', config['database']['database'], '-h', config['database']['hostname']
+            '-D', config['database']['database'], '-h', config['database']['host']
           ]
         )
         expect(mariadb_page.check_db_credentials).to be(true)

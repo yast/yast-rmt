@@ -36,7 +36,7 @@ class RMT::Utils
       'database' => 'rmt',
       'username' => 'rmt',
       'password' => '',
-      'hostname' => 'localhost'
+      'host' => 'localhost'
     }
   }.freeze
 

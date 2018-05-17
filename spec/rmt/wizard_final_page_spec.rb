@@ -31,7 +31,7 @@ describe RMT::WizardFinalPage do
       'database' => {
         'username' => 'user_mcuserface',
         'password' => 'test',
-        'hostname' => 'localhost',
+        'host' => 'localhost',
         'database' => 'rmt'
       }
     }
