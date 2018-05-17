@@ -17,15 +17,13 @@
 #  you may find current contact information at www.suse.com
 
 require 'ui/event_dispatcher'
-require 'rmt/ssl/certificate_generator'
 require 'rmt/utils'
 
 module RMT; end
 
-class RMT::WizardFinalPage < Yast::Client
+class RMT::WizardRMTServicePage < Yast::Client
   include ::UI::EventDispatcher
 
-  Yast.import 'Report'
   Yast.import 'Service'
 
   def initialize(config)
@@ -36,37 +34,22 @@ class RMT::WizardFinalPage < Yast::Client
   def render_content
     Wizard.SetNextButton(:next, Label.FinishButton)
 
-    contents = HBox(
-      HStretch(),
-      VBox(
-        Left(Heading(_('Configuration Summary'))),
+    contents = Frame(
+      _('RMT Service start'),
+      HBox(
+        HSpacing(1),
         VBox(
-          VSpacing(1),
-          Left(Heading(_('SCC Organization:'))),
-          Left(Label(@config['scc']['username'])),
-          VSpacing(1),
-          Left(Heading(_('RMT config file path:'))),
-          Left(Label(RMT::Utils::CONFIG_FILENAME.to_s)),
-          VSpacing(1),
-          Left(Heading(_('SSL certificate path:'))),
-          Left(Label(RMT::SSL::CertificateGenerator::RMT_SSL_DIR.to_s)),
-          VSpacing(1),
-          Left(Heading(_('Database credentials:'))),
-          Left(HBox(HSpacing(1),
-                    VBox(HBox(Label(_('Username:')), Label(@config['database']['username'])),
-                         HBox(Label(_('Password:')), Label(@config['database']['password']))))),
-          VSpacing(1),
-          Left(Label(_('Please ensure that any firewall is configured to allow access to RMT (default ports 80 and 443)')))
+          HSquash(
+            Label('Starting RMT server, sync, and mirror timers...')
+          )
         )
-      ),
-      HStretch()
+      )
     )
 
     Wizard.SetContents(
-      _('RMT configuration'),
+      _('RMT configuration step 4/4'),
       contents,
-      _('<p>This is a list of all RMT configuration performed by this wizard.</p>'\
-        '<p>Please check for anything that is incorrect.</p>'),
+      _('<p>Starting the necessary services for RMT.</p>'),
       true,
       true
     )
@@ -86,6 +69,26 @@ class RMT::WizardFinalPage < Yast::Client
 
   def run
     render_content
+    unless rmt_service_start
+      Yast::Report.Error(_("Failed to enable and restart service 'rmt-server'"))
+      return finish_dialog(:next)
+    end
     event_loop
+  end
+
+  def rmt_service_start
+    if Yast::Service.Enable('rmt-server') && Yast::Service.Restart('rmt-server')
+      rmt_enable_timers
+      Yast::Popup.Message(_("Service 'rmt-server' started, sync and mirroring systemd timers active."))
+      finish_dialog(:next)
+      return true
+    end
+    false
+  end
+
+  def rmt_enable_timers
+    %w[rmt-server-sync.timer rmt-server-mirror.timer].each do |timer|
+      Yast::Service.Enable(timer) && Yast::Service.Restart(timer)
+    end
   end
 end
