@@ -87,7 +87,8 @@ class RMT::WizardRMTServicePage < Yast::Client
 
   def rmt_enable_timers
     %w[rmt-server-sync.timer rmt-server-mirror.timer].each do |timer|
-      Yast::Service.Enable(timer) && Yast::Service.Restart(timer)
+      RMT::Execute.on_target!('systemctl', 'enable', timer)
+      RMT::Execute.on_target!('systemctl', 'start', timer)
     end
   end
 end
