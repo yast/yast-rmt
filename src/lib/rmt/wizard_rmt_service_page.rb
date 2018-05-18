@@ -35,12 +35,12 @@ class RMT::WizardRMTServicePage < Yast::Client
     Wizard.SetNextButton(:next, Label.NextButton)
 
     contents = Frame(
-      _('RMT Service start'),
+      _('RMT Service Status'),
       HBox(
         HSpacing(1),
         VBox(
           HSquash(
-            Label('Starting RMT server, sync, and mirror timers...')
+            Label(Id(:service_status), 'Service \'rmt-server\' started, sync and mirroring systemd timers active.')
           )
         )
       )
@@ -69,9 +69,13 @@ class RMT::WizardRMTServicePage < Yast::Client
 
   def run
     render_content
-    unless rmt_service_start
+    ok = false
+    Yast::Popup.Feedback(_('Starting services'), _('Starting RMT server, sync, and mirror timers...')) do
+      ok = rmt_service_start
+    end
+    unless ok
       Yast::Report.Error(_("Failed to enable and restart service 'rmt-server'"))
-      return finish_dialog(:next)
+      UI.ChangeWidget(Id(:service_status), :Value, 'Could not start \'rmt-server\' service.')
     end
     event_loop
   end
@@ -79,8 +83,7 @@ class RMT::WizardRMTServicePage < Yast::Client
   def rmt_service_start
     if Yast::Service.Enable('rmt-server') && Yast::Service.Restart('rmt-server')
       rmt_enable_timers
-      Yast::Popup.Message(_("Service 'rmt-server' started, sync and mirroring systemd timers active."))
-      return finish_dialog(:next)
+      return true
     end
     false
   end

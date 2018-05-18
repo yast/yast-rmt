@@ -71,6 +71,7 @@ describe RMT::WizardRMTServicePage do
         expect(service_page).to receive(:render_content)
         expect(service_page).to receive(:rmt_service_start).and_return(false)
         expect(Yast::Report).to receive(:Error).with("Failed to enable and restart service 'rmt-server'")
+        expect(service_page).to receive(:event_loop)
         service_page.run
       end
     end
@@ -94,8 +95,6 @@ describe RMT::WizardRMTServicePage do
           expect(RMT::Execute).to receive(:on_target!).with('systemctl', 'enable', unit).and_return(true)
           expect(RMT::Execute).to receive(:on_target!).with('systemctl', 'start', unit).and_return(true)
         end
-        expect(Yast::Popup).to receive(:Message).with("Service 'rmt-server' started, sync and mirroring systemd timers active.")
-        expect(service_page).to receive(:finish_dialog).with(:next)
         service_page.rmt_service_start
       end
     end
