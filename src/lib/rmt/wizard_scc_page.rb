@@ -83,6 +83,7 @@ class RMT::WizardSCCPage < Yast::Client
       :focus_no
     )
 
+    RMT::Utils.write_config_file(@config)
     finish_dialog(:next)
   end
 

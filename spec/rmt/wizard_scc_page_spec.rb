@@ -74,6 +74,7 @@ describe RMT::WizardSCCPage do
       it 'goes to the next page' do
         expect(scc_page).to receive(:scc_credentials_valid?).and_return(true)
         expect(Yast::Popup).not_to receive(:AnyQuestion)
+        expect(RMT::Utils).to receive(:write_config_file).with(config)
         expect(scc_page).to receive(:finish_dialog).with(:next)
         scc_page.next_handler
       end
