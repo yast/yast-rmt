@@ -74,8 +74,8 @@ class RMT::WizardRMTServicePage < Yast::Client
       ok = rmt_service_start
     end
     unless ok
-      Yast::Report.Error(_("Failed to enable and restart service 'rmt-server'"))
       UI.ChangeWidget(Id(:service_status), :Value, 'Could not start \'rmt-server\' service.')
+      Yast::Report.Error(_("Failed to enable and restart service 'rmt-server'"))
     end
     event_loop
   end
