@@ -71,6 +71,7 @@ describe RMT::WizardRMTServicePage do
         expect(service_page).to receive(:render_content)
         expect(service_page).to receive(:rmt_service_start).and_return(false)
         expect(Yast::Report).to receive(:Error).with("Failed to enable and restart service 'rmt-server'")
+        expect(Yast::Popup).to receive(:Feedback).and_call_original
         expect(service_page).to receive(:event_loop)
         service_page.run
       end
@@ -80,6 +81,7 @@ describe RMT::WizardRMTServicePage do
       it 'restarts rmt service and enters event loop' do
         expect(service_page).to receive(:render_content)
         expect(service_page).to receive(:rmt_service_start).and_return(true)
+        expect(Yast::Popup).to receive(:Feedback).and_call_original
         expect(service_page).to receive(:event_loop)
         service_page.run
       end
