@@ -33,10 +33,29 @@ class RMT::Utils
       'password' => ''
     },
     'database' => {
+      'host' => 'localhost',
       'database' => 'rmt',
       'username' => 'rmt',
       'password' => '',
-      'host' => 'localhost'
+      'adapter' => 'mysql2',
+      'encoding' => 'utf8',
+      'timeout' => 5000,
+      'pool' =>  5
+    },
+    'mirroring' => {
+      'mirror_src' => false,
+      'verify_rpm_checksums' => false,
+      'dedup_method' => 'hardlink'
+    },
+    'rails' => {
+      'port' => 4224
+    },
+    'http_client' => {
+      'verbose' => false,
+      'proxy' => '',
+      'proxy_auth' => '',
+      'proxy_user' => '',
+      'proxy_password' => ''
     }
   }.freeze
 
