@@ -54,7 +54,7 @@ class RMT::WizardSCCPage < Yast::Client
     )
 
     Wizard.SetContents(
-      _('RMT configuration step 1/3'),
+      _('RMT configuration step 1/4'),
       contents,
       _("<p>Organization credentials can be found on Organization page at <a href='https://scc.suse.com/'>SUSE Customer Center</a>.</p>"),
       true,
@@ -83,6 +83,7 @@ class RMT::WizardSCCPage < Yast::Client
       :focus_no
     )
 
+    RMT::Utils.write_config_file(@config)
     finish_dialog(:next)
   end
 

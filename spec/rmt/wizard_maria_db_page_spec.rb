@@ -30,7 +30,7 @@ describe RMT::WizardMariaDBPage do
       'database' => {
         'username' => 'user_mcuserface',
         'password' => 'test',
-        'hostname' => 'localhost',
+        'host' => 'localhost',
         'database' => 'rmt'
       }
     }
@@ -110,7 +110,7 @@ describe RMT::WizardMariaDBPage do
       it 'if current root password is empty, reports an error if setting new password failed' do
         expect(new_password_dialog_double).to receive(:run).and_return(password)
         expect(new_password_dialog_double).to receive(:set_root_password).and_return(false)
-        expect(Yast::Report).to receive(:Error).with('Setting new root password failed')
+        expect(Yast::Report).to receive(:Error).with('Setting new database root password failed')
         expect(mariadb_page).not_to receive(:finish_dialog)
         mariadb_page.next_handler
       end
@@ -134,7 +134,7 @@ describe RMT::WizardMariaDBPage do
 
       it 'shows error message and continues if no password was entered' do
         expect(current_password_dialog_double).to receive(:run).and_return(nil)
-        expect(Yast::Report).to receive(:Error).with('Root password not provided, skipping database setup.')
+        expect(Yast::Report).to receive(:Error).with('Database root password not provided, skipping database setup.')
         expect(RMT::Utils).to receive(:write_config_file).with(config)
         expect(mariadb_page).to receive(:finish_dialog).with(:next)
         mariadb_page.next_handler
@@ -170,13 +170,14 @@ describe RMT::WizardMariaDBPage do
     # rubocop:enable RSpec/VerifiedDoubles
 
     before do
+      expect(Yast::UI).to receive(:OpenDialog)
       expect(Yast::SystemdService).to receive(:find!).with('mysql').and_return(service_double)
       expect(service_double).to receive(:running?).and_return(false)
     end
 
     it "raises an error when mysql can't be started" do
       expect(service_double).to receive(:start).and_return(false)
-      expect(Yast::Report).to receive(:Error).with('Cannot start mysql service.')
+      expect(Yast::Report).to receive(:Error).with('Cannot start database service.')
       expect(mariadb_page.start_database).to be(false)
     end
 
@@ -218,7 +219,7 @@ describe RMT::WizardMariaDBPage do
           ['echo', 'select 1;'],
           [
             'mysql', '-u', config['database']['username'], "-p#{config['database']['password']}",
-            '-D', config['database']['database'], '-h', config['database']['hostname']
+            '-D', config['database']['database'], '-h', config['database']['host']
           ]
         ).and_raise(Cheetah::ExecutionFailed.new('command', 255, '', 'Something went wrong'))
         expect(mariadb_page.check_db_credentials).to be(false)
@@ -226,12 +227,12 @@ describe RMT::WizardMariaDBPage do
     end
 
     context 'when the required configuration keys are present and are valid' do
-      it 'returns false' do
+      it 'returns true' do
         expect(RMT::Execute).to receive(:on_target!).with(
           ['echo', 'select 1;'],
           [
             'mysql', '-u', config['database']['username'], "-p#{config['database']['password']}",
-            '-D', config['database']['database'], '-h', config['database']['hostname']
+            '-D', config['database']['database'], '-h', config['database']['host']
           ]
         )
         expect(mariadb_page.check_db_credentials).to be(true)

@@ -23,7 +23,19 @@ Yast.import 'Wizard'
 describe RMT::WizardFinalPage do
   subject(:final_page) { described_class.new(config) }
 
-  let(:config) { {} }
+  let(:config) do
+    {
+      'scc' => {
+        'username' => 'UC666'
+      },
+      'database' => {
+        'username' => 'user_mcuserface',
+        'password' => 'test',
+        'host' => 'localhost',
+        'database' => 'rmt'
+      }
+    }
+  end
 
   describe '#next_handler' do
     it 'finishes when next button is pressed' do
@@ -54,25 +66,10 @@ describe RMT::WizardFinalPage do
   end
 
   describe '#run' do
-    context 'when restarting the service succeeds' do
-      it 'renders content and enters the event loop' do
-        expect(Yast::Service).to receive(:Enable).with('rmt-server').and_return(true)
-        expect(Yast::Service).to receive(:Restart).with('rmt-server').and_return(true)
-        expect(final_page).to receive(:render_content)
-        expect(final_page).to receive(:event_loop)
-        final_page.run
-      end
-    end
-
-    context 'when restarting the service fails' do
-      it 'displays the error, renders content and enters the event loop' do
-        expect(Yast::Service).to receive(:Enable).with('rmt-server').and_return(true)
-        expect(Yast::Service).to receive(:Restart).with('rmt-server').and_return(false)
-        expect(Yast::Report).to receive(:Error).with("Failed to enable and restart service 'rmt-server'")
-        expect(final_page).to receive(:render_content)
-        expect(final_page).to receive(:event_loop)
-        final_page.run
-      end
+    it 'restarts rmt-server service and enters event loop' do
+      expect(final_page).to receive(:render_content)
+      expect(final_page).to receive(:event_loop)
+      final_page.run
     end
   end
 end

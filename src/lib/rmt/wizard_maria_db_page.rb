@@ -52,7 +52,7 @@ class RMT::WizardMariaDBPage < Yast::Client
 
     Wizard.SetNextButton(:next, Label.NextButton)
     Wizard.SetContents(
-      _('RMT configuration step 2/3'),
+      _('RMT configuration step 2/4'),
       contents,
       _('<p>This step of the wizard performs the necessary database setup.</p>'),
       true,
@@ -81,8 +81,8 @@ class RMT::WizardMariaDBPage < Yast::Client
       dialog = RMT::MariaDB::NewRootPasswordDialog.new
       new_root_password = dialog.run
 
-      if !new_root_password || new_root_password.empty? || !dialog.set_root_password(new_root_password, @config['database']['hostname'])
-        Report.Error(_('Setting new root password failed'))
+      if !new_root_password || new_root_password.empty? || !dialog.set_root_password(new_root_password, @config['database']['host'])
+        Report.Error(_('Setting new database root password failed'))
         return
       end
 
@@ -95,7 +95,7 @@ class RMT::WizardMariaDBPage < Yast::Client
     if @root_password
       create_database_and_user
     else
-      Report.Error(_('Root password not provided, skipping database setup.'))
+      Report.Error(_('Database root password not provided, skipping database setup.'))
     end
 
     RMT::Utils.write_config_file(@config)
@@ -112,7 +112,7 @@ class RMT::WizardMariaDBPage < Yast::Client
   end
 
   def check_db_credentials
-    %w[username password database hostname].each do |key|
+    %w[username password database host].each do |key|
       return false if (!@config['database'][key] || @config['database'][key].empty?)
     end
 
@@ -120,7 +120,7 @@ class RMT::WizardMariaDBPage < Yast::Client
       ['echo', 'select 1;'],
       [
         'mysql', '-u', @config['database']['username'], "-p#{@config['database']['password']}",
-        '-D', @config['database']['database'], '-h', @config['database']['hostname']
+        '-D', @config['database']['database'], '-h', @config['database']['host']
       ]
     )
     true
@@ -131,18 +131,31 @@ class RMT::WizardMariaDBPage < Yast::Client
   def root_password_empty?
     RMT::Utils.run_command(
       "echo 'show databases;' | mysql -u root -h %1 2>/dev/null",
-      @config['database']['hostname']
+      @config['database']['host']
     ) == 0
   end
 
   def start_database
+    UI.OpenDialog(
+      HBox(
+        HSpacing(5),
+        VBox(
+          VSpacing(5),
+          Left(Label(_('Starting database service...'))),
+          VSpacing(5)
+        ),
+        HSpacing(5)
+      )
+    )
     service = Yast::SystemdService.find!('mysql')
     is_running = service.running? ? true : service.start
 
     unless is_running
-      Report.Error(_('Cannot start mysql service.'))
+      Report.Error(_('Cannot start database service.'))
       return false
     end
+
+    UI.CloseDialog
 
     true
   end
@@ -151,7 +164,7 @@ class RMT::WizardMariaDBPage < Yast::Client
     ret = RMT::Utils.run_command(
       "echo 'create database if not exists %1 character set = \"utf8\"' | mysql -u root -h %2 -p%3 2>/dev/null",
       @config['database']['database'],
-      @config['database']['hostname'],
+      @config['database']['host'],
       @root_password
     )
 
@@ -165,9 +178,9 @@ class RMT::WizardMariaDBPage < Yast::Client
         "echo 'grant all on %1.* to \"%2\"\@%3 identified by \"%4\"' | mysql -u root -h %5 -p%6 >/dev/null",
         @config['database']['database'],
         @config['database']['username'],
-        @config['database']['hostname'],
+        @config['database']['host'],
         @config['database']['password'],
-        @config['database']['hostname'],
+        @config['database']['host'],
         @root_password
       )
 
