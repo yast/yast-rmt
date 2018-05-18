@@ -61,7 +61,7 @@ class RMT::SSL::CertificateGenerator
   def server_cert_present?
     # NB this doesn't check the second file if the first one exists
     # An improvement would be to look for the absence of any ssl configuration and proceed in that case,
-    # but leave ssl alone if any configuration (hand-edited or incomplete) is
+    # but leave ssl alone if any configuration (hand-edited or incomplete) is found
     %i[server_private_key server_certificate].each do |file_type|
       return true if File.exist?(@ssl_paths[file_type]) && !File.zero?(@ssl_paths[file_type])
     end
