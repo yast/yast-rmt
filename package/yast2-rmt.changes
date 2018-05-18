@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri May 18 08:58:01 UTC 2018 - fschueller@suse.com
+
+- version 1.0.0
+- UI cleanups
+- Enable timers with rmt service start
+- Add final configuration summary 
+
+-------------------------------------------------------------------
 Wed Apr 18 12:06:01 UTC 2018 - ikapelyukhin@suse.com
 
 - version 0.0.4
