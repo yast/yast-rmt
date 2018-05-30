@@ -12,7 +12,7 @@ First read the excellent tutorial [:green_book: Creating the YaST journalctl mod
 
 ### Running the module
 
-`yast2-ruby-bindings` RPM package is not available as a gem, Yast runs on the system-wide Ruby interpreter only.
+`yast2-ruby-bindings` RPM package is not available as a gem, YaST runs on the default system-wide Ruby interpreter only (available in the OSS repository).
 
 There different ways to run the module:
 
@@ -41,7 +41,7 @@ You can use:
 rake osc:commit
 ```
 
-to commit the current version to OBS. 
+to commit the current version to OBS.
 
 
 #### Submit Requests to openSUSE Factory and SLES
