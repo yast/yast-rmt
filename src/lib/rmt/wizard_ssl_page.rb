@@ -17,6 +17,7 @@
 #  you may find current contact information at www.suse.com
 
 require 'rmt/ssl/alternative_common_name_dialog'
+require 'rmt/ssl/current_ca_password_dialog'
 require 'rmt/ssl/config_generator'
 require 'rmt/ssl/certificate_generator'
 require 'rmt/execute'
@@ -43,6 +44,17 @@ class RMT::WizardSSLPage < Yast::Client
       HBox(
         HSpacing(1),
         VBox(
+          VSpacing(1),
+          Left(
+            HSquash(
+              MinWidth(30, Password(Id(:ca_password), _('Password')))
+            )
+          ),
+          Left(
+            HSquash(
+              MinWidth(30, Password(Id(:ca_password_confirmation), _('Password confirmation')))
+            )
+          ),
           VSpacing(1),
           Left(
             HSquash(
@@ -87,7 +99,15 @@ class RMT::WizardSSLPage < Yast::Client
     alt_names_items = UI.QueryWidget(Id(:alt_common_names), :Items)
     alt_names = alt_names_items.map { |item| item.params[1] }
 
-    @cert_generator.generate(common_name, alt_names)
+    ca_password = UI.QueryWidget(Id(:ca_password), :Value)
+    ca_password_confirmation = UI.QueryWidget(Id(:ca_password_confirmation), :Value)
+
+    if !ca_password || ca_password.empty? || ca_password != ca_password_confirmation
+      Report.Error(_('Password and confirmation are empty or not equal'))
+      return
+    end
+
+    @cert_generator.generate(common_name, alt_names, ca_password)
 
     finish_dialog(:next)
   end
@@ -117,7 +137,14 @@ class RMT::WizardSSLPage < Yast::Client
 
   def run
     if @cert_generator.server_cert_present?
-      Yast::Popup.Message(_('SSL certificates already present, skipping generation.'))
+      if @cert_generator.ca_encrypted?
+        current_ca_password = RMT::SSL::CurrentCaPasswordDialog.new.run
+        if @cert_generator.valid_password?(current_ca_password)
+          Yast::Popup.Message(_('SSL certificates already present and password is valid, skipping generation.'))
+        end
+      else
+        Yast::Popup.Message(_('SSL certificates already present, skipping generation. Please consider encrypting your CA private key!'))
+      end
       return finish_dialog(:next)
     end
     render_content

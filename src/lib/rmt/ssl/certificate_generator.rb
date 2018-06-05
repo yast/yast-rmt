@@ -58,6 +58,23 @@ class RMT::SSL::CertificateGenerator
     false
   end
 
+  def ca_encrypted?
+    !valid_password?('') # check with emtpy password
+  end
+
+  def valid_password?(password)
+    RMT::Execute.on_target!(
+      ['echo', password],
+      [
+        'openssl', 'rsa', '-passin', 'stdin', '-in', @ssl_paths[:ca_private_key]
+      ],
+      stdout: :capture
+    )
+    true
+  rescue Cheetah::ExecutionFailed
+    false
+  end
+
   def server_cert_present?
     # NB this doesn't check the second file if the first one exists
     # An improvement would be to look for the absence of any ssl configuration and proceed in that case,
@@ -68,7 +85,7 @@ class RMT::SSL::CertificateGenerator
     false
   end
 
-  def generate(common_name, alt_names)
+  def generate(common_name, alt_names, ca_password)
     config_generator = RMT::SSL::ConfigGenerator.new(common_name, alt_names)
 
     files = @ssl_paths.dup
@@ -77,16 +94,23 @@ class RMT::SSL::CertificateGenerator
     create_files(files)
 
     Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:server_config], config_generator.make_server_config)
-
     unless ca_present?
       Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_serial_file], '01')
       Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_config], config_generator.make_ca_config)
 
-      RMT::Execute.on_target!('openssl', 'genrsa', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS)
       RMT::Execute.on_target!(
-        'openssl', 'req', '-x509', '-new', '-nodes', '-key', @ssl_paths[:ca_private_key],
-        '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', @ssl_paths[:ca_certificate],
-        '-config', @ssl_paths[:ca_config]
+        ['echo', ca_password],
+        ['openssl', 'genrsa', '-aes256', '-passout', 'stdin', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS],
+        stdout: :capture
+      )
+      RMT::Execute.on_target!(
+        ['echo', ca_password],
+        [
+          'openssl', 'req', '-x509', '-new', '-nodes', '-key', @ssl_paths[:ca_private_key],
+          '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', @ssl_paths[:ca_certificate],
+          '-passin', 'stdin', '-config', @ssl_paths[:ca_config]
+        ],
+        stdout: :capture
       )
     end
 
