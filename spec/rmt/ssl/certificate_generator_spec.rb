@@ -67,7 +67,7 @@ describe RMT::SSL::CertificateGenerator do
     subject(:method_call) { generator.ca_encrypted? }
 
     it 'calls #valid_password? method' do
-      expect(generator).to receive(:valid_password?).with('')
+      expect(generator).to receive(:valid_password?).with(' ')
       method_call
     end
   end
@@ -78,7 +78,7 @@ describe RMT::SSL::CertificateGenerator do
     let(:password) { 'foobar' }
 
     context 'with valid password' do
-      it 'returns false' do
+      it 'returns true' do
         expect(RMT::Execute).to receive(:on_target!).with(
           ['echo', password],
           [

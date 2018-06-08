@@ -59,7 +59,7 @@ class RMT::SSL::CertificateGenerator
   end
 
   def ca_encrypted?
-    !valid_password?('') # check with emtpy password
+    !valid_password?(' ') # check with emtpy password. password has one char otherwise command requires input
   end
 
   def valid_password?(password)
