@@ -190,11 +190,15 @@ describe RMT::SSL::CertificateGenerator do
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
-          'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
-          '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
-          '-CAkey', ssl_files[:ca_private_key], '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
-          '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
-          '-extfile', ssl_files[:server_config]
+          ['echo', ca_password],
+          [
+            'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
+            '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
+            '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
+            '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
+            '-extfile', ssl_files[:server_config]
+          ],
+          stdout: :capture
         )
 
         expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:server_certificate]).and_return(server_cert)
@@ -229,11 +233,15 @@ describe RMT::SSL::CertificateGenerator do
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
-          'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
-          '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
-          '-CAkey', ssl_files[:ca_private_key], '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
-          '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
-          '-extfile', ssl_files[:server_config]
+          ['echo', ca_password],
+          [
+            'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
+            '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
+            '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
+            '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
+            '-extfile', ssl_files[:server_config]
+          ],
+          stdout: :capture
         )
 
         expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:server_certificate]).and_return(server_cert)

@@ -169,6 +169,20 @@ describe RMT::WizardSSLPage do
             ssl_page.run
           end
         end
+
+        context 'with no password' do
+          it 'shows error message' do
+            expect(generator_double).to receive(:server_cert_present?).and_return(true)
+            expect(generator_double).to receive(:ca_encrypted?).and_return(true)
+            expect_any_instance_of(RMT::SSL::CurrentCaPasswordDialog).to receive(:run).and_return(nil)
+            expect(Yast::Popup).not_to receive(:Message).with(
+              'SSL certificates already present, skipping generation. Please consider encrypting your CA private key!'
+            )
+            expect(Yast::Report).to receive(:Error).with('SSL certificate password not provided, skipping import.')
+            expect(ssl_page).to receive(:finish_dialog).with(:next)
+            ssl_page.run
+          end
+        end
       end
 
       context 'with non-encrypted' do

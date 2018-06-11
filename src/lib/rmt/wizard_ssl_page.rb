@@ -25,7 +25,7 @@ require 'ui/event_dispatcher'
 
 module RMT; end
 
-class RMT::WizardSSLPage < Yast::Client
+class RMT::WizardSSLPage < Yast::Client # rubocop:disable Metrics/ClassLength
   include ::UI::EventDispatcher
   include Yast::Logger
 
@@ -139,7 +139,10 @@ class RMT::WizardSSLPage < Yast::Client
     if @cert_generator.server_cert_present?
       if @cert_generator.ca_encrypted?
         current_ca_password = RMT::SSL::CurrentCaPasswordDialog.new.run
-        if @cert_generator.valid_password?(current_ca_password)
+
+        if !current_ca_password
+          Report.Error(_('SSL certificate password not provided, skipping import.'))
+        elsif @cert_generator.valid_password?(current_ca_password)
           Yast::Popup.Message(_('SSL certificates already present and password is valid, skipping generation.'))
         end
       else

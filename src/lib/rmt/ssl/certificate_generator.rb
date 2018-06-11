@@ -121,11 +121,14 @@ class RMT::SSL::CertificateGenerator
     )
 
     RMT::Execute.on_target!(
-      'openssl', 'x509', '-req', '-in', @ssl_paths[:server_csr], '-out', @ssl_paths[:server_certificate],
-      '-CA', @ssl_paths[:ca_certificate], '-CAkey', @ssl_paths[:ca_private_key],
-      '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256',
-      '-CAcreateserial',
-      '-extensions', 'v3_server_sign', '-extfile', @ssl_paths[:server_config]
+      ['echo', ca_password],
+      [
+        'openssl', 'x509', '-req', '-in', @ssl_paths[:server_csr], '-out', @ssl_paths[:server_certificate],
+        '-CA', @ssl_paths[:ca_certificate], '-CAkey', @ssl_paths[:ca_private_key],
+        '-passin', 'stdin', '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256',
+        '-CAcreateserial', '-extensions', 'v3_server_sign', '-extfile', @ssl_paths[:server_config]
+      ],
+      stdout: :capture
     )
 
     # create certificates bundle
