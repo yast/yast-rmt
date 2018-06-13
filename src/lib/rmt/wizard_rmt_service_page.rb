@@ -69,15 +69,31 @@ class RMT::WizardRMTServicePage < Yast::Client
 
   def run
     render_content
-    ok = false
-    Yast::Popup.Feedback(_('Starting services'), _('Starting RMT server, sync, and mirror timers...')) do
-      ok = rmt_service_start
+    rmt_services_started = false
+    nginx_service_reloaded = false
+
+    Yast::Popup.Feedback(_('Starting RMT'), _('Starting RMT server, sync, and mirror timers ...')) do
+      rmt_services_started = rmt_service_start
     end
-    unless ok
-      UI.ChangeWidget(Id(:service_status), :Value, 'Could not start \'rmt-server\' service.')
-      Yast::Report.Error(_("Failed to enable and restart service 'rmt-server'"))
+    unless rmt_services_started
+      UI.ChangeWidget(Id(:service_status), :Value, 'Could not start RMT services and timers.')
+      Yast::Report.Error(_('Failed to enable and restart RMT services and timers'))
     end
+
+    Yast::Popup.Feedback(_('Reloading nginx'), _('Reloading the nginx service ...')) do
+      nginx_service_reloaded = nginx_service_reload
+    end
+    unless nginx_service_reloaded
+      UI.ChangeWidget(Id(:service_status), :Value, 'Could not reload \'nginx\' service.')
+      Yast::Report.Error(_('Failed to reload service for \'nginx\''))
+    end
+
     event_loop
+  end
+
+  def nginx_service_reload
+    return true if Yast::Service.Reload('nginx')
+    false
   end
 
   def rmt_service_start
