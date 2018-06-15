@@ -17,58 +17,26 @@
 #  you may find current contact information at www.suse.com
 
 require 'rmt/utils'
+require 'rmt/ssl/certificate_generator'
+require 'rmt/shared/input_password_dialog'
 require 'ui/dialog'
 
 module RMT; end
 module RMT::SSL; end
 
-class RMT::SSL::CurrentCaPasswordDialog < UI::Dialog
+class RMT::SSL::CurrentCaPasswordDialog < RMT::Shared::InputPasswordDialog
   def initialize
-    textdomain 'rmt'
+    super
 
+    @dialog_heading = 'Your CA private key is encrypted.'
+    @dialog_label = 'Please input password.'
+    @password_field_label = '&Password'
     @cert_generator = RMT::SSL::CertificateGenerator.new
   end
 
-  def dialog_content
-    VBox(
-      VSpacing(1),
-      Heading(_('Your CA private key is encrypted. Please input password')),
-      VSpacing(1),
-      HBox(
-        HSpacing(2),
-        VBox(
-          MinWidth(15, Password(Id(:ca_password), _('&Password')))
-        ),
-        HSpacing(2)
-      ),
-      VSpacing(1),
-      HBox(
-        PushButton(Id(:cancel), Opt(:key_F9), Yast::Label.CancelButton),
-        HSpacing(2),
-        PushButton(Id(:ok), Opt(:default, :key_F10), Yast::Label.OKButton)
-      ),
-      VSpacing(1)
-    )
-  end
+  private
 
-  def user_input
-    Yast::UI.SetFocus(Id(:ca_password))
-    super
-  end
-
-  def ok_handler
-    ca_password = Yast::UI.QueryWidget(Id(:ca_password), :Value)
-
-    if ca_password.nil? || ca_password == ''
-      Yast::UI.SetFocus(Id(:ca_password))
-      Yast::Report.Error(_('Password must not be blank.'))
-      return
-    elsif !@cert_generator.valid_password?(ca_password)
-      Yast::UI.SetFocus(Id(:ca_password))
-      Yast::Report.Error(_('Password is incorrect.'))
-      return
-    end
-
-    finish_dialog(ca_password)
+  def password_valid?(password)
+    @cert_generator.valid_password?(password)
   end
 end

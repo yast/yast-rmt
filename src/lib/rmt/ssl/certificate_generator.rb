@@ -64,11 +64,8 @@ class RMT::SSL::CertificateGenerator
 
   def valid_password?(password)
     RMT::Execute.on_target!(
-      ['echo', password],
-      [
-        'openssl', 'rsa', '-passin', 'stdin', '-in', @ssl_paths[:ca_private_key]
-      ],
-      stdout: :capture
+      'openssl', 'rsa', '-passin', 'stdin', '-in', @ssl_paths[:ca_private_key],
+      stdin: password
     )
     true
   rescue Cheetah::ExecutionFailed
@@ -99,18 +96,14 @@ class RMT::SSL::CertificateGenerator
       Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_config], config_generator.make_ca_config)
 
       RMT::Execute.on_target!(
-        ['echo', ca_password],
-        ['openssl', 'genrsa', '-aes256', '-passout', 'stdin', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS],
-        stdout: :capture
+        'openssl', 'genrsa', '-aes256', '-passout', 'stdin', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS,
+        stdin: ca_password
       )
       RMT::Execute.on_target!(
-        ['echo', ca_password],
-        [
-          'openssl', 'req', '-x509', '-new', '-nodes', '-key', @ssl_paths[:ca_private_key],
-          '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', @ssl_paths[:ca_certificate],
-          '-passin', 'stdin', '-config', @ssl_paths[:ca_config]
-        ],
-        stdout: :capture
+        'openssl', 'req', '-x509', '-new', '-nodes', '-key', @ssl_paths[:ca_private_key],
+        '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', @ssl_paths[:ca_certificate],
+        '-passin', 'stdin', '-config', @ssl_paths[:ca_config],
+        stdin: ca_password
       )
     end
 
@@ -121,14 +114,11 @@ class RMT::SSL::CertificateGenerator
     )
 
     RMT::Execute.on_target!(
-      ['echo', ca_password],
-      [
-        'openssl', 'x509', '-req', '-in', @ssl_paths[:server_csr], '-out', @ssl_paths[:server_certificate],
-        '-CA', @ssl_paths[:ca_certificate], '-CAkey', @ssl_paths[:ca_private_key],
-        '-passin', 'stdin', '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256',
-        '-CAcreateserial', '-extensions', 'v3_server_sign', '-extfile', @ssl_paths[:server_config]
-      ],
-      stdout: :capture
+      'openssl', 'x509', '-req', '-in', @ssl_paths[:server_csr], '-out', @ssl_paths[:server_certificate],
+      '-CA', @ssl_paths[:ca_certificate], '-CAkey', @ssl_paths[:ca_private_key],
+      '-passin', 'stdin', '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256',
+      '-CAcreateserial', '-extensions', 'v3_server_sign', '-extfile', @ssl_paths[:server_config],
+      stdin: ca_password
     )
 
     # create certificates bundle

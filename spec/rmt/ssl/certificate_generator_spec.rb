@@ -80,11 +80,8 @@ describe RMT::SSL::CertificateGenerator do
     context 'with valid password' do
       it 'returns true' do
         expect(RMT::Execute).to receive(:on_target!).with(
-          ['echo', password],
-          [
-            'openssl', 'rsa', '-passin', 'stdin', '-in', ssl_files[:ca_private_key]
-          ],
-          stdout: :capture
+          'openssl', 'rsa', '-passin', 'stdin', '-in', ssl_files[:ca_private_key],
+          stdin: password
         ).and_return(true)
         expect(method_call).to eq(true)
       end
@@ -93,11 +90,8 @@ describe RMT::SSL::CertificateGenerator do
     context 'with invalid password' do
       it 'returns false' do
         expect(RMT::Execute).to receive(:on_target!).with(
-          ['echo', password],
-          [
-            'openssl', 'rsa', '-passin', 'stdin', '-in', ssl_files[:ca_private_key]
-          ],
-          stdout: :capture
+          'openssl', 'rsa', '-passin', 'stdin', '-in', ssl_files[:ca_private_key],
+          stdin: password
         ).and_raise(Cheetah::ExecutionFailed.new('', '', '', ''))
         expect(method_call).to eq(false)
       end
@@ -161,12 +155,9 @@ describe RMT::SSL::CertificateGenerator do
         expect(Yast::SCR).to receive(:Write).with(scr_path, ssl_files[:server_config], server_config)
 
         expect(RMT::Execute).to receive(:on_target!).with(
-          ['echo', ca_password],
-          [
-            'openssl', 'genrsa', '-aes256', '-passout', 'stdin', '-out',
-            ssl_files[:ca_private_key], described_class::OPENSSL_KEY_BITS
-          ],
-          stdout: :capture
+          'openssl', 'genrsa', '-aes256', '-passout', 'stdin', '-out',
+          ssl_files[:ca_private_key], described_class::OPENSSL_KEY_BITS,
+          stdin: ca_password
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
@@ -175,13 +166,10 @@ describe RMT::SSL::CertificateGenerator do
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
-          ['echo', ca_password],
-          [
-            'openssl', 'req', '-x509', '-new', '-nodes',
-            '-key', ssl_files[:ca_private_key], '-sha256', '-days', described_class::OPENSSL_CA_VALIDITY_DAYS,
-            '-out', ssl_files[:ca_certificate], '-passin', 'stdin', '-config', ssl_files[:ca_config]
-          ],
-          stdout: :capture
+          'openssl', 'req', '-x509', '-new', '-nodes',
+          '-key', ssl_files[:ca_private_key], '-sha256', '-days', described_class::OPENSSL_CA_VALIDITY_DAYS,
+          '-out', ssl_files[:ca_certificate], '-passin', 'stdin', '-config', ssl_files[:ca_config],
+          stdin: ca_password
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
@@ -190,15 +178,12 @@ describe RMT::SSL::CertificateGenerator do
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
-          ['echo', ca_password],
-          [
-            'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
-            '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
-            '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
-            '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
-            '-extfile', ssl_files[:server_config]
-          ],
-          stdout: :capture
+          'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
+          '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
+          '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
+          '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
+          '-extfile', ssl_files[:server_config],
+          stdin: ca_password
         )
 
         expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:server_certificate]).and_return(server_cert)
@@ -233,15 +218,12 @@ describe RMT::SSL::CertificateGenerator do
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
-          ['echo', ca_password],
-          [
-            'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
-            '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
-            '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
-            '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
-            '-extfile', ssl_files[:server_config]
-          ],
-          stdout: :capture
+          'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
+          '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
+          '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
+          '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
+          '-extfile', ssl_files[:server_config],
+          stdin: ca_password
         )
 
         expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:server_certificate]).and_return(server_cert)

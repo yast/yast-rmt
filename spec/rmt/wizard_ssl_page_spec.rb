@@ -61,15 +61,18 @@ describe RMT::WizardSSLPage do
   describe '#next_handler' do
     let(:common_name) { 'rmt.example.com' }
     let(:alt_names_items) { alt_names.map { |i| Yast::Term.new(:Item, i, i) } }
+    let(:current_ca_password_dialog_double) { instance_double(RMT::SSL::CurrentCaPasswordDialog) }
+    let(:new_ca_password_dialog_double) { instance_double(RMT::SSL::NewCaPasswordDialog) }
     let(:ca_password) { 'foobar' }
 
-    context 'with present and matching ca passwords' do
+    context 'with ca present' do
       it 'generates the certificates when next button is clicked' do
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:ca_password), :Value).and_return(ca_password)
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:ca_password_confirmation), :Value).and_return(ca_password)
         expect(Yast::UI).to receive(:QueryWidget).with(Id(:common_name), :Value).and_return(common_name)
         expect(Yast::UI).to receive(:QueryWidget).with(Id(:alt_common_names), :Items).and_return(alt_names_items)
 
+        expect(generator_double).to receive(:ca_present?).and_return(true)
+        expect(RMT::SSL::CurrentCaPasswordDialog).to receive(:new).and_return(current_ca_password_dialog_double)
+        expect(current_ca_password_dialog_double).to receive(:run).and_return(ca_password)
         expect(generator_double).to receive(:generate).with(common_name, alt_names, ca_password)
 
         expect(ssl_page).to receive(:finish_dialog).with(:next)
@@ -77,19 +80,17 @@ describe RMT::WizardSSLPage do
       end
     end
 
-    context 'not matching ca passwords' do
+    context 'with ca empty' do
       it 'generates the certificates when next button is clicked' do
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:ca_password), :Value).and_return(ca_password)
-        expect(Yast::UI).to receive(:QueryWidget).with(Id(:ca_password_confirmation), :Value).and_return('wrong_pass')
         expect(Yast::UI).to receive(:QueryWidget).with(Id(:common_name), :Value).and_return(common_name)
         expect(Yast::UI).to receive(:QueryWidget).with(Id(:alt_common_names), :Items).and_return(alt_names_items)
 
-        expect(generator_double).not_to receive(:generate)
-        expect(Yast::Popup).to receive(:Error).with(
-          'Password and confirmation are empty or not equal'
-        )
+        expect(generator_double).to receive(:ca_present?).and_return(false)
+        expect(RMT::SSL::NewCaPasswordDialog).to receive(:new).and_return(new_ca_password_dialog_double)
+        expect(new_ca_password_dialog_double).to receive(:run).and_return(ca_password)
+        expect(generator_double).to receive(:generate)
 
-        expect(ssl_page).not_to receive(:finish_dialog).with(:next)
+        expect(ssl_page).to receive(:finish_dialog).with(:next)
         ssl_page.next_handler
       end
     end
@@ -137,51 +138,16 @@ describe RMT::WizardSSLPage do
   end
 
   describe '#run' do
-    context 'when certificates are already present' do
+    context 'when server certificate is already present' do
       context 'with encrypted' do
-        let(:ca_password) { 'foobar' }
-
-        context 'with valid password' do
-          it 'shows proper error message' do
-            expect(generator_double).to receive(:server_cert_present?).and_return(true)
-            expect(generator_double).to receive(:ca_encrypted?).and_return(true)
-            expect_any_instance_of(RMT::SSL::CurrentCaPasswordDialog).to receive(:run).and_return(ca_password)
-            expect(generator_double).to receive(:valid_password?).with(ca_password).and_return(true)
-            expect(Yast::Popup).to receive(:Message).with(
-              'SSL certificates already present and password is valid, skipping generation.'
-            )
-            expect(ssl_page).to receive(:finish_dialog).with(:next)
-            ssl_page.run
-          end
-        end
-
-
-        context 'with invalid password' do
-          it 'forces user to have proper password' do
-            expect(generator_double).to receive(:server_cert_present?).and_return(true)
-            expect(generator_double).to receive(:ca_encrypted?).and_return(true)
-            expect_any_instance_of(RMT::SSL::CurrentCaPasswordDialog).to receive(:run).and_return(ca_password)
-            expect(generator_double).to receive(:valid_password?).with(ca_password).and_return(false)
-            expect(Yast::Popup).not_to receive(:Message).with(
-              'SSL certificates already present, skipping generation. Please consider encrypting your CA private key!'
-            )
-            expect(ssl_page).to receive(:finish_dialog).with(:next)
-            ssl_page.run
-          end
-        end
-
-        context 'with no password' do
-          it 'shows error message' do
-            expect(generator_double).to receive(:server_cert_present?).and_return(true)
-            expect(generator_double).to receive(:ca_encrypted?).and_return(true)
-            expect_any_instance_of(RMT::SSL::CurrentCaPasswordDialog).to receive(:run).and_return(nil)
-            expect(Yast::Popup).not_to receive(:Message).with(
-              'SSL certificates already present, skipping generation. Please consider encrypting your CA private key!'
-            )
-            expect(Yast::Report).to receive(:Error).with('SSL certificate password not provided, skipping import.')
-            expect(ssl_page).to receive(:finish_dialog).with(:next)
-            ssl_page.run
-          end
+        it 'shows proper error message' do
+          expect(generator_double).to receive(:server_cert_present?).and_return(true)
+          expect(generator_double).to receive(:ca_encrypted?).and_return(true)
+          expect(Yast::Popup).to receive(:Message).with(
+            'SSL certificates already present, skipping generation.'
+          )
+          expect(ssl_page).to receive(:finish_dialog).with(:next)
+          ssl_page.run
         end
       end
 
@@ -190,7 +156,7 @@ describe RMT::WizardSSLPage do
           expect(generator_double).to receive(:server_cert_present?).and_return(true)
           expect(generator_double).to receive(:ca_encrypted?).and_return(false)
           expect(Yast::Popup).to receive(:Message).with(
-            'SSL certificates already present, skipping generation. Please consider encrypting your CA private key!'
+            "SSL certificates already present, skipping generation.\nPlease consider encrypting your CA private key!"
           )
           expect(ssl_page).to receive(:finish_dialog).with(:next)
           ssl_page.run

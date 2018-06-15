@@ -21,24 +21,15 @@ require 'rmt/shared/set_password_dialog'
 require 'ui/dialog'
 
 module RMT; end
-module RMT::MariaDB; end
+module RMT::SSL; end
 
-class RMT::MariaDB::NewRootPasswordDialog < RMT::Shared::SetPasswordDialog
+class RMT::SSL::NewCaPasswordDialog < RMT::Shared::SetPasswordDialog
   def initialize
     super
 
-    @dialog_heading = 'Setting database root password'
-    @dialog_label = "The current MariaDB root password is empty.\n" \
-                    'Setting a root password is required for security reasons.'
-    @password_field_label = 'New MariaDB root &Password'
+    @dialog_heading = 'Setting CA private key password'
+    @dialog_label = 'Please set new CA private key password'
+    @password_field_label = 'New CA private key &Password'
     @password_confirmation_field_label = 'New Password &Again'
-  end
-
-  def set_root_password(new_root_password, hostname)
-    RMT::Utils.run_command(
-      "echo 'SET PASSWORD FOR root@%1=PASSWORD(\"%2\");' | mysql -u root 2>/dev/null",
-      hostname,
-      new_root_password
-    ) == 0
   end
 end

@@ -18,6 +18,7 @@
 
 require 'rmt/ssl/alternative_common_name_dialog'
 require 'rmt/ssl/current_ca_password_dialog'
+require 'rmt/ssl/new_ca_password_dialog'
 require 'rmt/ssl/config_generator'
 require 'rmt/ssl/certificate_generator'
 require 'rmt/execute'
@@ -25,7 +26,7 @@ require 'ui/event_dispatcher'
 
 module RMT; end
 
-class RMT::WizardSSLPage < Yast::Client # rubocop:disable Metrics/ClassLength
+class RMT::WizardSSLPage < Yast::Client
   include ::UI::EventDispatcher
   include Yast::Logger
 
@@ -44,17 +45,6 @@ class RMT::WizardSSLPage < Yast::Client # rubocop:disable Metrics/ClassLength
       HBox(
         HSpacing(1),
         VBox(
-          VSpacing(1),
-          Left(
-            HSquash(
-              MinWidth(30, Password(Id(:ca_password), _('Password')))
-            )
-          ),
-          Left(
-            HSquash(
-              MinWidth(30, Password(Id(:ca_password_confirmation), _('Password confirmation')))
-            )
-          ),
           VSpacing(1),
           Left(
             HSquash(
@@ -99,14 +89,13 @@ class RMT::WizardSSLPage < Yast::Client # rubocop:disable Metrics/ClassLength
     alt_names_items = UI.QueryWidget(Id(:alt_common_names), :Items)
     alt_names = alt_names_items.map { |item| item.params[1] }
 
-    ca_password = UI.QueryWidget(Id(:ca_password), :Value)
-    ca_password_confirmation = UI.QueryWidget(Id(:ca_password_confirmation), :Value)
+    dialog = if @cert_generator.ca_present?
+               RMT::SSL::CurrentCaPasswordDialog.new
+             else
+               RMT::SSL::NewCaPasswordDialog.new
+             end
 
-    if !ca_password || ca_password.empty? || ca_password != ca_password_confirmation
-      Report.Error(_('Password and confirmation are empty or not equal'))
-      return
-    end
-
+    ca_password = dialog.run
     @cert_generator.generate(common_name, alt_names, ca_password)
 
     finish_dialog(:next)
@@ -138,16 +127,12 @@ class RMT::WizardSSLPage < Yast::Client # rubocop:disable Metrics/ClassLength
   def run
     if @cert_generator.server_cert_present?
       if @cert_generator.ca_encrypted?
-        current_ca_password = RMT::SSL::CurrentCaPasswordDialog.new.run
-
-        if !current_ca_password
-          Report.Error(_('SSL certificate password not provided, skipping import.'))
-        elsif @cert_generator.valid_password?(current_ca_password)
-          Yast::Popup.Message(_('SSL certificates already present and password is valid, skipping generation.'))
-        end
+        Yast::Popup.Message(_('SSL certificates already present, skipping generation.'))
       else
-        Yast::Popup.Message(_('SSL certificates already present, skipping generation. Please consider encrypting your CA private key!'))
+        Yast::Popup.Message(_("SSL certificates already present, skipping generation.\n" \
+                              'Please consider encrypting your CA private key!'))
       end
+
       return finish_dialog(:next)
     end
     render_content
