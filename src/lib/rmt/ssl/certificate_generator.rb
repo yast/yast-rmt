@@ -82,6 +82,7 @@ class RMT::SSL::CertificateGenerator
     false
   end
 
+  # rubocop:disable Metrics/MethodLength
   def generate(common_name, alt_names, ca_password)
     config_generator = RMT::SSL::ConfigGenerator.new(common_name, alt_names)
 
@@ -113,13 +114,22 @@ class RMT::SSL::CertificateGenerator
       '-out', @ssl_paths[:server_csr], '-config', @ssl_paths[:server_config]
     )
 
-    RMT::Execute.on_target!(
-      'openssl', 'x509', '-req', '-in', @ssl_paths[:server_csr], '-out', @ssl_paths[:server_certificate],
-      '-CA', @ssl_paths[:ca_certificate], '-CAkey', @ssl_paths[:ca_private_key],
-      '-passin', 'stdin', '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256',
-      '-CAcreateserial', '-extensions', 'v3_server_sign', '-extfile', @ssl_paths[:server_config],
-      stdin: ca_password
-    )
+    if !ca_password.empty?
+      RMT::Execute.on_target!(
+        'openssl', 'x509', '-req', '-in', @ssl_paths[:server_csr], '-out', @ssl_paths[:server_certificate],
+        '-CA', @ssl_paths[:ca_certificate], '-CAkey', @ssl_paths[:ca_private_key],
+        '-passin', 'stdin', '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256',
+        '-CAcreateserial', '-extensions', 'v3_server_sign', '-extfile', @ssl_paths[:server_config],
+        stdin: ca_password
+      )
+    else
+      RMT::Execute.on_target!(
+        'openssl', 'x509', '-req', '-in', @ssl_paths[:server_csr], '-out', @ssl_paths[:server_certificate],
+        '-CA', @ssl_paths[:ca_certificate], '-CAkey', @ssl_paths[:ca_private_key],
+        '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256',
+        '-CAcreateserial', '-extensions', 'v3_server_sign', '-extfile', @ssl_paths[:server_config]
+      )
+    end
 
     # create certificates bundle
     server_cert = Yast::SCR.Read(Yast.path('.target.string'), @ssl_paths[:server_certificate])
@@ -137,6 +147,7 @@ class RMT::SSL::CertificateGenerator
       }
     )
   end
+  # rubocop:enable Metrics/MethodLength
 
   protected
 

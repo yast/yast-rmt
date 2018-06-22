@@ -31,5 +31,6 @@ class RMT::SSL::NewCaPasswordDialog < RMT::Shared::SetPasswordDialog
     @dialog_label = 'Please set new CA private key password'
     @password_field_label = 'New CA private key &Password'
     @password_confirmation_field_label = 'New Password &Again'
+    @min_password_size = 4
   end
 end

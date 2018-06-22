@@ -24,6 +24,7 @@ module RMT::Shared; end
 
 class RMT::Shared::SetPasswordDialog < UI::Dialog
   def initialize
+    @min_password_size = 0
     textdomain 'rmt'
   end
 
@@ -39,6 +40,10 @@ class RMT::Shared::SetPasswordDialog < UI::Dialog
     if password.nil? || password == ''
       Yast::UI.SetFocus(Id(:password))
       Yast::Report.Error(_('Password must not be blank.'))
+      return
+    elsif password.size < @min_password_size
+      Yast::UI.SetFocus(Id(:password))
+      Yast::Report.Error("Password has to have at least #{@min_password_size} characters.")
       return
     elsif password != password_confirmation
       Yast::UI.SetFocus(Id(:password_confirmation))

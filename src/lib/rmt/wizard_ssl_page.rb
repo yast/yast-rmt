@@ -89,14 +89,21 @@ class RMT::WizardSSLPage < Yast::Client
     alt_names_items = UI.QueryWidget(Id(:alt_common_names), :Items)
     alt_names = alt_names_items.map { |item| item.params[1] }
 
-    dialog = if @cert_generator.ca_present?
-               RMT::SSL::CurrentCaPasswordDialog.new
-             else
-               RMT::SSL::NewCaPasswordDialog.new
-             end
+    ca_password = if @cert_generator.ca_present?
+                    if @cert_generator.ca_encrypted?
+                      RMT::SSL::CurrentCaPasswordDialog.new.run
+                    else
+                      '' # use empty password
+                    end
+                  else
+                    RMT::SSL::NewCaPasswordDialog.new.run
+                  end
 
-    ca_password = dialog.run
-    @cert_generator.generate(common_name, alt_names, ca_password)
+    if ca_password
+      @cert_generator.generate(common_name, alt_names, ca_password)
+    else
+      Report.Error(_('CA password not provided, skipping SSL keys generation.'))
+    end
 
     finish_dialog(:next)
   end

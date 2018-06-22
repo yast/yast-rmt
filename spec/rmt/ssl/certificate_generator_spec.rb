@@ -197,6 +197,47 @@ describe RMT::SSL::CertificateGenerator do
       end
     end
 
+    context 'when CA is generated without password' do
+      let(:ca_password) { '' }
+
+      it 'generates only the server certificate' do
+        expect(RMT::SSL::ConfigGenerator).to receive(:new).and_return(config_generator_double)
+        expect(generator).to receive(:ca_present?).and_return(true).exactly(2).times
+        expect(config_generator_double).to receive(:make_server_config).and_return(server_config)
+
+        expect(generator).to receive(:create_files)
+
+        expect(Yast::SCR).to receive(:Write).with(scr_path, ssl_files[:server_config], server_config)
+
+        expect(RMT::Execute).to receive(:on_target!).with(
+          'openssl', 'genrsa', '-out',
+          ssl_files[:server_private_key], described_class::OPENSSL_KEY_BITS
+        )
+
+        expect(RMT::Execute).to receive(:on_target!).with(
+          'openssl', 'req', '-new', '-key', ssl_files[:server_private_key],
+          '-out', ssl_files[:server_csr], '-config', ssl_files[:server_config]
+        )
+
+        expect(RMT::Execute).to receive(:on_target!).with(
+          'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
+          '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
+          '-CAkey', ssl_files[:ca_private_key], '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
+          '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
+          '-extfile', ssl_files[:server_config]
+        )
+
+        expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:server_certificate]).and_return(server_cert)
+        expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:ca_certificate]).and_return(ca_cert)
+        expect(Yast::SCR).to receive(:Write).with(scr_path, ssl_files[:server_certificate], server_cert + ca_cert)
+
+        expect(RMT::Execute).to receive(:on_target!).with('chown', 'root:nginx', ssl_files[:ca_certificate])
+        expect(RMT::Execute).to receive(:on_target!).with('chmod', '0640', ssl_files[:ca_certificate])
+
+        generator.generate(common_name, alt_names, ca_password)
+      end
+    end
+
     context 'when CA is already present' do
       it 'generates only the server certificate' do
         expect(RMT::SSL::ConfigGenerator).to receive(:new).and_return(config_generator_double)

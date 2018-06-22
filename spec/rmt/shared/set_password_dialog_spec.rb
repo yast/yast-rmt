@@ -57,6 +57,20 @@ describe RMT::Shared::SetPasswordDialog do
       end
     end
 
+    context 'when the too short' do
+      before { dialog.instance_variable_set(:@min_password_size, 4) }
+      let(:password1) { '12' }
+      let(:password2) { '12' }
+
+      it 'reports an error' do
+        expect(Yast::UI).to receive(:SetFocus).with(Id(:password))
+        expect(Yast::Report).to receive(:Error).with('Password has to have at least 4 characters.')
+
+        expect(dialog).not_to receive(:finish_dialog)
+        dialog.ok_handler
+      end
+    end
+
     context 'when the password is blank' do
       let(:password1) { 'bad_password' }
       let(:password2) { 'good_password' }
