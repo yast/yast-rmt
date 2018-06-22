@@ -66,28 +66,50 @@ describe RMT::WizardRMTServicePage do
   end
 
   describe '#run' do
-    context 'when service restart failed' do
-      it 'shows an error and continues' do
-        expect(service_page).to receive(:render_content)
-        expect(service_page).to receive(:rmt_service_start).and_return(false)
-        expect(Yast::Report).to receive(:Error).with("Failed to enable and restart service 'rmt-server'")
-        expect(Yast::Popup).to receive(:Feedback).and_call_original
-        expect(service_page).to receive(:event_loop)
-        service_page.run
+    context 'successful run' do
+      context 'restarting succeeds' do
+        it 'reloads and restarts the services and continues' do
+          expect(service_page).to receive(:render_content)
+          expect(Yast::Popup).to receive(:Feedback).and_call_original
+          expect(service_page).to receive(:rmt_service_start).and_return(true)
+          expect(Yast::Popup).to receive(:Feedback).and_call_original
+          expect(service_page).to receive(:nginx_service_reload).and_return(true)
+          expect(service_page).to receive(:event_loop)
+          service_page.run
+        end
       end
     end
 
-    context 'when service restart succeeded' do
-      it 'restarts rmt service and enters event loop' do
-        expect(service_page).to receive(:render_content)
-        expect(service_page).to receive(:rmt_service_start).and_return(true)
-        expect(Yast::Popup).to receive(:Feedback).and_call_original
-        expect(service_page).to receive(:event_loop)
-        service_page.run
+    context 'unsuccessful run' do
+      context 'restarting fails' do
+        it 'shows an error and continues' do
+          expect(service_page).to receive(:render_content)
+          expect(service_page).to receive(:rmt_service_start).and_return(false)
+          expect(Yast::Report).to receive(:Error).with('Failed to enable and restart RMT services and timers')
+          expect(service_page).to receive(:nginx_service_reload).and_return(false)
+          expect(Yast::Report).to receive(:Error).with("Failed to reload service for 'nginx'")
+          expect(service_page).to receive(:event_loop)
+          service_page.run
+        end
       end
     end
   end
 
+  describe '#nginx_service_reload' do
+    context 'succeeds to reload' do
+      it 'returns true' do
+        expect(Yast::Service).to receive(:Reload).with('nginx').and_return(true)
+        service_page.nginx_service_reload
+      end
+    end
+
+    context 'fails to reload' do
+      it 'returns false' do
+        expect(Yast::Service).to receive(:Reload).with('nginx').and_return(false)
+        service_page.nginx_service_reload
+      end
+    end
+  end
   describe '#rmt_service_start' do
     context 'when restarting the service succeeds' do
       it 'shows confirmation' do
