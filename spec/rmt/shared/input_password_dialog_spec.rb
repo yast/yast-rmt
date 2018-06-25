@@ -25,7 +25,7 @@ describe RMT::Shared::InputPasswordDialog do
 
   describe '#dialog_content' do
     it 'creates the UI elements' do
-      expect(Yast::Term).to receive(:new).exactly(22).times
+      expect(Yast::Term).to receive(:new).exactly(23).times
       dialog.send(:dialog_content)
     end
   end

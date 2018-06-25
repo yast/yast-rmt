@@ -59,6 +59,7 @@ class RMT::Shared::InputPasswordDialog < UI::Dialog
         HSpacing(2),
         VBox(
           Label(_(@dialog_label)),
+          VSpacing(1),
           MinWidth(15, Password(Id(:password), _(@password_field_label)))
         ),
         HSpacing(2)
