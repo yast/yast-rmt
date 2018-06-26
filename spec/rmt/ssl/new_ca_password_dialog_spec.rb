@@ -16,22 +16,19 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/maria_db/current_root_password_dialog'
+require 'rmt/ssl/new_ca_password_dialog'
 
 Yast.import 'Report'
 
-describe RMT::MariaDB::CurrentRootPasswordDialog do
+describe RMT::SSL::NewCaPasswordDialog do
   subject(:dialog) { described_class.new }
 
-  describe '#password_valid?' do
-    it 'returns true when exit code is 0' do
-      expect(RMT::Utils).to receive(:run_command).and_return(0)
-      expect(dialog.send(:password_valid?, 'password')).to be(true)
-    end
-
-    it 'returns false when exit code is not 0' do
-      expect(RMT::Utils).to receive(:run_command).and_return(1)
-      expect(dialog.send(:password_valid?, 'password')).to be(false)
+  describe '#initialize' do
+    it 'creates the UI elements' do
+      expect(dialog.instance_variable_get(:@dialog_heading)).to eq('Setting CA private key password')
+      expect(dialog.instance_variable_get(:@dialog_label)).to eq('Please set new CA private key password')
+      expect(dialog.instance_variable_get(:@password_field_label)).to eq('New CA private key &Password')
+      expect(dialog.instance_variable_get(:@password_confirmation_field_label)).to eq('New Password &Again')
     end
   end
 end

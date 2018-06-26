@@ -16,22 +16,25 @@
 #  To contact SUSE about this file by physical or electronic mail,
 #  you may find current contact information at www.suse.com
 
-require 'rmt/maria_db/current_root_password_dialog'
+require 'rmt/shared/input_password_dialog'
+require 'rmt/ssl/current_ca_password_dialog'
 
 Yast.import 'Report'
 
-describe RMT::MariaDB::CurrentRootPasswordDialog do
+describe RMT::SSL::CurrentCaPasswordDialog do
   subject(:dialog) { described_class.new }
 
   describe '#password_valid?' do
-    it 'returns true when exit code is 0' do
-      expect(RMT::Utils).to receive(:run_command).and_return(0)
-      expect(dialog.send(:password_valid?, 'password')).to be(true)
+    let(:password) { 'foobar' }
+
+    it 'returns true when password is valid' do
+      expect_any_instance_of(RMT::SSL::CertificateGenerator).to receive(:valid_password?).with(password).and_return(true)
+      expect(dialog.send(:password_valid?, password)).to be(true)
     end
 
     it 'returns false when exit code is not 0' do
-      expect(RMT::Utils).to receive(:run_command).and_return(1)
-      expect(dialog.send(:password_valid?, 'password')).to be(false)
+      expect_any_instance_of(RMT::SSL::CertificateGenerator).to receive(:valid_password?).with(password).and_return(false)
+      expect(dialog.send(:password_valid?, password)).to be(false)
     end
   end
 end

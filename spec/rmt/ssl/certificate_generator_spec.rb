@@ -63,6 +63,41 @@ describe RMT::SSL::CertificateGenerator do
     end
   end
 
+  describe '#ca_encrypted?' do
+    subject(:method_call) { generator.ca_encrypted? }
+
+    it 'calls #valid_password? method' do
+      expect(generator).to receive(:valid_password?).with(' ')
+      method_call
+    end
+  end
+
+  describe '#valid_password?' do
+    subject(:method_call) { generator.valid_password?(password) }
+
+    let(:password) { 'foobar' }
+
+    context 'with valid password' do
+      it 'returns true' do
+        expect(RMT::Execute).to receive(:on_target!).with(
+          'openssl', 'rsa', '-passin', 'stdin', '-in', ssl_files[:ca_private_key],
+          stdin: password
+        ).and_return(true)
+        expect(method_call).to eq(true)
+      end
+    end
+
+    context 'with invalid password' do
+      it 'returns false' do
+        expect(RMT::Execute).to receive(:on_target!).with(
+          'openssl', 'rsa', '-passin', 'stdin', '-in', ssl_files[:ca_private_key],
+          stdin: password
+        ).and_raise(Cheetah::ExecutionFailed.new('', '', '', ''))
+        expect(method_call).to eq(false)
+      end
+    end
+  end
+
   describe '#server_cert_present??' do
     subject(:result) { generator.server_cert_present? }
 
@@ -104,6 +139,7 @@ describe RMT::SSL::CertificateGenerator do
     let(:server_cert) { 'server_cert' }
     let(:common_name) { 'example.org' }
     let(:alt_names) { ['foo.example.org', 'bar.example.org'] }
+    let(:ca_password) { 'foobar' }
 
     context 'when CA is not yet generated' do
       it 'generates the CA and server certificates' do
@@ -119,8 +155,9 @@ describe RMT::SSL::CertificateGenerator do
         expect(Yast::SCR).to receive(:Write).with(scr_path, ssl_files[:server_config], server_config)
 
         expect(RMT::Execute).to receive(:on_target!).with(
-          'openssl', 'genrsa', '-out',
-          ssl_files[:ca_private_key], described_class::OPENSSL_KEY_BITS
+          'openssl', 'genrsa', '-aes256', '-passout', 'stdin', '-out',
+          ssl_files[:ca_private_key], described_class::OPENSSL_KEY_BITS,
+          stdin: ca_password
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
@@ -131,7 +168,8 @@ describe RMT::SSL::CertificateGenerator do
         expect(RMT::Execute).to receive(:on_target!).with(
           'openssl', 'req', '-x509', '-new', '-nodes',
           '-key', ssl_files[:ca_private_key], '-sha256', '-days', described_class::OPENSSL_CA_VALIDITY_DAYS,
-          '-out', ssl_files[:ca_certificate], '-config', ssl_files[:ca_config]
+          '-out', ssl_files[:ca_certificate], '-passin', 'stdin', '-config', ssl_files[:ca_config],
+          stdin: ca_password
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
@@ -142,9 +180,10 @@ describe RMT::SSL::CertificateGenerator do
         expect(RMT::Execute).to receive(:on_target!).with(
           'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
           '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
-          '-CAkey', ssl_files[:ca_private_key], '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
+          '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
           '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
-          '-extfile', ssl_files[:server_config]
+          '-extfile', ssl_files[:server_config],
+          stdin: ca_password
         )
 
         expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:server_certificate]).and_return(server_cert)
@@ -154,11 +193,13 @@ describe RMT::SSL::CertificateGenerator do
         expect(RMT::Execute).to receive(:on_target!).with('chown', 'root:nginx', ssl_files[:ca_certificate])
         expect(RMT::Execute).to receive(:on_target!).with('chmod', '0640', ssl_files[:ca_certificate])
 
-        generator.generate(common_name, alt_names)
+        generator.generate(common_name, alt_names, ca_password)
       end
     end
 
-    context 'when CA is already present' do
+    context 'when CA is generated without password' do
+      let(:ca_password) { '' }
+
       it 'generates only the server certificate' do
         expect(RMT::SSL::ConfigGenerator).to receive(:new).and_return(config_generator_double)
         expect(generator).to receive(:ca_present?).and_return(true).exactly(2).times
@@ -193,20 +234,60 @@ describe RMT::SSL::CertificateGenerator do
         expect(RMT::Execute).to receive(:on_target!).with('chown', 'root:nginx', ssl_files[:ca_certificate])
         expect(RMT::Execute).to receive(:on_target!).with('chmod', '0640', ssl_files[:ca_certificate])
 
-        generator.generate(common_name, alt_names)
+        generator.generate(common_name, alt_names, ca_password)
+      end
+    end
+
+    context 'when CA is already present' do
+      it 'generates only the server certificate' do
+        expect(RMT::SSL::ConfigGenerator).to receive(:new).and_return(config_generator_double)
+        expect(generator).to receive(:ca_present?).and_return(true).exactly(2).times
+        expect(config_generator_double).to receive(:make_server_config).and_return(server_config)
+
+        expect(generator).to receive(:create_files)
+
+        expect(Yast::SCR).to receive(:Write).with(scr_path, ssl_files[:server_config], server_config)
+
+        expect(RMT::Execute).to receive(:on_target!).with(
+          'openssl', 'genrsa', '-out',
+          ssl_files[:server_private_key], described_class::OPENSSL_KEY_BITS
+        )
+
+        expect(RMT::Execute).to receive(:on_target!).with(
+          'openssl', 'req', '-new', '-key', ssl_files[:server_private_key],
+          '-out', ssl_files[:server_csr], '-config', ssl_files[:server_config]
+        )
+
+        expect(RMT::Execute).to receive(:on_target!).with(
+          'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
+          '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
+          '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
+          '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
+          '-extfile', ssl_files[:server_config],
+          stdin: ca_password
+        )
+
+        expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:server_certificate]).and_return(server_cert)
+        expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:ca_certificate]).and_return(ca_cert)
+        expect(Yast::SCR).to receive(:Write).with(scr_path, ssl_files[:server_certificate], server_cert + ca_cert)
+
+        expect(RMT::Execute).to receive(:on_target!).with('chown', 'root:nginx', ssl_files[:ca_certificate])
+        expect(RMT::Execute).to receive(:on_target!).with('chmod', '0640', ssl_files[:ca_certificate])
+
+        generator.generate(common_name, alt_names, ca_password)
       end
     end
 
     it 'handles Cheetah::ExecutionFailed exceptions' do
       expect(RMT::SSL::ConfigGenerator).to receive(:new).and_raise(Cheetah::ExecutionFailed.new('cmd', 1, '', 'Dummy error'))
       expect(Yast::Report).to receive(:Error).with("An error occurred during SSL certificate generation:\nDummy error\n")
-      generator.generate(common_name, alt_names)
+      generator.generate(common_name, alt_names, ca_password)
     end
 
     it 'handles RMT::SSL::Exception exceptions' do
       expect(RMT::SSL::ConfigGenerator).to receive(:new).and_raise(RMT::SSL::Exception.new('Dummy error'))
       expect(Yast::Report).to receive(:Error).with("An error occurred during SSL certificate generation:\nDummy error\n")
-      generator.generate(common_name, alt_names)
+      generator.generate(common_name, alt_names, ca_password)
     end
   end
 

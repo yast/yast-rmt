@@ -17,6 +17,8 @@
 #  you may find current contact information at www.suse.com
 
 require 'rmt/ssl/alternative_common_name_dialog'
+require 'rmt/ssl/current_ca_password_dialog'
+require 'rmt/ssl/new_ca_password_dialog'
 require 'rmt/ssl/config_generator'
 require 'rmt/ssl/certificate_generator'
 require 'rmt/execute'
@@ -87,7 +89,21 @@ class RMT::WizardSSLPage < Yast::Client
     alt_names_items = UI.QueryWidget(Id(:alt_common_names), :Items)
     alt_names = alt_names_items.map { |item| item.params[1] }
 
-    @cert_generator.generate(common_name, alt_names)
+    ca_password = if @cert_generator.ca_present?
+                    if @cert_generator.ca_encrypted?
+                      RMT::SSL::CurrentCaPasswordDialog.new.run
+                    else
+                      '' # use empty password
+                    end
+                  else
+                    RMT::SSL::NewCaPasswordDialog.new.run
+                  end
+
+    if ca_password
+      @cert_generator.generate(common_name, alt_names, ca_password)
+    else
+      Report.Error(_('CA password not provided, skipping SSL keys generation.'))
+    end
 
     finish_dialog(:next)
   end
@@ -117,7 +133,13 @@ class RMT::WizardSSLPage < Yast::Client
 
   def run
     if @cert_generator.server_cert_present?
-      Yast::Popup.Message(_('SSL certificates already present, skipping generation.'))
+      if @cert_generator.ca_encrypted?
+        Yast::Popup.Message(_('SSL certificates already present, skipping generation.'))
+      else
+        Yast::Popup.Message(_("SSL certificates already present, skipping generation.\n" \
+                              'Please consider encrypting your CA private key!'))
+      end
+
       return finish_dialog(:next)
     end
     render_content

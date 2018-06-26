@@ -17,28 +17,26 @@
 #  you may find current contact information at www.suse.com
 
 require 'rmt/utils'
-require 'rmt/shared/set_password_dialog'
+require 'rmt/ssl/certificate_generator'
+require 'rmt/shared/input_password_dialog'
 require 'ui/dialog'
 
 module RMT; end
-module RMT::MariaDB; end
+module RMT::SSL; end
 
-class RMT::MariaDB::NewRootPasswordDialog < RMT::Shared::SetPasswordDialog
+class RMT::SSL::CurrentCaPasswordDialog < RMT::Shared::InputPasswordDialog
   def initialize
     super
 
-    @dialog_heading = 'Setting database root password'
-    @dialog_label = "The current MariaDB root password is empty.\n" \
-                    'Setting a root password is required for security reasons.'
-    @password_field_label = 'New MariaDB root &Password'
-    @password_confirmation_field_label = 'New Password &Again'
+    @dialog_heading = 'Your CA private key is encrypted.'
+    @dialog_label = 'Please input password.'
+    @password_field_label = '&Password'
+    @cert_generator = RMT::SSL::CertificateGenerator.new
   end
 
-  def set_root_password(new_root_password, hostname)
-    RMT::Utils.run_command(
-      "echo 'SET PASSWORD FOR root@%1=PASSWORD(\"%2\");' | mysql -u root 2>/dev/null",
-      hostname,
-      new_root_password
-    ) == 0
+  private
+
+  def password_valid?(password)
+    @cert_generator.valid_password?(password)
   end
 end

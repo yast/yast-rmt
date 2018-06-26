@@ -17,61 +17,24 @@
 #  you may find current contact information at www.suse.com
 
 require 'rmt/utils'
+require 'rmt/shared/input_password_dialog'
 require 'ui/dialog'
 
 module RMT; end
 module RMT::MariaDB; end
 
-class RMT::MariaDB::CurrentRootPasswordDialog < UI::Dialog
+class RMT::MariaDB::CurrentRootPasswordDialog < RMT::Shared::InputPasswordDialog
   def initialize
-    textdomain 'rmt'
-  end
-
-  def dialog_content
-    VBox(
-      VSpacing(1),
-      Heading(_('Database root password is required')),
-      VSpacing(1),
-      HBox(
-        HSpacing(2),
-        VBox(
-          Label(_('Please provide the current database root password.')),
-          MinWidth(15, Password(Id(:root_password), _('MariaDB root &password')))
-        ),
-        HSpacing(2)
-      ),
-      VSpacing(1),
-      HBox(
-        PushButton(Id(:cancel), Opt(:key_F9), Yast::Label.CancelButton),
-        HSpacing(2),
-        PushButton(Id(:ok), Opt(:default, :key_F10), Yast::Label.OKButton)
-      ),
-      VSpacing(1)
-    )
-  end
-
-  def user_input
-    Yast::UI.SetFocus(Id(:root_password))
     super
+
+    @dialog_heading = 'Database root password is required'
+    @dialog_label = 'Please provide the current database root password.'
+    @password_field_label = 'MariaDB root &password'
   end
 
-  def ok_handler
-    root_password = Yast::UI.QueryWidget(Id(:root_password), :Value)
+  private
 
-    if !root_password || root_password.empty?
-      Yast::UI.SetFocus(Id(:root_password))
-      Yast::Report.Error(_('Please provide the root password.'))
-      return
-    elsif !root_password_valid?(root_password)
-      Yast::UI.SetFocus(Id(:root_password))
-      Yast::Report.Error(_('The provided password is not valid.'))
-      return
-    end
-
-    finish_dialog(root_password)
-  end
-
-  def root_password_valid?(password)
+  def password_valid?(password)
     RMT::Utils.run_command(
       "echo 'show databases;' | mysql -u root -p%1 2>/dev/null",
       password
