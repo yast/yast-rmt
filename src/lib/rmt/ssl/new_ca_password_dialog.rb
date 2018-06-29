@@ -24,13 +24,16 @@ module RMT; end
 module RMT::SSL; end
 
 class RMT::SSL::NewCaPasswordDialog < RMT::Shared::SetPasswordDialog
+
   def initialize
     super
 
     @dialog_heading = 'Setting CA private key password'
-    @dialog_label = 'Please set new CA private key password'
-    @password_field_label = 'New CA private key &Password'
-    @password_confirmation_field_label = 'New Password &Again'
+    @dialog_label = "Please set a password for the CA private key\n" \
+                    "to enable RMT clients to reliably verify the\n" \
+                    "RMT server's identity."
+    @password_field_label = '&Password'
     @min_password_size = 4
   end
+
 end
