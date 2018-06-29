@@ -24,7 +24,6 @@ module RMT; end
 module RMT::SSL; end
 
 class RMT::SSL::NewCaPasswordDialog < RMT::Shared::SetPasswordDialog
-
   def initialize
     super
 
@@ -35,5 +34,4 @@ class RMT::SSL::NewCaPasswordDialog < RMT::Shared::SetPasswordDialog
     @password_field_label = '&Password'
     @min_password_size = 4
   end
-
 end
