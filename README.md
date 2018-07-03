@@ -60,12 +60,6 @@ osc sr systemsmanagement:SCC:RMT yast2-rmt openSUSE:Factory --no-cleanup
 
 ##### Internal Build Service
 
-To make the initial submit for a new SLES version:
-
-```bash
-osc -A https://api.suse.de sr Devel:SCC:RMT yast2-rmt SUSE:SLE-15 --no-cleanup
-```
-
 To submit the updated package as a maintenance update to released SLES versions:
 
 ```bash
