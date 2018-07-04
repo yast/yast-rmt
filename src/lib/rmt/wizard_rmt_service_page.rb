@@ -72,7 +72,7 @@ class RMT::WizardRMTServicePage < Yast::Client
     rmt_services_started = false
     nginx_service_reloaded = false
 
-    Yast::Popup.Feedback(_('Starting RMT'), _('Starting RMT server, sync, and mirror timers ...')) do
+    Yast::Popup.Feedback(_('Starting RMT'), _('Starting RMT server, sync and mirror timers ...')) do
       rmt_services_started = rmt_service_start
     end
     unless rmt_services_started
