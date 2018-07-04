@@ -28,8 +28,7 @@ class RMT::SSL::NewCaPasswordDialog < RMT::Shared::SetPasswordDialog
     super
 
     @dialog_heading = 'Setting CA private key password'
-    @dialog_label = 'Please set a password for the CA private key\n' \
-                    'to protect the private key.'
+    @dialog_label = 'Please set a password for the CA private key.'
     @password_field_label = '&Password'
     @min_password_size = 4
   end

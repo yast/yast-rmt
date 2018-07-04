@@ -26,8 +26,7 @@ describe RMT::SSL::NewCaPasswordDialog do
   describe '#initialize' do
     it 'creates the UI elements' do
       expect(dialog.instance_variable_get(:@dialog_heading)).to eq('Setting CA private key password')
-      expect(dialog.instance_variable_get(:@dialog_label)).to eq('Please set a password for the CA private key\n' \
-                                                                 'to protect the private key.')
+      expect(dialog.instance_variable_get(:@dialog_label)).to eq('Please set a password for the CA private key.')
       expect(dialog.instance_variable_get(:@password_field_label)).to eq('&Password')
       expect(dialog.instance_variable_get(:@password_confirmation_field_label)).to eq('C&onfirm Password')
     end
