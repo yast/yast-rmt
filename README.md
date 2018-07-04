@@ -60,16 +60,10 @@ osc sr systemsmanagement:SCC:RMT yast2-rmt openSUSE:Factory --no-cleanup
 
 ##### Internal Build Service
 
-To make the initial submit for a new SLES version:
-
-```bash
-osc -A https://api.suse.de sr Devel:SCC:RMT yast2-rmt SUSE:SLE-15:GA --no-cleanup
-```
-
 To submit the updated package as a maintenance update to released SLES versions:
 
 ```bash
-osc -A https://api.suse.de mr Devel:SCC:RMT yast2-rmt SUSE:SLE-15:GA:Update --no-cleanup
+osc -A https://api.suse.de mr Devel:SCC:RMT yast2-rmt SUSE:SLE-15:Update --no-cleanup
 ```
 
 You can check the status of your requests [here](https://build.opensuse.org/package/requests/systemsmanagement:SCC:RMT/yast2-rmt) and [here](https://build.suse.de/package/requests/Devel:SCC:RMT/yast2-rmt).
