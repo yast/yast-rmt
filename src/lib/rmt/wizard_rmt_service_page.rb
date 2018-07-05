@@ -76,7 +76,7 @@ class RMT::WizardRMTServicePage < Yast::Client
       rmt_services_started = rmt_service_start
     end
     unless rmt_services_started
-      UI.ChangeWidget(Id(:service_status), :Value, 'Could not start RMT services and timers.')
+      UI.ChangeWidget(Id(:service_status), :Value, _('Could not start RMT services and timers.'))
       Yast::Report.Error(_('Failed to enable and restart RMT services and timers'))
     end
 
@@ -84,7 +84,7 @@ class RMT::WizardRMTServicePage < Yast::Client
       nginx_service_reloaded = nginx_service_reload
     end
     unless nginx_service_reloaded
-      UI.ChangeWidget(Id(:service_status), :Value, 'Could not reload \'nginx\' service.')
+      UI.ChangeWidget(Id(:service_status), :Value, _('Could not reload \'nginx\' service.'))
       Yast::Report.Error(_('Failed to reload service for \'nginx\''))
     end
 
