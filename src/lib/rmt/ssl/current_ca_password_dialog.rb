@@ -28,9 +28,9 @@ class RMT::SSL::CurrentCaPasswordDialog < RMT::Shared::InputPasswordDialog
   def initialize
     super
 
-    @dialog_heading = 'Your CA private key is encrypted.'
-    @dialog_label = 'Please input password.'
-    @password_field_label = '&Password'
+    @dialog_heading = N_('Your CA private key is encrypted.')
+    @dialog_label = N_('Please input password.')
+    @password_field_label = N_('&Password')
     @cert_generator = RMT::SSL::CertificateGenerator.new
   end
 

@@ -27,9 +27,9 @@ class RMT::MariaDB::CurrentRootPasswordDialog < RMT::Shared::InputPasswordDialog
   def initialize
     super
 
-    @dialog_heading = 'Database root password is required'
-    @dialog_label = 'Please provide the current database root password.'
-    @password_field_label = 'MariaDB root &password'
+    @dialog_heading = N_('Database root password is required')
+    @dialog_label = N_('Please provide the current database root password.')
+    @password_field_label = N_('MariaDB root &password')
   end
 
   private
