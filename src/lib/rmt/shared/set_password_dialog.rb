@@ -25,7 +25,7 @@ module RMT::Shared; end
 class RMT::Shared::SetPasswordDialog < UI::Dialog
   def initialize
     @min_password_size = 0
-    @password_confirmation_field_label = 'C&onfirm Password'
+    @password_confirmation_field_label = N_('C&onfirm Password')
     textdomain 'rmt'
   end
 

@@ -136,8 +136,7 @@ class RMT::WizardSSLPage < Yast::Client
       if @cert_generator.ca_encrypted?
         Yast::Popup.Message(_('SSL certificates already present, skipping generation.'))
       else
-        Yast::Popup.Message(_("SSL certificates already present, skipping generation.\n" \
-                              'Please consider encrypting your CA private key!'))
+        Yast::Popup.Message(_("SSL certificates already present, skipping generation.\nPlease consider encrypting your CA private key!"))
       end
 
       return finish_dialog(:next)

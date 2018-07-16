@@ -25,6 +25,8 @@ module RMT; end
 
 class RMT::Utils
   include Yast::Logger
+  extend Yast::I18n
+  textdomain 'rmt'
 
   CONFIG_FILENAME = '/etc/rmt.conf'.freeze
   DEFAULT_CONFIG = {
@@ -54,9 +56,9 @@ class RMT::Utils
 
     def write_config_file(config)
       if Yast::SCR.Write(Yast.path('.target.string'), CONFIG_FILENAME, YAML.dump(config))
-        Yast::Popup.Message('Configuration written successfully')
+        Yast::Popup.Message(_('Configuration written successfully'))
       else
-        Yast::Report.Error('Writing configuration file failed. See YaST logs for details.')
+        Yast::Report.Error(_('Writing configuration file failed. See YaST logs for details.'))
       end
 
     end

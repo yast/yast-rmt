@@ -51,11 +51,7 @@ class RMT::Execute
   rescue Cheetah::ExecutionFailed => e
     Yast.import 'Report'
     Yast::Report.Error(
-      _(
-        "Execution of command \"%<command>s\" failed.\n"\
-        "Exit code: %<exitcode>s\n"\
-        'Error output: %<stderr>s'
-      ) % {
+      _("Execution of command \"%<command>s\" failed.\nExit code: %<exitcode>s\nError output: %<stderr>s") % {
         command:  e.commands.inspect,
         exitcode: e.status.exitstatus,
         stderr:   e.stderr

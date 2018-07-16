@@ -66,8 +66,7 @@ class RMT::WizardFinalPage < Yast::Client
     Wizard.SetContents(
       _('RMT configuration summary'),
       contents,
-      _('<p>This is a list of all RMT configuration performed by this wizard.</p>'\
-        '<p>Please check for anything that is incorrect.</p>'),
+      _('<p>This is a list of all RMT configuration performed by this wizard.</p><p>Please check for anything that is incorrect.</p>'),
       true,
       true
     )
