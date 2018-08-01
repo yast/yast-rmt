@@ -27,7 +27,7 @@ module RMT::SSL; end
 class RMT::SSL::Exception < RuntimeError; end
 
 class RMT::SSL::CertificateGenerator
-  RMT_SSL_DIR = '/usr/share/rmt/ssl/'.freeze
+  RMT_SSL_DIR = '/etc/rmt/ssl/'.freeze
 
   OPENSSL_FILES = {
     ca_config: 'rmt-ca.cnf',

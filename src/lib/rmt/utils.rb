@@ -28,7 +28,7 @@ class RMT::Utils
   extend Yast::I18n
   textdomain 'rmt'
 
-  CONFIG_FILENAME = '/etc/rmt.conf'.freeze
+  CONFIG_FILENAME = '/etc/rmt/rmt.conf'.freeze
   DEFAULT_CONFIG = {
     'scc' => {
       'username' => '',
