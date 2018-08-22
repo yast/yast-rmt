@@ -30,6 +30,14 @@ docker build -t yast-rmt-image .
 docker run -it yast-rmt-image rspec
 ```
 
+### Creating the tarball for packaging
+
+To create the tarball for testing or packaing run:
+
+```
+rake package
+```
+
 ### Package
 
 The package gets built for SLE 15 and openSUSE Leap 15 here:
