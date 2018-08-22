@@ -54,7 +54,7 @@ class RMT::WizardFinalPage < Yast::Client
           Left(Heading(_('Database credentials:'))),
           Left(HBox(HSpacing(1),
                     VBox(HBox(Label(_('Username:')), Label(@config['database']['username'])),
-                         HBox(Label(_('Password:')), Label(@config['database']['password']))))),
+                         HBox(Label(_('Password:')), Label('***************'))))),
           VSpacing(1),
           Left(Label(_('Please ensure that any firewall is configured'))),
           Left(Label(_('to allow access to RMT (default ports 80 and 443)')))
