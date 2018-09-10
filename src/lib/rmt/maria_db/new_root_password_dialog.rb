@@ -28,7 +28,7 @@ class RMT::MariaDB::NewRootPasswordDialog < RMT::Shared::SetPasswordDialog
     super
 
     @dialog_heading = N_('Setting database root password')
-    @dialog_label = N_('The current MariaDB root password is empty.\nSetting a root password is required for security reasons.')
+    @dialog_label = N_('The current MariaDB root password is empty. Setting a root password is required for security reasons.')
     @password_field_label = N_('New MariaDB root &Password')
   end
 
