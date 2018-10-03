@@ -20,6 +20,11 @@ require 'rmt/maria_db/current_root_password_dialog'
 require 'rmt/maria_db/new_root_password_dialog'
 require 'rmt/execute'
 require 'ui/event_dispatcher'
+begin
+  require 'yast2/systemd/service'
+rescue LoadError
+  Yast.import 'SystemdService'
+end
 
 module RMT; end
 
@@ -147,7 +152,7 @@ class RMT::WizardMariaDBPage < Yast::Client
         HSpacing(5)
       )
     )
-    service = Yast::SystemdService.find!('mysql')
+    service = find_service('mysql')
     is_running = service.running? ? true : service.start
 
     unless is_running
@@ -191,5 +196,18 @@ class RMT::WizardMariaDBPage < Yast::Client
     end
 
     true
+  end
+
+  private
+
+  # Returns the Systemd service
+  #
+  # @note This method falls back to Yast::SystemdService if the new API (Yast2::Systemd::Service)
+  #   is not defined.
+  # @param name [String] Service's name
+  # @return [Yast2::Systemd::Service,Yast::SystemdServiceClass::Service]
+  def find_service(name)
+    service_api = defined?(Yast2::Systemd::Service) ? Yast2::Systemd::Service : Yast::SystemdService
+    service_api.find!(name)
   end
 end

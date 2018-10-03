@@ -35,7 +35,6 @@ class RMT::Wizard < Yast::Client
     Yast.import 'Sequencer'
     Yast.import 'Report'
     Yast.import 'String'
-    Yast.import 'SystemdService'
     Yast.import 'Confirm'
 
     textdomain 'rmt'

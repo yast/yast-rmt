@@ -163,15 +163,18 @@ describe RMT::WizardMariaDBPage do
   end
 
   describe '#start_database' do
-    # rubocop:disable RSpec/VerifiedDoubles
-    # Yast::SystemdService is missing the required methods a regular class would have that are required for verifying doubles to work
-    let(:service_double) { double('Yast::SystemdService') }
+    let(:service_double) do
+      klass = defined?(Yast2::Systemd::Service) ? Yast2::Systemd::Service : Yast::SystemdServiceClass::Service
+      instance_double(klass)
+    end
 
-    # rubocop:enable RSpec/VerifiedDoubles
+    let(:service_api) do
+      defined?(Yast2::Systemd::Service) ? Yast2::Systemd::Service : Yast::SystemdService
+    end
 
     before do
       expect(Yast::UI).to receive(:OpenDialog)
-      expect(Yast::SystemdService).to receive(:find!).with('mysql').and_return(service_double)
+      expect(service_api).to receive(:find!).with('mysql').and_return(service_double)
       expect(service_double).to receive(:running?).and_return(false)
     end
 
