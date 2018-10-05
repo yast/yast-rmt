@@ -20,6 +20,9 @@ require 'rmt/maria_db/current_root_password_dialog'
 require 'rmt/maria_db/new_root_password_dialog'
 require 'rmt/execute'
 require 'ui/event_dispatcher'
+
+# In yast2 4.1.3 a reorganization of the YaST systemd library was introduced. When running on an
+# older version, just fall back to the old SystemdService module (bsc#1107253).
 begin
   require 'yast2/systemd/service'
 rescue LoadError
