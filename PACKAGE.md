@@ -41,15 +41,15 @@ osc sr systemsmanagement:SCC:RMT yast2-rmt openSUSE:Factory
 
 ##### Submit maintenance updates for SLES to the Internal Build Service
 
-###### Get target codesteams where to submit
+###### Get target codestreams where to submit
 
-To checkout in which codestreams the package is currently maintaned, run:
+To check out which codestreams the package is currently maintained in, run:
 
 ```bash
 osc -A https://api.suse.de maintained yast2-rmt
 ```
 
-For a more detailed view which target codestreams are in which state checkout: [Codestream overview](https://maintenance.suse.de/maintained/?package=yast2-rmt)
+For a more detailed view which target codestreams are in which state, check out: [Codestream overview](https://maintenance.suse.de/maintained/?package=yast2-rmt)
 
 ###### Submit updates
 
@@ -76,4 +76,4 @@ Using target project 'SUSE:Maintenance'
 
 You can check the status of your requests [here](https://build.opensuse.org/package/requests/systemsmanagement:SCC:RMT/yast2-rmt) and [here](https://build.suse.de/package/requests/Devel:SCC:RMT/yast2-rmt).
 
-After your requests got accepted, they still have to pass maintenance testing before they get released to customers. You can check their progress at [maintenance.suse.de](https://maintenance.suse.de/search/?q=yast2-rmt). If you still need help, the maintenance team can be reached at [maint-coord@suse.de](maint-coord@suse.de) or #maintenance on irc.suse.de.
+After your requests have been accepted, they still have to pass maintenance testing before they are released to customers. You can check their progress at [maintenance.suse.de](https://maintenance.suse.de/search/?q=yast2-rmt). If you still need help, the maintenance team can be reached at [maint-coord@suse.de](maint-coord@suse.de) or #maintenance on irc.suse.de.
