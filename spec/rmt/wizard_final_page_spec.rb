@@ -66,7 +66,7 @@ describe RMT::WizardFinalPage do
   end
 
   describe '#run' do
-    it 'restarts rmt-server service and enters event loop' do
+    it 'enters event loop' do
       expect(final_page).to receive(:render_content)
       expect(final_page).to receive(:event_loop)
       final_page.run

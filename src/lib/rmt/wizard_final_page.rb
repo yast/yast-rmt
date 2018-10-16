@@ -19,6 +19,7 @@
 require 'ui/event_dispatcher'
 require 'rmt/ssl/certificate_generator'
 require 'rmt/utils'
+require 'y2firewall/firewalld'
 
 module RMT; end
 
@@ -54,8 +55,8 @@ class RMT::WizardFinalPage < Yast::Client
           Left(Heading(_('Database username:'))),
           Left(Label(@config['database']['username'])),
           VSpacing(1),
-          Left(Label(_('Please ensure that any firewall is configured'))),
-          Left(Label(_('to allow access to RMT (default ports 80 and 443)')))
+          Left(Heading(_('Firewall:'))),
+          Left(Label(RMT::WizardFirewallPage::FirewallWidget.new.status_label))
         )
       ),
       HStretch()
