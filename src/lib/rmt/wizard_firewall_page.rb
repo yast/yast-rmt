@@ -82,7 +82,7 @@ class RMT::WizardFirewallPage < CWM::Dialog
     end
 
     def help
-      _('For RMT to work properly, firewall ports for HTTP and HTTPS need to be opened.')
+      _('RMT requires firewall ports for HTTP and HTTPS to be open to work properly.')
     end
 
     def handle(event)
