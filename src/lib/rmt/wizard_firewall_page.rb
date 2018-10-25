@@ -38,6 +38,10 @@ class RMT::WizardFirewallPage < CWM::Dialog
     Yast::Label.CancelButton # to be consistent with the other pages
   end
 
+  def back_button
+    '' # omit the button
+  end
+
   def contents
     if firewalld.installed? && firewalld.enabled?
       HBox(

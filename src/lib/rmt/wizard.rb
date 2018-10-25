@@ -66,6 +66,7 @@ class RMT::Wizard < Yast::Client
     }
 
     Wizard.CreateDialog
+    Wizard.HideBackButton
     Wizard.SetTitleIcon('yast-rmt')
 
     Sequencer.Run(aliases, sequence)
