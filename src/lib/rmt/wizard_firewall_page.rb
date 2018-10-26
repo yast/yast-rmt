@@ -140,7 +140,7 @@ class RMT::WizardFirewallPage < CWM::Dialog
   end
 
   def write_config
-    return unless firewalld.modified?
+    return unless firewalld.installed? && firewalld.enabled? && firewalld.modified?
     Yast::Popup.Feedback(_('Please wait'), _('Writing firewall settings ...')) do
       firewalld.write
     end
