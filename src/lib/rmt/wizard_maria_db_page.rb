@@ -41,16 +41,16 @@ class RMT::WizardMariaDBPage < Yast::Client
 
   def render_content
     contents = Frame(
-      _('Database credentials'),
+      _('Database Credentials'),
       HBox(
         HSpacing(1),
         VBox(
           VSpacing(1),
           HSquash(
-            MinWidth(30, InputField(Id(:db_username), _('Database &username')))
+            MinWidth(30, InputField(Id(:db_username), _('Database &Username')))
           ),
           HSquash(
-            MinWidth(30, Password(Id(:db_password), _('Database &password')))
+            MinWidth(30, Password(Id(:db_password), _('Database &Password')))
           ),
           VSpacing(1)
         ),
@@ -90,7 +90,7 @@ class RMT::WizardMariaDBPage < Yast::Client
       new_root_password = dialog.run
 
       if !new_root_password || new_root_password.empty? || !dialog.set_root_password(new_root_password, @config['database']['host'])
-        Report.Error(_('Setting new database root password failed'))
+        Report.Error(_('Setting new database root password failed.'))
         return
       end
 

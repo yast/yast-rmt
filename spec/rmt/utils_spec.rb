@@ -47,7 +47,7 @@ describe RMT::Utils do
         YAML.dump(config)
       ).and_return(true)
 
-      expect(Yast::Popup).to receive(:Message).with('Configuration written successfully')
+      expect(Yast::Popup).to receive(:Message).with('Configuration written successfully.')
 
       described_class.write_config_file(config)
     end
