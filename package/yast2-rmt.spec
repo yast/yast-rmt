@@ -17,7 +17,7 @@
 
 
 Name:           yast2-rmt
-Version:        1.0.4
+Version:        1.1.0
 Release:        0
 BuildArch:      noarch
 
