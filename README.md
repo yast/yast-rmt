@@ -29,3 +29,8 @@ It is possible to run the specs in a Docker container:
 docker build -t yast-rmt-image .
 docker run -it yast-rmt-image rspec
 ```
+
+### Resources
+
+- [YaST Style Guide](https://en.opensuse.org/openSUSE:YaST_style_guide)
+- [YaST Localization](https://yastgithubio.readthedocs.io/en/latest/localization/)
