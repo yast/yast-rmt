@@ -21,6 +21,7 @@ require 'rmt/wizard_scc_page'
 require 'rmt/wizard_maria_db_page'
 require 'rmt/wizard_ssl_page'
 require 'rmt/wizard_rmt_service_page'
+require 'rmt/wizard_firewall_page'
 require 'rmt/wizard_final_page'
 
 module RMT
@@ -49,7 +50,8 @@ class RMT::Wizard < Yast::Client
       'step1' => -> { RMT::WizardSCCPage.new(@config).run },
       'step2' => -> { RMT::WizardMariaDBPage.new(@config).run },
       'step3' => -> { RMT::WizardSSLPage.new(@config).run },
-      'step4' => -> { RMT::WizardRMTServicePage.new(@config).run },
+      'step4' => -> { RMT::WizardFirewallPage.run },
+      'step5' => -> { RMT::WizardRMTServicePage.new(@config).run },
       'finish' => -> { RMT::WizardFinalPage.new(@config).run }
     }
 
@@ -58,15 +60,16 @@ class RMT::Wizard < Yast::Client
       'step1'   => { abort: :abort, next: 'step2' },
       'step2'   => { abort: :abort, next: 'step3' },
       'step3'   => { abort: :abort, next: 'step4' },
-      'step4'   => { abort: :abort, next: 'finish' },
+      'step4'   => { abort: :abort, next: 'step5' },
+      'step5'   => { abort: :abort, next: 'finish' },
       'finish'  => { abort: :abort, next: :next }
     }
 
-    Wizard.CreateDialog()
+    Wizard.CreateDialog
     Wizard.SetTitleIcon('yast-rmt')
 
     Sequencer.Run(aliases, sequence)
 
-    UI.CloseDialog()
+    UI.CloseDialog
   end
 end

@@ -30,9 +30,10 @@ describe RMT::Wizard do
   let(:db_page_double) { instance_double(RMT::WizardMariaDBPage) }
   let(:service_page_double) { instance_double(RMT::WizardRMTServicePage) }
   let(:ssl_page_double) { instance_double(RMT::WizardSSLPage) }
+  let(:firewall_page_double) { instance_double(RMT::WizardFirewallPage) }
   let(:final_page_double) { instance_double(RMT::WizardFinalPage) }
 
-  it 'runs and goes through the sequence' do
+  it 'runs and goes through the sequence' do # rubocop:disable RSpec/ExampleLength
     expect(Yast::Confirm).to receive(:MustBeRoot).and_return(true)
     expect(RMT::Utils).to receive(:read_config_file).and_return({})
 
@@ -50,6 +51,9 @@ describe RMT::Wizard do
 
     expect(RMT::WizardSSLPage).to receive(:new).and_return(ssl_page_double)
     expect(ssl_page_double).to receive(:run).and_return(:next)
+
+    expect(RMT::WizardFirewallPage).to receive(:new).and_return(firewall_page_double)
+    expect(firewall_page_double).to receive(:run).and_return(:next)
 
     expect(RMT::WizardFinalPage).to receive(:new).and_return(final_page_double)
     expect(final_page_double).to receive(:run).and_return(:next)
