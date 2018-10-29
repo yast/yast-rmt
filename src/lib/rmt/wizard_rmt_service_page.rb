@@ -40,7 +40,7 @@ class RMT::WizardRMTServicePage < Yast::Client
         HSpacing(1),
         VBox(
           HSquash(
-            Label(Id(:service_status), 'Service \'rmt-server\' started, sync and mirroring systemd timers active.')
+            Label(Id(:service_status), _("Service 'rmt-server' started, sync and mirroring systemd timers active."))
           )
         )
       )
