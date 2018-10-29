@@ -41,14 +41,14 @@ class RMT::WizardSSLPage < Yast::Client
     common_name = query_common_name
 
     contents = Frame(
-      _('SSL certificate generation'),
+      _('SSL Certificate Generation'),
       HBox(
         HSpacing(1),
         VBox(
           VSpacing(1),
           Left(
             HSquash(
-              MinWidth(30, InputField(Id(:common_name), _('Common name'), common_name))
+              MinWidth(30, InputField(Id(:common_name), _('Common Name'), common_name))
             )
           ),
           VSpacing(1),
@@ -68,7 +68,7 @@ class RMT::WizardSSLPage < Yast::Client
     )
 
     Wizard.SetContents(
-      _('RMT configuration step 3/5'),
+      _('RMT Configuration - Step 3/5'),
       contents,
       _('<p>This step of the wizard generates the required SSL certificates.</p>'),
       true,

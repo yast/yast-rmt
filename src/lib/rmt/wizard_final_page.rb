@@ -46,13 +46,13 @@ class RMT::WizardFinalPage < Yast::Client
           Left(Heading(_('SCC Organization:'))),
           Left(Label(@config['scc']['username'])),
           VSpacing(1),
-          Left(Heading(_('RMT config file path:'))),
+          Left(Heading(_('RMT Config File Path:'))),
           Left(Label(RMT::Utils::CONFIG_FILENAME.to_s)),
           VSpacing(1),
-          Left(Heading(_('SSL certificate path:'))),
+          Left(Heading(_('SSL Certificate Path:'))),
           Left(Label(RMT::SSL::CertificateGenerator::RMT_SSL_DIR.to_s)),
           VSpacing(1),
-          Left(Heading(_('Database username:'))),
+          Left(Heading(_('Database Username:'))),
           Left(Label(@config['database']['username'])),
           VSpacing(1),
           Left(Heading(_('Firewall:'))),
@@ -63,7 +63,7 @@ class RMT::WizardFinalPage < Yast::Client
     )
 
     Wizard.SetContents(
-      _('RMT configuration summary'),
+      _('RMT Configuration - Summary'),
       contents,
       _('<p>This is a list of all RMT configuration performed by this wizard.</p><p>Please check for anything that is incorrect.</p>'),
       true,

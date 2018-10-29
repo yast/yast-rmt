@@ -56,7 +56,7 @@ class RMT::Utils
 
     def write_config_file(config)
       if Yast::SCR.Write(Yast.path('.target.string'), CONFIG_FILENAME, YAML.dump(config))
-        Yast::Popup.Message(_('Configuration written successfully'))
+        Yast::Popup.Message(_('Configuration written successfully.'))
       else
         Yast::Report.Error(_('Writing configuration file failed. See YaST logs for details.'))
       end

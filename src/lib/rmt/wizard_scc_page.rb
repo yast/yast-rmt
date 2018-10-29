@@ -36,16 +36,16 @@ class RMT::WizardSCCPage < Yast::Client
     Wizard.SetNextButton(:next, Label.NextButton)
 
     contents = Frame(
-      _('SCC organization credentials'),
+      _('Organization Credentials'),
       HBox(
         HSpacing(1),
         VBox(
           VSpacing(1),
           HSquash(
-            MinWidth(30, InputField(Id(:scc_username), _('Organization &username')))
+            MinWidth(30, InputField(Id(:scc_username), _('Organization &Username')))
           ),
           HSquash(
-            MinWidth(30, Password(Id(:scc_password), _('Organization &password')))
+            MinWidth(30, Password(Id(:scc_password), _('Organization &Password')))
           ),
           VSpacing(1)
         ),
@@ -54,9 +54,9 @@ class RMT::WizardSCCPage < Yast::Client
     )
 
     Wizard.SetContents(
-      _('RMT configuration step 1/5'),
+      _('RMT Configuration - Step 1/5'),
       contents,
-      _("<p>Organization credentials can be found on Organization page at <a href='https://scc.suse.com/'>SUSE Customer Center</a>.</p>"),
+      _("<p>Organization credentials can be found on the Organization page at <a href='https://scc.suse.com/'>SUSE Customer Center</a>.</p>"),
       true,
       true
     )
@@ -74,8 +74,8 @@ class RMT::WizardSCCPage < Yast::Client
     @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
 
     return unless scc_credentials_valid? || Popup.AnyQuestion(
-      _('Invalid SCC credentials'),
-      _('SCC credentials are invalid. Please check the credentials.'),
+      _('Continue with invalid credentials?'),
+      _("Organization credentials are invalid.\nRMT will not be able to sync and mirror data.\n\nDo you want to continue?"),
       _('Ignore and continue'),
       _('Go back'),
       :focus_no
@@ -96,7 +96,7 @@ class RMT::WizardSCCPage < Yast::Client
         HSpacing(5),
         VBox(
           VSpacing(5),
-          Left(Label(_('Checking SCC credentials...'))),
+          Left(Label(_('Checking organization credentials...'))),
           VSpacing(5)
         ),
         HSpacing(5)
