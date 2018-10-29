@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 29 10:04:20 UTC 2018 - thutterer@suse.com
+
+- version 1.1.0
+- Add setup step to open firewall ports for HTTP and HTTPS (fate#326634)
+
+-------------------------------------------------------------------
 Wed Oct  3 14:21:13 UTC 2018 - igonzalezsosa@suse.com
 
 - version 1.0.4
