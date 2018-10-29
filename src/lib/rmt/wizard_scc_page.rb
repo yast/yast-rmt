@@ -61,8 +61,6 @@ class RMT::WizardSCCPage < Yast::Client
       true
     )
 
-    Wizard.DisableBackButton
-
     UI.ChangeWidget(Id(:scc_username), :Value, @config['scc']['username'])
     UI.ChangeWidget(Id(:scc_password), :Value, @config['scc']['password'])
   end

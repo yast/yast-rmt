@@ -30,7 +30,6 @@ describe RMT::WizardSCCPage do
       expect(Yast::Wizard).to receive(:SetAbortButton).with(:abort, Yast::Label.CancelButton)
       expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.NextButton)
       expect(Yast::Wizard).to receive(:SetContents)
-      expect(Yast::Wizard).to receive(:DisableBackButton)
 
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:scc_username), :Value, config['scc']['username'])
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:scc_password), :Value, config['scc']['password'])
