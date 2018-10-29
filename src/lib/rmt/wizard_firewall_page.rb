@@ -31,7 +31,7 @@ class RMT::WizardFirewallPage < CWM::Dialog
   end
 
   def title
-    _('RMT configuration step 4/5')
+    _('RMT Configuration - Step 4/5')
   end
 
   def abort_button

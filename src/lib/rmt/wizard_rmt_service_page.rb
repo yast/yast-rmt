@@ -47,7 +47,7 @@ class RMT::WizardRMTServicePage < Yast::Client
     )
 
     Wizard.SetContents(
-      _('RMT configuration step 5/5'),
+      _('RMT Configuration - Step 5/5'),
       contents,
       _('<p>Starting the necessary services for RMT.</p>'),
       true,

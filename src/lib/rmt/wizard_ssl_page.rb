@@ -68,7 +68,7 @@ class RMT::WizardSSLPage < Yast::Client
     )
 
     Wizard.SetContents(
-      _('RMT configuration step 3/5'),
+      _('RMT Configuration - Step 3/5'),
       contents,
       _('<p>This step of the wizard generates the required SSL certificates.</p>'),
       true,
