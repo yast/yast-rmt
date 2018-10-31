@@ -2,7 +2,7 @@
 
 ### Creating the tarball for packaging
 
-To create the tarball for testing or packaing run:
+To create the tarball for testing or packaging run:
 
 ```
 rake package

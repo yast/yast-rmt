@@ -40,7 +40,7 @@ BuildRequires:  rubygem(rspec)
 Summary:        YaST2 - Module to configure RMT
 License:        GPL-2.0 or GPL-3.0
 Group:          System/YaST
-Url:            https://github.com/SUSE/yast2-rmt
+Url:            https://github.com/yast/yast-rmt
 
 %description
 Provides the YaST module to configure the Repository Mirroring Tool (RMT) Server.
