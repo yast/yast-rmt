@@ -24,14 +24,19 @@ describe RMT::MariaDB::NewRootPasswordDialog do
   subject(:dialog) { described_class.new }
 
   describe '#set_root_password' do
+    before do
+      expect(RMT::Utils).to receive(:create_protected_file).with('SET PASSWORD FOR root@localhost=PASSWORD("password");').and_return(0)
+      expect(RMT::Utils).to receive(:remove_protected_file).with(anything).exactly(1).times
+    end
+
     it 'returns true when exit code is 0' do
       expect(RMT::Utils).to receive(:run_command).and_return(0)
-      expect(dialog.set_root_password('localhost', 'password')).to be(true)
+      expect(dialog.set_root_password('password', 'localhost')).to be(true)
     end
 
     it 'returns false when exit code is not 0' do
       expect(RMT::Utils).to receive(:run_command).and_return(1)
-      expect(dialog.set_root_password('localhost', 'password')).to be(false)
+      expect(dialog.set_root_password('password', 'localhost')).to be(false)
     end
   end
 end
