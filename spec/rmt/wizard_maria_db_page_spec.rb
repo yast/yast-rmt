@@ -191,25 +191,36 @@ describe RMT::WizardMariaDBPage do
   end
 
   describe '#create_database_and_user' do
+    before do
+      allow(RMT::Utils).to receive(:create_protected_file).with(anything).and_return('test')
+    end
+
     it "raises an error when can't create a database" do
       expect(RMT::Utils).to receive(:run_command).and_return(1)
+      expect(RMT::Utils).to receive(:remove_protected_file).with('test').exactly(1).times
       expect(Yast::Report).to receive(:Error).with('Database creation failed.')
       expect(mariadb_page.create_database_and_user).to be(false)
     end
 
     it "raises an error when can't create a user" do
       expect(RMT::Utils).to receive(:run_command).and_return(0, 1)
+      expect(RMT::Utils).to receive(:remove_protected_file).with('test').exactly(3).times
       expect(Yast::Report).to receive(:Error).with('User creation failed.')
       expect(mariadb_page.create_database_and_user).to be(false)
     end
 
     it 'returns true when there are no errors' do
       expect(RMT::Utils).to receive(:run_command).and_return(0, 0)
+      expect(RMT::Utils).to receive(:remove_protected_file).with('test').exactly(3).times
       expect(mariadb_page.create_database_and_user).to be(true)
     end
   end
 
   describe '#check_db_credentials' do
+    before do
+      allow(RMT::Utils).to receive(:create_protected_file).with(anything).and_return('test')
+    end
+
     context 'when the required configuration keys are missing in the DB section' do
       let(:config) { { 'database' => {} } }
 
@@ -218,10 +229,11 @@ describe RMT::WizardMariaDBPage do
 
     context 'when the required configuration keys are present and are invalid' do
       it 'returns false' do
+        expect(RMT::Utils).to receive(:remove_protected_file).with('test').exactly(1).times
         expect(RMT::Execute).to receive(:on_target!).with(
           ['echo', 'select 1;'],
           [
-            'mysql', '-u', config['database']['username'], "-p#{config['database']['password']}",
+            'mysql', '--defaults-extra-file=test', '-u', config['database']['username'],
             '-D', config['database']['database'], '-h', config['database']['host']
           ]
         ).and_raise(Cheetah::ExecutionFailed.new('command', 255, '', 'Something went wrong'))
@@ -231,10 +243,11 @@ describe RMT::WizardMariaDBPage do
 
     context 'when the required configuration keys are present and are valid' do
       it 'returns true' do
+        expect(RMT::Utils).to receive(:remove_protected_file).with('test').exactly(1).times
         expect(RMT::Execute).to receive(:on_target!).with(
           ['echo', 'select 1;'],
           [
-            'mysql', '-u', config['database']['username'], "-p#{config['database']['password']}",
+            'mysql', '--defaults-extra-file=test', '-u', config['database']['username'],
             '-D', config['database']['database'], '-h', config['database']['host']
           ]
         )

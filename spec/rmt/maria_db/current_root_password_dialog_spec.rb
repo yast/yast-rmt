@@ -24,6 +24,11 @@ describe RMT::MariaDB::CurrentRootPasswordDialog do
   subject(:dialog) { described_class.new }
 
   describe '#password_valid?' do
+    before do
+      expect(RMT::Utils).to receive(:create_protected_file).with("[client]\npassword=password\n").and_return(0)
+      expect(RMT::Utils).to receive(:remove_protected_file).with(anything).exactly(1).times
+    end
+
     it 'returns true when exit code is 0' do
       expect(RMT::Utils).to receive(:run_command).and_return(0)
       expect(dialog.send(:password_valid?, 'password')).to be(true)

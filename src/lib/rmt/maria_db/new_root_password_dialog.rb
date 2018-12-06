@@ -33,10 +33,16 @@ class RMT::MariaDB::NewRootPasswordDialog < RMT::Shared::SetPasswordDialog
   end
 
   def set_root_password(new_root_password, hostname)
-    RMT::Utils.run_command(
-      "echo 'SET PASSWORD FOR root@%1=PASSWORD(\"%2\");' | mysql -u root 2>/dev/null",
-      hostname,
-      new_root_password
-    ) == 0
+    command_file = RMT::Utils.create_protected_file(
+      "SET PASSWORD FOR root@#{hostname}=PASSWORD(\"#{new_root_password}\");"
+    )
+    begin
+      result = RMT::Utils.run_command(
+        "mysql -u root < #{command_file} 2>/dev/null"
+      ) == 0
+    ensure
+      RMT::Utils.remove_protected_file(command_file)
+    end
+    result
   end
 end

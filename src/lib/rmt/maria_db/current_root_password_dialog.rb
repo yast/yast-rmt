@@ -35,9 +35,14 @@ class RMT::MariaDB::CurrentRootPasswordDialog < RMT::Shared::InputPasswordDialog
   private
 
   def password_valid?(password)
-    RMT::Utils.run_command(
-      "echo 'show databases;' | mysql -u root -p%1 2>/dev/null",
-      password
-    ) == 0
+    root_pw_file = RMT::Utils.create_protected_file("[client]\npassword=#{password}\n")
+    begin
+      result = RMT::Utils.run_command(
+        "echo 'show databases;' | mysql --defaults-extra-file=#{root_pw_file} -u root 2>/dev/null"
+      ) == 0
+    ensure
+      RMT::Utils.remove_protected_file(root_pw_file)
+    end
+    result
   end
 end
