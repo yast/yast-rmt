@@ -34,6 +34,8 @@ class RMT::WizardSCCPage < Yast::Client
   def render_content
     Wizard.SetAbortButton(:abort, Label.CancelButton)
     Wizard.SetNextButton(:next, Label.NextButton)
+    Wizard.SetBackButton(:skip, Label.SkipButton)
+
 
     contents = Frame(
       _('Organization Credentials'),
@@ -51,7 +53,7 @@ class RMT::WizardSCCPage < Yast::Client
         ),
         HSpacing(1)
       )
-    )
+)
 
     Wizard.SetContents(
       _('RMT Configuration - Step 1/5'),
@@ -67,6 +69,22 @@ class RMT::WizardSCCPage < Yast::Client
 
   def abort_handler
     finish_dialog(:abort)
+  end
+
+  def skip_handler
+    @config['scc']['username'] = UI.QueryWidget(Id(:scc_username), :Value)
+    @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
+
+    return unless Popup.AnyQuestion(
+      _('Skip SCC registration?'),
+      _("This is only recommended for air-gapped environments.\nRMT will not be able to sync and mirror data.\n\nDo you want to continue?"),
+      _('Ignore and continue'),
+      _('Go back'),
+      :focus_no
+    )
+
+    RMT::Utils.write_config_file(@config)
+    finish_dialog(:next)
   end
 
   def next_handler
