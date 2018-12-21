@@ -47,19 +47,29 @@ describe RMT::WizardSCCPage do
   end
 
   describe '#skip_handler' do
+    let(:popup_params) do
+      [
+        'Skip SCC registration?',
+        "This is only recommended for air-gapped environments.\nRMT will not be able to sync and mirror data.\n\nDo you want to continue?",
+        'Ignore and continue',
+        'Go back',
+        :focus_no
+      ]
+    end
+
     context 'when cancel is clicked' do
       it 'stays on the same page' do
-        expect(Yast::Popup).to receive(:AnyQuestion).and_return(false)
+        expect(Yast::Popup).to receive(:AnyQuestion).with(*popup_params).and_return(false)
         expect(scc_page).not_to receive(:finish_dialog)
-        scc_page.next_handler
+        scc_page.skip_handler
       end
     end
 
     context 'when ignore continue is clicked' do
       it 'stays on the same page' do
-        expect(Yast::Popup).to receive(:AnyQuestion).and_return(true)
+        expect(Yast::Popup).to receive(:AnyQuestion).with(*popup_params).and_return(true)
         expect(scc_page).to receive(:finish_dialog).with(:next)
-        scc_page.next_handler
+        scc_page.skip_handler
       end
     end
   end

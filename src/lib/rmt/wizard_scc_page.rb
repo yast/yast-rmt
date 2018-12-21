@@ -53,7 +53,7 @@ class RMT::WizardSCCPage < Yast::Client
         ),
         HSpacing(1)
       )
-)
+    )
 
     Wizard.SetContents(
       _('RMT Configuration - Step 1/5'),
