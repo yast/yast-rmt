@@ -59,6 +59,7 @@ class RMT::WizardMariaDBPage < Yast::Client # rubocop:disable Metrics/ClassLengt
     )
 
     Wizard.SetNextButton(:next, Label.NextButton)
+    Wizard.HideBackButton()
     Wizard.SetContents(
       _('RMT Configuration - Step 2/5'),
       contents,

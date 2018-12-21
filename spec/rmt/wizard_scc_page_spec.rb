@@ -29,6 +29,7 @@ describe RMT::WizardSCCPage do
     it 'renders UI elements' do
       expect(Yast::Wizard).to receive(:SetAbortButton).with(:abort, Yast::Label.CancelButton)
       expect(Yast::Wizard).to receive(:SetNextButton).with(:next, Yast::Label.NextButton)
+      expect(Yast::Wizard).to receive(:SetBackButton).with(:skip, Yast::Label.SkipButton)
       expect(Yast::Wizard).to receive(:SetContents)
 
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:scc_username), :Value, config['scc']['username'])
@@ -42,6 +43,24 @@ describe RMT::WizardSCCPage do
     it 'finishes when cancel button is clicked' do
       expect(scc_page).to receive(:finish_dialog).with(:abort)
       scc_page.abort_handler
+    end
+  end
+
+  describe '#skip_handler' do
+    context 'when cancel is clicked' do
+      it 'stays on the same page' do
+        expect(Yast::Popup).to receive(:AnyQuestion).and_return(false)
+        expect(scc_page).not_to receive(:finish_dialog)
+        scc_page.next_handler
+      end
+    end
+
+    context 'when ignore continue is clicked' do
+      it 'stays on the same page' do
+        expect(Yast::Popup).to receive(:AnyQuestion).and_return(true)
+        expect(scc_page).to receive(:finish_dialog).with(:next)
+        scc_page.next_handler
+      end
     end
   end
 
