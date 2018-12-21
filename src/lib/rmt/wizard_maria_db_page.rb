@@ -31,7 +31,7 @@ end
 
 module RMT; end
 
-class RMT::WizardMariaDBPage < Yast::Client
+class RMT::WizardMariaDBPage < Yast::Client # rubocop:disable Metrics/ClassLength
   include ::UI::EventDispatcher
 
   def initialize(config)
@@ -125,13 +125,19 @@ class RMT::WizardMariaDBPage < Yast::Client
       return false if (!@config['database'][key] || @config['database'][key].empty?)
     end
 
-    RMT::Execute.on_target!(
-      ['echo', 'select 1;'],
-      [
-        'mysql', '-u', @config['database']['username'], "-p#{@config['database']['password']}",
-        '-D', @config['database']['database'], '-h', @config['database']['host']
-      ]
-    )
+    pw_file = RMT::Utils.create_protected_file("[client]\npassword=#{@config['database']['password']}\n")
+    begin
+      RMT::Execute.on_target!(
+        ['echo', 'select 1;'],
+        [
+          'mysql', "--defaults-extra-file=#{pw_file}", '-u', @config['database']['username'],
+          '-D', @config['database']['database'], '-h', @config['database']['host']
+        ]
+      )
+    ensure
+      RMT::Utils.remove_protected_file(pw_file)
+    end
+
     true
   rescue Cheetah::ExecutionFailed
     false
@@ -170,12 +176,16 @@ class RMT::WizardMariaDBPage < Yast::Client
   end
 
   def create_database_and_user
-    ret = RMT::Utils.run_command(
-      "echo 'create database if not exists %1 character set = \"utf8\"' | mysql -u root -h %2 -p%3 2>/dev/null",
-      @config['database']['database'],
-      @config['database']['host'],
-      @root_password
-    )
+    root_pw_file = RMT::Utils.create_protected_file("[client]\npassword=#{@root_password}\n")
+    begin
+      ret = RMT::Utils.run_command(
+        "echo 'create database if not exists %1 character set = \"utf8\"' | mysql --defaults-extra-file=#{root_pw_file} -u root -h %2 2>/dev/null",
+        @config['database']['database'],
+        @config['database']['host']
+      )
+    ensure
+      RMT::Utils.remove_protected_file(root_pw_file)
+    end
 
     unless ret == 0
       Report.Error(_('Database creation failed.'))
@@ -183,15 +193,20 @@ class RMT::WizardMariaDBPage < Yast::Client
     end
 
     unless @config['database']['username'] == 'root'
-      ret = RMT::Utils.run_command(
-        "echo 'grant all on %1.* to \"%2\"\@%3 identified by \"%4\"' | mysql -u root -h %5 -p%6 >/dev/null",
-        @config['database']['database'],
-        @config['database']['username'],
-        @config['database']['host'],
-        @config['database']['password'],
-        @config['database']['host'],
-        @root_password
+      root_pw_file = RMT::Utils.create_protected_file("[client]\npassword=#{@root_password}\n")
+      config = Hash[@config['database'].map { |(k, v)| [k.to_sym, v] }]
+      command_file = RMT::Utils.create_protected_file(
+        "grant all on %<database>s.* to \"%<username>s\"\@%<host>s identified by \"%<password>s\"" % config
       )
+      begin
+        ret = RMT::Utils.run_command(
+          "mysql --defaults-extra-file=#{root_pw_file} -u root -h %1 < #{command_file} >/dev/null",
+          @config['database']['host']
+        )
+      ensure
+        RMT::Utils.remove_protected_file(root_pw_file)
+        RMT::Utils.remove_protected_file(command_file)
+      end
 
       unless ret == 0
         Report.Error(_('User creation failed.'))

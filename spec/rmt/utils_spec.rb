@@ -72,6 +72,21 @@ describe RMT::Utils do
     end
   end
 
+  describe '.create_protected_file' do
+    it 'returns file path' do
+      expect(Random).to receive(:rand).and_return(42)
+      expect(File).to receive(:open).with('/etc/rmt/protected_file42000', 'w', 0o600).and_return(true)
+      expect(described_class.create_protected_file('password')).to eq('/etc/rmt/protected_file42000')
+    end
+  end
+
+  describe '.remove_protected_file' do
+    it 'calls File.delete' do
+      expect(File).to receive(:delete).and_return(true)
+      expect(described_class.remove_protected_file('test')).to eq(true)
+    end
+  end
+
   describe '.ensure_default_values' do
     let(:config) do
       {

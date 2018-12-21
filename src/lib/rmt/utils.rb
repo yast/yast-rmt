@@ -28,6 +28,7 @@ class RMT::Utils
   extend Yast::I18n
   textdomain 'rmt'
 
+  PROTECTED_FILE_PATH = '/etc/rmt/protected_file'.freeze
   CONFIG_FILENAME = '/etc/rmt.conf'.freeze
   DEFAULT_CONFIG = {
     'scc' => {
@@ -71,6 +72,18 @@ class RMT::Utils
         Yast.path('.target.bash'),
         Yast::Builtins.sformat(command, *params)
       )
+    end
+
+    def create_protected_file(password)
+      path = PROTECTED_FILE_PATH + (Random.rand * 1000).round.to_s
+      File.open(path, 'w', 0o600) do |file|
+        file.write(password)
+      end
+      path
+    end
+
+    def remove_protected_file(path)
+      File.delete(path)
     end
 
     protected
