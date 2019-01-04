@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jan  4 09:46:24 UTC 2019 - hschmidt@suse.com
+
+- Release version 1.2.0
+
+-------------------------------------------------------------------
 Thu Dec 20 21:49:28 UTC 2018 - vzepedamas@suse.com
 
 - Allow user to skip registration (bsc#1119386)
