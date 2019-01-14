@@ -58,7 +58,7 @@ class RMT::WizardSCCPage < Yast::Client
     Wizard.SetContents(
       _('RMT Configuration - Step 1/5'),
       contents,
-      _("<p>Organization credentials can be found on the Organization page at <a href='https://scc.suse.com/'>SUSE Customer Center</a>.</p>"),
+      _('<p>Organization credentials can be found on the Organization page in the SUSE Customer Center.</p><p>https://scc.suse.com</p>'),
       true,
       true
     )
