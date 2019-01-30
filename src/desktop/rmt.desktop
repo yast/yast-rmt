@@ -9,7 +9,7 @@ X-SuSE-YaST-AutoInst=
 X-SuSE-YaST-AutoInstResource=rmt
 
 Icon=yast-rmt
-Exec=/sbin/yast2 rmt
+Exec=xdg-su -c "/sbin/yast2 rmt"
 
 Name=RMT Configuration
 GenericName=RMT Configuration
