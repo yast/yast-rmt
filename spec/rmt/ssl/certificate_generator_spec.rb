@@ -79,9 +79,11 @@ describe RMT::SSL::CertificateGenerator do
 
     context 'with valid password' do
       it 'returns true' do
+        expect_any_instance_of(Cheetah::DefaultRecorder).not_to receive(:record_stdin)
         expect(RMT::Execute).to receive(:on_target!).with(
           'openssl', 'rsa', '-passin', 'stdin', '-in', ssl_files[:ca_private_key],
-          stdin: password
+          stdin: password,
+          logger: nil
         ).and_return(true)
         expect(method_call).to eq(true)
       end
@@ -89,9 +91,11 @@ describe RMT::SSL::CertificateGenerator do
 
     context 'with invalid password' do
       it 'returns false' do
+        expect_any_instance_of(Cheetah::DefaultRecorder).not_to receive(:record_stdin)
         expect(RMT::Execute).to receive(:on_target!).with(
           'openssl', 'rsa', '-passin', 'stdin', '-in', ssl_files[:ca_private_key],
-          stdin: password
+          stdin: password,
+          logger: nil
         ).and_raise(Cheetah::ExecutionFailed.new('', '', '', ''))
         expect(method_call).to eq(false)
       end
@@ -154,10 +158,12 @@ describe RMT::SSL::CertificateGenerator do
         expect(Yast::SCR).to receive(:Write).with(scr_path, ssl_files[:ca_config], ca_config)
         expect(Yast::SCR).to receive(:Write).with(scr_path, ssl_files[:server_config], server_config)
 
+        expect_any_instance_of(Cheetah::DefaultRecorder).not_to receive(:record_stdin)
         expect(RMT::Execute).to receive(:on_target!).with(
           'openssl', 'genrsa', '-aes256', '-passout', 'stdin', '-out',
           ssl_files[:ca_private_key], described_class::OPENSSL_KEY_BITS,
-          stdin: ca_password
+          stdin: ca_password,
+          logger: nil
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
@@ -169,7 +175,8 @@ describe RMT::SSL::CertificateGenerator do
           'openssl', 'req', '-x509', '-new', '-nodes',
           '-key', ssl_files[:ca_private_key], '-sha256', '-days', described_class::OPENSSL_CA_VALIDITY_DAYS,
           '-out', ssl_files[:ca_certificate], '-passin', 'stdin', '-config', ssl_files[:ca_config],
-          stdin: ca_password
+          stdin: ca_password,
+          logger: nil
         )
 
         expect(RMT::Execute).to receive(:on_target!).with(
@@ -183,7 +190,8 @@ describe RMT::SSL::CertificateGenerator do
           '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
           '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
           '-extfile', ssl_files[:server_config],
-          stdin: ca_password
+          stdin: ca_password,
+          logger: nil
         )
 
         expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:server_certificate]).and_return(server_cert)
@@ -258,13 +266,15 @@ describe RMT::SSL::CertificateGenerator do
           '-out', ssl_files[:server_csr], '-config', ssl_files[:server_config]
         )
 
+        expect_any_instance_of(Cheetah::DefaultRecorder).not_to receive(:record_stdin)
         expect(RMT::Execute).to receive(:on_target!).with(
           'openssl', 'x509', '-req', '-in', ssl_files[:server_csr],
           '-out', ssl_files[:server_certificate], '-CA', ssl_files[:ca_certificate],
           '-CAkey', ssl_files[:ca_private_key], '-passin', 'stdin', '-days', described_class::OPENSSL_SERVER_CERT_VALIDITY_DAYS,
           '-sha256', '-CAcreateserial', '-extensions', 'v3_server_sign',
           '-extfile', ssl_files[:server_config],
-          stdin: ca_password
+          stdin: ca_password,
+          logger: nil
         )
 
         expect(Yast::SCR).to receive(:Read).with(scr_path, ssl_files[:server_certificate]).and_return(server_cert)
