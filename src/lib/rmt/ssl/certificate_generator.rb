@@ -65,7 +65,8 @@ class RMT::SSL::CertificateGenerator
   def valid_password?(password)
     RMT::Execute.on_target!(
       'openssl', 'rsa', '-passin', 'stdin', '-in', @ssl_paths[:ca_private_key],
-      stdin: password
+      stdin: password,
+      logger: nil # do not log in order to securely pass password
     )
     true
   rescue Cheetah::ExecutionFailed
@@ -98,13 +99,15 @@ class RMT::SSL::CertificateGenerator
 
       RMT::Execute.on_target!(
         'openssl', 'genrsa', '-aes256', '-passout', 'stdin', '-out', @ssl_paths[:ca_private_key], OPENSSL_KEY_BITS,
-        stdin: ca_password
+        stdin: ca_password,
+        logger: nil # do not log in order to securely pass password
       )
       RMT::Execute.on_target!(
         'openssl', 'req', '-x509', '-new', '-nodes', '-key', @ssl_paths[:ca_private_key],
         '-sha256', '-days', OPENSSL_CA_VALIDITY_DAYS, '-out', @ssl_paths[:ca_certificate],
         '-passin', 'stdin', '-config', @ssl_paths[:ca_config],
-        stdin: ca_password
+        stdin: ca_password,
+        logger: nil # do not log in order to securely pass password
       )
     end
 
@@ -120,7 +123,8 @@ class RMT::SSL::CertificateGenerator
         '-CA', @ssl_paths[:ca_certificate], '-CAkey', @ssl_paths[:ca_private_key],
         '-passin', 'stdin', '-days', OPENSSL_SERVER_CERT_VALIDITY_DAYS, '-sha256',
         '-CAcreateserial', '-extensions', 'v3_server_sign', '-extfile', @ssl_paths[:server_config],
-        stdin: ca_password
+        stdin: ca_password,
+        logger: nil # do not log in order to securely pass password
       )
     else
       RMT::Execute.on_target!(
