@@ -11,6 +11,7 @@ X-SuSE-YaST-AutoInstResource=rmt
 Icon=yast-rmt
 Exec=xdg-su -c "/sbin/yast2 rmt"
 
-Name=RMT Configuration
+Name=YaST RMT Configuration
 GenericName=RMT Configuration
+Comment=Configure Repository Mirroring Tool (RMT) Server
 StartupNotify=true
