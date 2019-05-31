@@ -12,21 +12,19 @@
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
 
-# Please submit bugfixes or comments via http://bugs.opensuse.org/
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
 #
 
 
 Name:           yast2-rmt
 Version:        1.2.2
 Release:        0
-BuildArch:      noarch
+Summary:        YaST2 - Module to configure RMT
+License:        GPL-2.0-only
+Group:          System/YaST
+Url:            https://github.com/yast/yast-rmt
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
-
-Requires:       rmt-server >= 1.0.6
-Requires:       yast2
-Requires:       yast2-ruby-bindings
 
 BuildRequires:  update-desktop-files
 BuildRequires:  yast2
@@ -37,33 +35,34 @@ BuildRequires:  rubygem(yast-rake)
 # for tests
 BuildRequires:  rubygem(rspec)
 
-Summary:        YaST2 - Module to configure RMT
-License:        GPL-2.0-only
-Group:          System/YaST
-Url:            https://github.com/yast/yast-rmt
+Requires:       rmt-server >= 1.0.6
+Requires:       yast2
+Requires:       yast2-ruby-bindings
+
+BuildArch:      noarch
 
 %description
 Provides the YaST module to configure the Repository Mirroring Tool (RMT) Server.
 
 %prep
-%setup -n %{name}-%{version}
+%setup -q
 
 %check
-rake test:unit
-
-%install
-rake install DESTDIR="%{buildroot}"
-
-%files
-%defattr(-,root,root)
-%{yast_dir}/clients/*.rb
-%{yast_dir}/lib/rmt
-%{yast_desktopdir}/rmt.desktop
-%{yast_dir}/data/rmt
-
-%doc COPYING
-%doc README.md
+%yast_check
 
 %build
+
+%install
+%yast_install
+%yast_metainfo
+
+%files
+%{yast_clientdir}
+%{yast_libdir}
+%{yast_desktopdir}
+%{yast_metainfodir}
+%{yast_ydatadir}
+%license COPYING
+%doc README.md
 
 %changelog
