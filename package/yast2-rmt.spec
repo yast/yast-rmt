@@ -17,7 +17,7 @@
 
 
 Name:           yast2-rmt
-Version:        1.2.2
+Version:        1.2.3
 Release:        0
 BuildArch:      noarch
 
@@ -33,9 +33,9 @@ BuildRequires:  yast2
 BuildRequires:  yast2-devtools
 BuildRequires:  yast2-ruby-bindings
 #for install task
-BuildRequires:  rubygem(yast-rake)
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:yast-rake)
 # for tests
-BuildRequires:  rubygem(rspec)
+BuildRequires:  rubygem(%{rb_default_ruby_abi}:rspec)
 
 Summary:        YaST2 - Module to configure RMT
 License:        GPL-2.0-only
