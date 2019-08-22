@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Aug 22 11:54:47 CEST 2019 - schubi@suse.de
+
+- Using rb_default_ruby_abi tag in the spec file in order to
+  handle several ruby versions (bsc#1146403).
+- 1.2.3
+
+-------------------------------------------------------------------
 Tue Feb 12 15:51:18 UTC 2019 - skotov@suse.com
 
 - Release version 1.2.2
