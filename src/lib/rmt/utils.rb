@@ -33,7 +33,8 @@ class RMT::Utils
   DEFAULT_CONFIG = {
     'scc' => {
       'username' => '',
-      'password' => ''
+      'password' => '',
+      'sync_systems' => true
     },
     'database' => {
       'host' => 'localhost',
@@ -97,7 +98,7 @@ class RMT::Utils
       if v1.is_a?(Hash)
         v1.merge(v2, &method(:merge_hashes))
       else
-        v1 ? v1 : v2
+        v1.nil? ? v2 : v1
       end
     end
   end

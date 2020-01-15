@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jan 15 14:50:09 UTC 2020 - Ivan Kapelyukhin <ikapelyukhin@suse.com>
+
+- Version 1.3.0
+- Add support for forwarding registration data from RMT to SCC
+
+-------------------------------------------------------------------
 Thu Aug 22 11:54:47 CEST 2019 - schubi@suse.de
 
 - Using rb_default_ruby_abi tag in the spec file in order to
