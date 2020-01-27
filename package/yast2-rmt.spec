@@ -17,14 +17,14 @@
 
 
 Name:           yast2-rmt
-Version:        1.2.3
+Version:        1.3.0
 Release:        0
 BuildArch:      noarch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
 
-Requires:       rmt-server >= 1.0.6
+Requires:       rmt-server >= 2.5.0
 Requires:       yast2
 Requires:       yast2-ruby-bindings
 

@@ -115,7 +115,7 @@ describe RMT::WizardRMTServicePage do
       it 'shows confirmation' do
         expect(Yast::Service).to receive(:Enable).with('rmt-server').and_return(true)
         expect(Yast::Service).to receive(:Restart).with('rmt-server').and_return(true)
-        %w[rmt-server-sync.timer rmt-server-mirror.timer].each do |unit|
+        %w[rmt-server-sync.timer rmt-server-mirror.timer rmt-server-systems-scc-sync.timer].each do |unit|
           expect(RMT::Execute).to receive(:on_target!).with('systemctl', 'enable', unit).and_return(true)
           expect(RMT::Execute).to receive(:on_target!).with('systemctl', 'start', unit).and_return(true)
         end

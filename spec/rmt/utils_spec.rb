@@ -92,7 +92,8 @@ describe RMT::Utils do
       {
         'scc' => {
           'username' => 'user_mcuserface',
-          'password' => 'password_mcpasswordface'
+          'password' => 'password_mcpasswordface',
+          'sync_systems' => true
         }
       }
     end

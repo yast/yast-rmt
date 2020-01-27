@@ -49,6 +49,8 @@ class RMT::WizardSCCPage < Yast::Client
           HSquash(
             MinWidth(30, Password(Id(:scc_password), _('Organization &Password')))
           ),
+          VSpacing(1),
+          CheckBox(Id(:scc_sync_systems), _('Forward systems to SCC')),
           VSpacing(1)
         ),
         HSpacing(1)
@@ -65,6 +67,7 @@ class RMT::WizardSCCPage < Yast::Client
 
     UI.ChangeWidget(Id(:scc_username), :Value, @config['scc']['username'])
     UI.ChangeWidget(Id(:scc_password), :Value, @config['scc']['password'])
+    UI.ChangeWidget(Id(:scc_sync_systems), :Value, @config['scc']['sync_systems'])
   end
 
   def abort_handler
@@ -74,6 +77,7 @@ class RMT::WizardSCCPage < Yast::Client
   def skip_handler
     @config['scc']['username'] = UI.QueryWidget(Id(:scc_username), :Value)
     @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
+    @config['scc']['sync_systems'] = UI.QueryWidget(Id(:scc_sync_systems), :Value)
 
     return unless Popup.AnyQuestion(
       _('Skip SCC registration?'),
@@ -90,6 +94,7 @@ class RMT::WizardSCCPage < Yast::Client
   def next_handler
     @config['scc']['username'] = UI.QueryWidget(Id(:scc_username), :Value)
     @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
+    @config['scc']['sync_systems'] = UI.QueryWidget(Id(:scc_sync_systems), :Value)
 
     return unless scc_credentials_valid? || Popup.AnyQuestion(
       _('Continue with invalid credentials?'),
