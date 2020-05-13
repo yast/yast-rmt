@@ -44,7 +44,7 @@ class RMT::Shared::SetPasswordDialog < UI::Dialog
       return
     elsif password.size < @min_password_size
       Yast::UI.SetFocus(Id(:password))
-      Yast::Report.Error(_('Password has to have at least %<size>s characters.') % { size: @min_password_size })
+      Yast::Report.Error(_('Password has to have at least %{size} characters.') % { size: @min_password_size })
       return
     elsif password != password_confirmation
       Yast::UI.SetFocus(Id(:password_confirmation))
