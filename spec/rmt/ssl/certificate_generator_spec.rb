@@ -322,7 +322,7 @@ describe RMT::SSL::CertificateGenerator do
 
     it 'raises and exception when write failed' do
       expect(Yast::SCR).to receive(:Write).with(Yast.path('.target.string'), filename, content).and_return(false)
-      expect { generator.send(:write_file, filename, content) }.to raise_error(RMT::SSL::Exception, "Failed to write file #{filename}")
+      expect { generator.send(:write_file, filename, content) }.to raise_error(RMT::SSL::Exception, "Error writing file '#{filename}'")
     end
   end
 end

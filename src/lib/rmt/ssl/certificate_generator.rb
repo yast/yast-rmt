@@ -146,7 +146,7 @@ class RMT::SSL::CertificateGenerator
   rescue Cheetah::ExecutionFailed, RMT::SSL::Exception => e
     Yast.import 'Report'
     Yast::Report.Error(
-      _("An error occurred during SSL certificate generation:\n%<error>s\n") % {
+      _("An error occurred during SSL certificate generation:\n%{error}\n") % {
         error: (e.class == Cheetah::ExecutionFailed) ? e.stderr : e.to_s
       }
     )
@@ -164,7 +164,9 @@ class RMT::SSL::CertificateGenerator
   end
 
   def write_file(filename, content)
-    result = Yast::SCR.Write(Yast.path('.target.string'), filename, content)
-    raise RMT::SSL::Exception, _('Failed to write file %<filename>s' % { filename: filename }) unless result
+    return if Yast::SCR.Write(Yast.path('.target.string'), filename, content)
+
+    Yast.import 'Message'
+    raise RMT::SSL::Exception, Yast::Message.ErrorWritingFile(filename)
   end
 end

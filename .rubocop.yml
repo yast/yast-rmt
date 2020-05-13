@@ -31,3 +31,8 @@ RSpec/MultipleExpectations:
 
 RSpec/SubjectStub:
   Enabled: false
+
+# disabled, %<> should not be used in translatable strings
+# but otherwise it does not matter much
+Style/FormatStringToken:
+  Enabled: false
