@@ -43,7 +43,7 @@ describe RMT::SSL::ConfigGenerator do
 
     it 'contains correct common name' do
       expect(File).to receive(:read).with(template_system_location).and_return(template)
-      expect(generator.make_ca_config).to match(/CN\s*=\s*RMT Certificate Authority \(#{common_name}\)/)
+      expect(generator.make_ca_config).to match(/CN\s*=\s*RMT Certificate Authority/)
     end
 
     it 'writes to correct file' do

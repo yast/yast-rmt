@@ -26,7 +26,7 @@ class RMT::SSL::ConfigGenerator
   attr_reader :ca_common_name, :server_common_name, :dns_alt_names, :ip_alt_names
 
   def initialize(hostname, alt_names)
-    @ca_common_name = "RMT Certificate Authority (#{hostname})"
+    @ca_common_name = 'RMT Certificate Authority'
     @server_common_name = hostname
     @dns_alt_names = []
     @ip_alt_names = []
