@@ -31,6 +31,7 @@ if ENV['COVERAGE']
     add_filter '/spec/'
     add_filter '/clients/'
     track_files("#{srcdir}/**/*.rb")
+    minimum_coverage 100
   end
 
   # use coveralls for on-line code coverage reporting at Travis CI
