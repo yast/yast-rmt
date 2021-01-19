@@ -23,8 +23,6 @@ require 'yast/rspec'
 
 ENV['Y2DIR'] = File.expand_path('../../src', __FILE__)
 
-srcdir = File.expand_path('../../src', __FILE__)
-
 RSpec.configure do |config|
   config.mock_with :rspec do |mocks|
     # If you misremember a method name both in code and in tests,
@@ -36,25 +34,25 @@ RSpec.configure do |config|
   end
 end
 
-if ENV["COVERAGE"]
-  require "simplecov"
+if ENV['COVERAGE']
+  require 'simplecov'
   SimpleCov.start do
-    add_filter "/test/"
+    add_filter '/test/'
   end
 
-  src_location = File.expand_path("../src", __dir__)
+  src_location = File.expand_path('../src', __dir__)
   # track all ruby files under src
-  SimpleCov.track_files("#{src_location}/**/*.rb")
+  SimpleCov.track_files(src_location + '/**/*.rb')
 
   # additionally use the LCOV format for on-line code coverage reporting at CI
-  if ENV["CI"] || ENV["COVERAGE_LCOV"]
-    require "simplecov-lcov"
+  if ENV['CI'] || ENV['COVERAGE_LCOV']
+    require 'simplecov-lcov'
 
     SimpleCov::Formatter::LcovFormatter.config do |c|
       c.report_with_single_file = true
       # this is the default Coveralls GitHub Action location
       # https://github.com/marketplace/actions/coveralls-github-action
-      c.single_report_path = "coverage/lcov.info"
+      c.single_report_path = 'coverage/lcov.info'
     end
 
     SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
