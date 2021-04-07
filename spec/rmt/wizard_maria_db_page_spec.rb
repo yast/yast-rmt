@@ -105,6 +105,7 @@ describe RMT::WizardMariaDBPage do
       it 'new password must not be empty' do
         expect(new_password_dialog_double).to receive(:run).and_return('')
         expect(mariadb_page).not_to receive(:finish_dialog)
+        expect(Yast::Report).to receive(:Error).with('Setting new database root password failed.')
         mariadb_page.next_handler
       end
 

@@ -122,7 +122,7 @@ describe RMT::WizardSSLPage do
         expect(RMT::SSL::NewCaPasswordDialog).to receive(:new).and_return(new_ca_password_dialog_double)
         expect(new_ca_password_dialog_double).to receive(:run).and_return(nil)
         expect(generator_double).not_to receive(:generate)
-        expect(Yast::Popup).to receive(:Error).with('CA password not provided, skipping SSL keys generation.')
+        expect(Yast::Report).to receive(:Error).with('CA password not provided, skipping SSL keys generation.')
 
         expect(ssl_page).to receive(:finish_dialog).with(:next)
         ssl_page.next_handler

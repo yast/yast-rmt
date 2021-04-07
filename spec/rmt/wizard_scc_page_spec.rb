@@ -67,9 +67,10 @@ describe RMT::WizardSCCPage do
     end
 
     context 'when ignore continue is clicked' do
-      it 'stays on the same page' do
+      it 'goes to the next page' do
         expect(Yast::Popup).to receive(:AnyQuestion).with(*popup_params).and_return(true)
         expect(scc_page).to receive(:finish_dialog).with(:next)
+        expect(RMT::Utils).to receive(:write_config_file).with(config)
         scc_page.skip_handler
       end
     end
@@ -95,6 +96,7 @@ describe RMT::WizardSCCPage do
       it 'goes to the next page' do
         expect(scc_page).to receive(:scc_credentials_valid?).and_return(false)
         expect(Yast::Popup).to receive(:AnyQuestion).and_return(true)
+        expect(RMT::Utils).to receive(:write_config_file).with(config)
         expect(scc_page).to receive(:finish_dialog).with(:next)
         scc_page.next_handler
       end
