@@ -17,12 +17,12 @@
 
 
 Name:           yast2-rmt
-Version:        1.3.3
+Version:        1.3.4
 Release:        0
-BuildArch:      noarch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        %{name}-%{version}.tar.bz2
+Source99:       %{name}-rpmlintrc
 
 Requires:       rmt-server >= 2.5.0
 Requires:       yast2
@@ -41,6 +41,8 @@ Summary:        YaST2 - Module to configure RMT
 License:        GPL-2.0-only
 Group:          System/YaST
 Url:            https://github.com/yast/yast-rmt
+# ExcludeArch synced with our main dependency: rmt-server
+ExcludeArch:    %{ix86} s390
 
 %description
 Provides the YaST module to configure the Repository Mirroring Tool (RMT) Server.
