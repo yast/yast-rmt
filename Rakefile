@@ -18,6 +18,8 @@
 
 require 'yast/rake'
 
+Yast::Tasks.submit_to :sle15sp5
+
 Yast::Tasks.configuration do |conf|
   # The package does not live in the official YaST:Head OBS project
   conf.obs_project = 'systemsmanagement:SCC:RMT'
