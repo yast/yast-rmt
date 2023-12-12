@@ -127,7 +127,18 @@ class RMT::WizardSCCPage < Yast::Client
     )
 
     uri = URI('https://scc.suse.com/connect/organizations/systems')
-    req = Net::HTTP::Get.new(uri)
+    if @config['proxy'] and @config['proxy']['proxy']
+      p_uri = URI(@config['proxy']['proxy'])
+      p_user = @config['proxy']['proxy_user']
+      p_pass = @config['proxy']['proxy_password']
+      req = Net::HTTP.new(uri.host, uri.port,
+                          p_uri.host, p_uri.port,
+                          p_user, p_pass,
+                          @config['proxy']['noproxy'])
+    else
+      # if no proxy config is set, don't use a proxy or use proxy in ENV
+      req = Net::HTTP::Get.new(uri)
+    end
     req.basic_auth(@config['scc']['username'], @config['scc']['password'])
 
     res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
