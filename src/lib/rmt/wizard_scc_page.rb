@@ -26,6 +26,8 @@ module RMT; end
 class RMT::WizardSCCPage < Yast::Client
   include ::UI::EventDispatcher
 
+  YAST_RMT_USER_AGENT = 'yast2-rmt'.freeze
+
   def initialize(config)
     textdomain 'rmt'
     @config = config
@@ -126,14 +128,27 @@ class RMT::WizardSCCPage < Yast::Client
       )
     )
 
-    uri = URI('https://scc.suse.com/connect/organizations/systems')
+    uri = URI('https://scc.suse.com/connect/organizations/orders')
     req = Net::HTTP::Get.new(uri)
     req.basic_auth(@config['scc']['username'], @config['scc']['password'])
+    req['User-Agent'] = YAST_RMT_USER_AGENT
 
-    res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
+    valid_credentials = nil
+    while valid_credentials.nil?
+      begin
+        res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |http| http.request(req) }
+        valid_credentials = (res.code.to_i == 200)
+      rescue Net::ReadTimeout
+        break valid_credentials = false unless Popup.ErrorAnyQuestion(
+          _('Request Timeout'),
+          _("The request to SCC timed out.\n\nWould you like to try again?"),
+          _('Retry'), _('Cancel'), :focus_yes
+        )
+      end
+    end
 
     UI.CloseDialog
 
-    res.code.to_i == 200
+    valid_credentials
   end
 end

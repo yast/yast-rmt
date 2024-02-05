@@ -127,26 +127,73 @@ describe RMT::WizardSCCPage do
       expect(Yast::UI).to receive(:CloseDialog)
 
       expect_any_instance_of(Net::HTTP::Get).to receive(:basic_auth).with(config['scc']['username'], config['scc']['password'])
-
-      expect(Net::HTTP).to receive(:start).and_return(response_double)
-      expect(response_double).to receive(:code).and_return(response_code)
     end
 
-    let(:response_double) { instance_double(Net::HTTPResponse) }
+    context 'when the request completes without errors' do
+      before do
+        expect(Net::HTTP).to receive(:start).and_return(response_double)
+        expect(response_double).to receive(:code).and_return(response_code)
+      end
 
-    context 'when HTTP response code is 200' do
-      let(:response_code) { '200' }
+      let(:response_double) { instance_double(Net::HTTPResponse) }
 
-      it 'returns true' do
-        expect(scc_page.scc_credentials_valid?).to be(true)
+      context 'when HTTP response code is 200' do
+        let(:response_code) { '200' }
+
+        it 'returns true' do
+          expect(scc_page.scc_credentials_valid?).to be(true)
+        end
+      end
+
+      context 'when HTTP response code is not 200' do
+        let(:response_code) { '401' }
+
+        it 'returns false' do
+          expect(scc_page.scc_credentials_valid?).to be(false)
+        end
       end
     end
 
-    context 'when HTTP response code is not 200' do
-      let(:response_code) { '401' }
+    context 'when SCC times out and the user chooses not to try again' do
+      before do
+        expect(Yast::Popup).to receive(:ErrorAnyQuestion).and_return(false)
+        expect(Net::HTTP).to receive(:start).and_raise(Net::ReadTimeout)
+      end
 
-      it 'returns false' do
-        expect(scc_page.scc_credentials_valid?).to be(false)
+      context 'and the user chooses to not try again' do
+        it 'returns false' do
+          expect(scc_page.scc_credentials_valid?).to be(false)
+        end
+      end
+    end
+
+    context 'when SCC times out and the user chooses to try again' do
+      before do
+        expect(Yast::Popup).to receive(:ErrorAnyQuestion).and_return(true)
+        expect(Net::HTTP).to receive(:start).and_raise(Net::ReadTimeout)
+        expect(Net::HTTP).to receive(:start).and_return(response_double)
+      end
+
+      let(:response_double) { instance_double(Net::HTTPResponse) }
+
+      context 'when SCC responds quickly and the HTTP response code is 200' do
+        before do
+          expect(response_double).to receive(:code).and_return(200)
+        end
+
+        it 'returns true' do
+          expect(scc_page.scc_credentials_valid?).to be(true)
+        end
+      end
+
+      context 'when SCC responds quickly and the HTTP response code is not 200' do
+        before do
+          expect(response_double).to receive(:code).and_return(401)
+        end
+
+        it 'returns false' do
+          expect(scc_page.scc_credentials_valid?).to be(false)
+        end
       end
     end
   end
