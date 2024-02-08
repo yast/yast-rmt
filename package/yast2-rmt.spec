@@ -17,7 +17,7 @@
 
 
 Name:           yast2-rmt
-Version:        1.3.4
+Version:        1.3.5
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
