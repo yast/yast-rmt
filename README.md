@@ -22,13 +22,35 @@ There different ways to run the module:
 * `DISPLAY= rake run` — forces to run in ncurses mode;
 * `Y2DIR=src/ /usr/sbin/yast2 --ncurses rmt` — same as above.
 
+#### Docker Setup
+
+To run the module within a Docker container:
+
+1. Select a proper Docker container image for YaST from https://registry.opensuse.org, according to the branch, e.g.:
+
+   * On branch `master`, use `yast/head/containers_tumbleweed/yast-ruby`.
+   * On branch `SLE-15-SP6`, use `yast/sle-15/sp6/containers/yast-ruby`.
+
+2. Run the Docker container with access to the localhost network with the chosen distribution and version:
+
+   ```shell
+   docker run --network host -v "$(pwd):/usr/src/app" -w "/usr/src/app" -it registry.opensuse.org/yast/sle-15/sp6/containers/yast-ruby sh
+   ```
+
+3. On the container, install the `rmt-server` package:
+
+   ```shell
+   zypper --non-interactive install rmt-server
+   ```
+
+4. Run the YaST RMT module with `rake run` or through the other ways previously described.
+
 ### Running tests
 
 It is possible to run the specs in a Docker container:
 
-```
-docker build -t yast-rmt-image .
-docker run -it yast-rmt-image rspec
+```shell
+docker run -v "$(pwd):/usr/src/app" -w "/usr/src/app" -it registry.opensuse.org/yast/sle-15/sp6/containers/yast-ruby rake test:unit
 ```
 
 ### Resources
