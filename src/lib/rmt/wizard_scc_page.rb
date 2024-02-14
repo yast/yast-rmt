@@ -18,6 +18,7 @@
 
 require 'uri'
 require 'net/http'
+require 'rmt'
 require 'rmt/utils'
 require 'ui/event_dispatcher'
 
@@ -26,7 +27,7 @@ module RMT; end
 class RMT::WizardSCCPage < Yast::Client
   include ::UI::EventDispatcher
 
-  YAST_RMT_USER_AGENT = 'yast2-rmt'.freeze
+  YAST_RMT_USER_AGENT = "yast2-rmt/#{RMT::VERSION}".freeze
 
   def initialize(config)
     textdomain 'rmt'
