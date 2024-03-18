@@ -24,9 +24,6 @@ GEM
     rubocop-rspec (1.19.0)
       rubocop (>= 0.51.0)
     ruby-progressbar (1.9.0)
-    scc-codestyle (0.1.4)
-      rubocop (= 0.52.1)
-      rubocop-rspec (= 1.19)
     text (1.3.1)
     unicode-display_width (1.3.0)
     yast-rake (0.2.20)
@@ -38,7 +35,7 @@ PLATFORMS
 
 DEPENDENCIES
   gettext
-  scc-codestyle (~> 0.1.4)
+  rubocop-rspec (~> 1.19.0)
   yast-rake (~> 0.2.20)
 
 BUNDLED WITH

@@ -1,23 +1,15 @@
-# Rubocop version is locked in the dependencies of scc-codestyle gem.
-# The version of scc-codestyle gem is specified in the Dockerfile.
-inherit_gem:
-  scc-codestyle:
-    - default.yml
+require:
+  - rubocop-rspec
 
 inherit_from: .rubocop_todo.yml
 
 AllCops:
-  Include:
-    - Gemfile
-    - config.ru
+  NewCops: disable
   Exclude:
     - .bundle/**/*
     - vendor/**/*
     - package/*
     - Rakefile
-
-Rails:
-  Enabled: false
 
 # Impossible to satisfy these rules in specs
 RSpec/ExpectInHook:

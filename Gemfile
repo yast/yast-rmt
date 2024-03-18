@@ -4,5 +4,5 @@ gem 'yast-rake', '~> 0.2.20'
 
 group :development do
   gem 'gettext'
-  gem 'scc-codestyle', '~> 0.1.4'
+  gem 'rubocop-rspec', '~> 1.19.0'
 end
