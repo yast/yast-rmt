@@ -42,4 +42,4 @@ DEPENDENCIES
   yast-rake (~> 0.2.20)
 
 BUNDLED WITH
-   1.16.1
+   2.5.3
