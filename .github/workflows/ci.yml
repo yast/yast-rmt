@@ -53,6 +53,9 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@v2
 
+      - name: Install project dependencies
+        run: bundle install
+
       - name: Proper Rubocop Version
         run: rm /etc/alternatives/rubocop && ln -s
           /usr/lib64/ruby/gems/*/gems/rubocop-0.52.1/bin/rubocop
