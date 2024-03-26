@@ -17,7 +17,7 @@
 
 
 Name:           yast2-rmt
-Version:        1.3.4
+Version:        1.3.5
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -60,6 +60,7 @@ rake install DESTDIR="%{buildroot}"
 %defattr(-,root,root)
 %{yast_dir}/clients/*.rb
 %{yast_dir}/lib/rmt
+%{yast_dir}/lib/rmt.rb
 %{yast_desktopdir}/rmt.desktop
 %{yast_dir}/data/rmt
 

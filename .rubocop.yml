@@ -1,23 +1,114 @@
-# Rubocop version is locked in the dependencies of scc-codestyle gem.
-# The version of scc-codestyle gem is specified in the Dockerfile.
-inherit_gem:
-  scc-codestyle:
-    - default.yml
+require:
+  - rubocop-rspec
 
 inherit_from: .rubocop_todo.yml
 
 AllCops:
-  Include:
-    - Gemfile
-    - config.ru
+  NewCops: disable
   Exclude:
     - .bundle/**/*
     - vendor/**/*
     - package/*
     - Rakefile
 
-Rails:
+Layout/EmptyLineAfterGuardClause:
   Enabled: false
+
+Layout/EmptyLinesAroundMethodBody:
+  Enabled: false
+
+Layout/EmptyLines:
+  Enabled: false
+
+Layout/HashAlignment:
+  Enabled: false
+
+Layout/LineLength:
+  Enabled: true
+  Max: 160
+
+Lint/ErbNewArguments:
+  Enabled: false
+
+Lint/MissingSuper:
+  Enabled: false
+
+Lint/MixedRegexpCaptureTypes:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: true
+  Max: 80
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: true
+  Max: 160
+
+Metrics/MethodLength:
+  Enabled: true
+  Max: 50
+
+Metrics/PerceivedComplexity:
+  Enabled: true
+  Max: 12
+
+Naming/MethodParameterName:
+  Enabled: false
+
+Naming/VariableNumber:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/ClassEqualityComparison:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/ExpandPathArguments:
+  Enabled: false
+
+Style/FormatString:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/HashTransformValues:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/ParenthesesAroundCondition:
+  Enabled: false
+
+Style/RedundantBegin:
+  Enabled: false
+
+Style/RedundantParentheses:
+  Enabled: false
+
+Style/StringConcatenation:
+  Enabled: false
+
+Style/TernaryParentheses:
+  Enabled: false
+
+Style/WordArray:
+  Enabled: false
+
+RSpec/AnyInstance:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: true
+  Max: 16
 
 # Impossible to satisfy these rules in specs
 RSpec/ExpectInHook:

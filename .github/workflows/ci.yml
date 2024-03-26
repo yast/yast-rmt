@@ -53,8 +53,8 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@v2
 
-      - name: Add SCC Codestyle
-        run: gem install --no-document scc-codestyle -v 0.1.4
+      - name: Install project dependencies
+        run: bundle install
 
       - name: Proper Rubocop Version
         run: rm /etc/alternatives/rubocop && ln -s
