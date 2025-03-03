@@ -25,11 +25,12 @@ module RMT::MariaDB; end
 
 class RMT::MariaDB::CurrentRootPasswordDialog < RMT::Shared::InputPasswordDialog
   def initialize
+    textdomain 'rmt'
     super
 
-    @dialog_heading = N_('Database root password is required')
-    @dialog_label = N_('In order to setup RMT, database access is required. Please provide the current database root password.')
-    @password_field_label = N_('MariaDB root &password')
+    @dialog_heading = _('Database root password is required')
+    @dialog_label = _('In order to setup RMT, database access is required. Please provide the current database root password.')
+    @password_field_label = _('MariaDB root &password')
   end
 
   private

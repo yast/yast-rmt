@@ -25,7 +25,7 @@ module RMT::Shared; end
 class RMT::Shared::SetPasswordDialog < UI::Dialog
   def initialize
     @min_password_size = 0
-    @password_confirmation_field_label = N_('C&onfirm Password')
+    @password_confirmation_field_label = _('C&onfirm Password')
     textdomain 'rmt'
   end
 
@@ -60,19 +60,15 @@ class RMT::Shared::SetPasswordDialog < UI::Dialog
   def dialog_content
     VBox(
       VSpacing(1),
-      Heading(_(@dialog_heading)),
+      Heading(@dialog_heading),
       VSpacing(1),
       HBox(
         HSpacing(2),
         VBox(
-          Label(
-            _(
-              @dialog_label
-            )
-          ),
+          Label(@dialog_label),
           VSpacing(1),
-          MinWidth(15, Password(Id(:password), _(@password_field_label))),
-          MinWidth(15, Password(Id(:password_confirmation), _(@password_confirmation_field_label)))
+          MinWidth(15, Password(Id(:password), @password_field_label)),
+          MinWidth(15, Password(Id(:password_confirmation), @password_confirmation_field_label))
         ),
         HSpacing(2)
       ),
