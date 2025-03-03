@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar  3 11:52:35 UTC 2025 - Luis Caparroz <luis.caparroz@suse.com>
+
+- Mark strings on UI dialogs for tranlation (bsc#1127676).
+- Version 1.3.6
+
+-------------------------------------------------------------------
 Thu Feb  8 16:10:29 UTC 2024 - Luis Caparroz <luis.caparroz@suse.com>
 
 - Adds UI dialog to allow the user to retry the SCC credential validation when
