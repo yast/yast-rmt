@@ -32,7 +32,6 @@ Thu Jun  9 10:47:13 UTC 2022 - Dominique Leuenberger <dimstar@opensuse.org>
 - 1.3.4
 
 -------------------------------------------------------------------
-
 Wed Apr  7 06:57:41 UTC 2021 - Josef Reidinger <jreidinger@suse.com>
 
 - Adapted unit test to recent changes in Yast::Report (related to
