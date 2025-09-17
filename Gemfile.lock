@@ -6,7 +6,7 @@ GEM
       locale (>= 2.0.5)
       text (>= 1.3.0)
     locale (2.1.2)
-    packaging_rake_tasks (1.4.4)
+    packaging_rake_tasks (1.5.4)
       rake
     parallel (1.24.0)
     parser (3.3.0.5)
@@ -14,7 +14,7 @@ GEM
       racc
     racc (1.7.3)
     rainbow (3.1.1)
-    rake (13.0.1)
+    rake (13.3.0)
     regexp_parser (2.9.0)
     rexml (3.2.6)
     rubocop (1.28.2)
@@ -33,7 +33,7 @@ GEM
     ruby-progressbar (1.13.0)
     text (1.3.1)
     unicode-display_width (2.5.0)
-    yast-rake (0.2.20)
+    yast-rake (0.2.51)
       packaging_rake_tasks (>= 1.1.4)
       rake
 
@@ -44,7 +44,7 @@ DEPENDENCIES
   gettext
   rubocop (~> 1.28.0)
   rubocop-rspec (~> 1.19.0)
-  yast-rake (~> 0.2.20)
+  yast-rake (~> 0.2.51)
 
 BUNDLED WITH
    2.5.3
