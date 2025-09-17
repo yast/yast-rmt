@@ -1,6 +1,6 @@
 source 'https://rubygems.org/'
 
-gem 'yast-rake', '~> 0.2.20'
+gem 'yast-rake', '~> 0.2.51'
 
 group :development do
   gem 'gettext'
