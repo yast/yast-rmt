@@ -337,7 +337,7 @@ describe RMT::WizardSSLPage do
 
       expect_any_instance_of(Yast::Y2Logger).to receive(:warn).with('Failed to obtain host names: Something went wrong').exactly(2).times
 
-      expect(ssl_page.send(:query_dns_entries, 'foo')).to eq(nil)
+      expect(ssl_page.send(:query_dns_entries, 'foo')).to be_nil
     end
   end
 end

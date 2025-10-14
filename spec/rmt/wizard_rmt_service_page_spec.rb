@@ -110,6 +110,7 @@ describe RMT::WizardRMTServicePage do
       end
     end
   end
+
   describe '#rmt_service_start' do
     context 'when restarting the service succeeds' do
       it 'shows confirmation' do

@@ -43,7 +43,7 @@ describe RMT::SSL::CertificateGenerator do
       ca_files.each do |file|
         expect(File).to receive(:exist?).with(ssl_files[file]).and_return(false)
       end
-      expect(result).to eq(false)
+      expect(result).to be(false)
     end
 
     it 'returns false when all of the files are empty' do
@@ -51,7 +51,7 @@ describe RMT::SSL::CertificateGenerator do
         expect(File).to receive(:exist?).with(ssl_files[file]).and_return(true)
         expect(File).to receive(:zero?).with(ssl_files[file]).and_return(true)
       end
-      expect(result).to eq(false)
+      expect(result).to be(false)
     end
 
     it 'returns true when one the files exist and is not empty' do
@@ -59,7 +59,7 @@ describe RMT::SSL::CertificateGenerator do
       expect(File).to receive(:exist?).with(ssl_files[file]).and_return(true)
       expect(File).to receive(:zero?).with(ssl_files[file]).and_return(false)
 
-      expect(result).to eq(true)
+      expect(result).to be(true)
     end
   end
 
@@ -85,7 +85,7 @@ describe RMT::SSL::CertificateGenerator do
           stdin: password,
           logger: nil
         ).and_return(true)
-        expect(method_call).to eq(true)
+        expect(method_call).to be(true)
       end
     end
 
@@ -97,7 +97,7 @@ describe RMT::SSL::CertificateGenerator do
           stdin: password,
           logger: nil
         ).and_raise(Cheetah::ExecutionFailed.new('', '', '', ''))
-        expect(method_call).to eq(false)
+        expect(method_call).to be(false)
       end
     end
   end
@@ -114,7 +114,7 @@ describe RMT::SSL::CertificateGenerator do
       server_cert_files.each do |file|
         expect(File).to receive(:exist?).with(ssl_files[file]).and_return(false)
       end
-      expect(result).to eq(false)
+      expect(result).to be(false)
     end
 
     it 'returns false when all of the files are empty' do
@@ -122,7 +122,7 @@ describe RMT::SSL::CertificateGenerator do
         expect(File).to receive(:exist?).with(ssl_files[file]).and_return(true)
         expect(File).to receive(:zero?).with(ssl_files[file]).and_return(true)
       end
-      expect(result).to eq(false)
+      expect(result).to be(false)
     end
 
     it 'returns true when one the files exist and is not empty' do
@@ -130,7 +130,7 @@ describe RMT::SSL::CertificateGenerator do
       expect(File).to receive(:exist?).with(ssl_files[file]).and_return(true)
       expect(File).to receive(:zero?).with(ssl_files[file]).and_return(false)
 
-      expect(result).to eq(true)
+      expect(result).to be(true)
     end
   end
 
@@ -148,7 +148,7 @@ describe RMT::SSL::CertificateGenerator do
     context 'when CA is not yet generated' do
       it 'generates the CA and server certificates' do
         expect(RMT::SSL::ConfigGenerator).to receive(:new).and_return(config_generator_double)
-        expect(generator).to receive(:ca_present?).and_return(false).exactly(2).times
+        expect(generator).to receive(:ca_present?).and_return(false).twice
         expect(config_generator_double).to receive(:make_ca_config).and_return(ca_config)
         expect(config_generator_double).to receive(:make_server_config).and_return(server_config)
 
@@ -160,7 +160,7 @@ describe RMT::SSL::CertificateGenerator do
 
         expect_any_instance_of(Cheetah::DefaultRecorder).not_to receive(:record_stdin)
         expect(RMT::Execute).to receive(:on_target!).with(
-          'openssl', 'genpkey', '-algorithm RSA', '-aes256 -out', ssl_files[:ca_private_key], '-pkeyopt rsa_keygen_bits:', described_class::OPENSSL_KEY_BITS,
+          'openssl', 'genpkey', '-algorithm RSA', '-aes256 -out', ssl_files[:ca_private_key], "-pkeyopt rsa_keygen_bits:#{described_class::OPENSSL_KEY_BITS}",
           stdin: ca_password,
           logger: nil
         )
@@ -209,7 +209,7 @@ describe RMT::SSL::CertificateGenerator do
 
       it 'generates only the server certificate' do
         expect(RMT::SSL::ConfigGenerator).to receive(:new).and_return(config_generator_double)
-        expect(generator).to receive(:ca_present?).and_return(true).exactly(2).times
+        expect(generator).to receive(:ca_present?).and_return(true).twice
         expect(config_generator_double).to receive(:make_server_config).and_return(server_config)
 
         expect(generator).to receive(:create_files)
@@ -248,7 +248,7 @@ describe RMT::SSL::CertificateGenerator do
     context 'when CA is already present' do
       it 'generates only the server certificate' do
         expect(RMT::SSL::ConfigGenerator).to receive(:new).and_return(config_generator_double)
-        expect(generator).to receive(:ca_present?).and_return(true).exactly(2).times
+        expect(generator).to receive(:ca_present?).and_return(true).twice
         expect(config_generator_double).to receive(:make_server_config).and_return(server_config)
 
         expect(generator).to receive(:create_files)

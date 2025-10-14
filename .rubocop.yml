@@ -123,6 +123,24 @@ RSpec/MultipleExpectations:
 RSpec/SubjectStub:
   Enabled: false
 
+RSpect/StubbedMock:
+  Enabled: false
+
+RSpec/ReceiveCounts:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/ContextWording:
+  Enabled: false
+
+RSpec/IndexedLet:
+  Enabled: false
+
+RSpec/RepeatedExampleGroupDescription:
+  Enabled: false
+
 # disabled, %<> should not be used in translatable strings
 # but otherwise it does not matter much
 Style/FormatStringToken:

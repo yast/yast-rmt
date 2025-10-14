@@ -83,7 +83,7 @@ describe RMT::Utils do
   describe '.remove_protected_file' do
     it 'calls File.delete' do
       expect(File).to receive(:delete).and_return(true)
-      expect(described_class.remove_protected_file('test')).to eq(true)
+      expect(described_class.remove_protected_file('test')).to be(true)
     end
   end
 
