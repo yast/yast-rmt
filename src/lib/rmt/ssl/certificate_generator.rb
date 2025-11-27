@@ -98,7 +98,8 @@ class RMT::SSL::CertificateGenerator
       Yast::SCR.Write(Yast.path('.target.string'), @ssl_paths[:ca_config], config_generator.make_ca_config)
 
       RMT::Execute.on_target!(
-        'openssl', 'genpkey', '-algorithm RSA', '-aes256 -out', @ssl_paths[:ca_private_key], "-pkeyopt rsa_keygen_bits:#{OPENSSL_KEY_BITS} >/dev/null 2>&1",
+        'openssl', 'genpkey', '-algorithm', 'RSA', '-pass', 'stdin', '-aes256',
+        '-out', @ssl_paths[:ca_private_key], '-pkeyopt', "rsa_keygen_bits: #{OPENSSL_KEY_BITS}",
         stdin: ca_password,
         logger: nil # do not log in order to securely pass password
       )
