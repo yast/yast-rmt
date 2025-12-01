@@ -59,6 +59,7 @@ describe RMT::Shared::SetPasswordDialog do
 
     context 'when the password too short' do
       before { dialog.instance_variable_set(:@min_password_size, 4) }
+
       let(:password1) { '12' }
       let(:password2) { '12' }
 

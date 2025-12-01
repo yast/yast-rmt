@@ -163,7 +163,7 @@ class RMT::WizardMariaDBPage < Yast::Client # rubocop:disable Metrics/ClassLengt
       )
     )
     service = find_service('mysql')
-    is_running = service.running? ? true : service.start
+    is_running = service.running? || service.start
 
     unless is_running
       Report.Error(_('Cannot start database service.'))
