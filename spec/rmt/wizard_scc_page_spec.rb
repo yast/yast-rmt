@@ -23,7 +23,7 @@ Yast.import 'Wizard'
 describe RMT::WizardSCCPage do
   subject(:scc_page) { described_class.new(config) }
 
-  let(:config) { { 'scc' => { 'username' => 'user_mcuserface', 'password' => 'test', 'sync_systems' => false } } }
+  let(:config) { { 'scc' => { 'username' => 'user_mcuserface', 'password' => 'test', 'sync_systems' => true } } }
 
   describe '#render_content' do
     it 'renders UI elements' do

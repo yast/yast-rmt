@@ -77,7 +77,7 @@ class RMT::WizardSCCPage < Yast::Client
   def skip_handler
     @config['scc']['username'] = UI.QueryWidget(Id(:scc_username), :Value)
     @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
-    @config['scc']['sync_systems'] = false
+    @config['scc']['sync_systems'] = true
 
     return unless Popup.AnyQuestion(
       _('Skip SCC registration?'),
@@ -94,7 +94,7 @@ class RMT::WizardSCCPage < Yast::Client
   def next_handler
     @config['scc']['username'] = UI.QueryWidget(Id(:scc_username), :Value)
     @config['scc']['password'] = UI.QueryWidget(Id(:scc_password), :Value)
-    @config['scc']['sync_systems'] = false
+    @config['scc']['sync_systems'] = true
 
     return unless scc_credentials_valid? || Popup.AnyQuestion(
       _('Continue with invalid credentials?'),
