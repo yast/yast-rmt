@@ -34,7 +34,6 @@ describe RMT::WizardSCCPage do
 
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:scc_username), :Value, config['scc']['username'])
       expect(Yast::UI).to receive(:ChangeWidget).with(Id(:scc_password), :Value, config['scc']['password'])
-      expect(Yast::UI).to receive(:ChangeWidget).with(Id(:scc_sync_systems), :Value, config['scc']['sync_systems'])
 
       scc_page.render_content
     end
@@ -80,7 +79,6 @@ describe RMT::WizardSCCPage do
     before do
       expect(Yast::UI).to receive(:QueryWidget).with(Id(:scc_username), :Value)
       expect(Yast::UI).to receive(:QueryWidget).with(Id(:scc_password), :Value)
-      expect(Yast::UI).to receive(:QueryWidget).with(Id(:scc_sync_systems), :Value)
     end
 
     context "when SCC credentials aren't valid and the error is not ignored" do
