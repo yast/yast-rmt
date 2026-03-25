@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Mar 10 09:00:28 UTC 2026 - Michal Filka <mfilka@suse.com>
+
+- jsc#PED-14507
+  - Removed reference to update-desktop-files from spec file 
+  - 1.3.8
+-------------------------------------------------------------------
 Mon Sep  1 10:06:04 UTC 2025 - Natnael Getahun <natnael.getahun@suse.com>
 
 - Version 1.3.7 
