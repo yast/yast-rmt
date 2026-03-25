@@ -17,7 +17,7 @@
 
 
 Name:           yast2-rmt
-Version:        1.3.7
+Version:        1.3.8
 Release:        0
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -28,7 +28,6 @@ Requires:       rmt-server >= 2.5.0
 Requires:       yast2
 Requires:       yast2-ruby-bindings
 
-BuildRequires:  update-desktop-files
 BuildRequires:  yast2
 BuildRequires:  yast2-devtools
 BuildRequires:  yast2-ruby-bindings
