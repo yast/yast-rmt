@@ -49,6 +49,10 @@ class RMT::SSL::ConfigGenerator
 
   def make_server_config
     template = File.read(File.join(@templates_dir, 'rmt-server-cert.cnf.erb'))
-    ERB.new(template, trim_mode: '<>').result(binding)
+    if RUBY_VERSION >= '2.6'
+      ERB.new(template, trim_mode: '<>').result(binding)
+    else
+      ERB.new(template, nil, '<>').result(binding)
+    end
   end
 end
