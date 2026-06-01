@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
 Mon Sep  1 10:06:04 UTC 2025 - Natnael Getahun <natnael.getahun@suse.com>
 
+- Fix OpenSSL genpkey parameter formatting for SSL certificate generation (bsc#1266671)
 - Ensure compatibility with FIPS mode (bsc#1235462)
 - Remove 'Forward systems to SCC' checkbox (scc-262)
 - Fix ERB initialization for older Ruby versions (bsc#1146403)

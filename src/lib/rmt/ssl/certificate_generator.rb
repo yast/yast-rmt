@@ -99,7 +99,7 @@ class RMT::SSL::CertificateGenerator
 
       RMT::Execute.on_target!(
         'openssl', 'genpkey', '-algorithm', 'RSA', '-pass', 'stdin', '-aes256',
-        '-out', @ssl_paths[:ca_private_key], '-pkeyopt', "rsa_keygen_bits: #{OPENSSL_KEY_BITS}",
+        '-out', @ssl_paths[:ca_private_key], '-pkeyopt', "rsa_keygen_bits:#{OPENSSL_KEY_BITS}",
         stdin: ca_password,
         logger: nil # do not log in order to securely pass password
       )
