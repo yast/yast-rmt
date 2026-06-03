@@ -161,7 +161,7 @@ describe RMT::SSL::CertificateGenerator do
         expect_any_instance_of(Cheetah::DefaultRecorder).not_to receive(:record_stdin)
         expect(RMT::Execute).to receive(:on_target!).with(
           'openssl', 'genpkey', '-algorithm', 'RSA', '-pass', 'stdin', '-aes256',
-          '-out', ssl_files[:ca_private_key], '-pkeyopt', "rsa_keygen_bits: #{described_class::OPENSSL_KEY_BITS}",
+          '-out', ssl_files[:ca_private_key], '-pkeyopt', "rsa_keygen_bits:#{described_class::OPENSSL_KEY_BITS}",
           stdin: ca_password,
           logger: nil
         )
